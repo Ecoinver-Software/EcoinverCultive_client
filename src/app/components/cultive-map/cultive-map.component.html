@@ -1,17 +1,12 @@
-<!-- src/app/components/cultive-map/cultive-map.component.html -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
-  <div class="max-w-7xl mx-auto space-y-4">
+  <div class="container mx-auto space-y-4">
 
-    <!-- ======================= -->
-    <!-- Selector de Género -->
-    <!-- ======================= -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <!-- Selector de Género (Full responsive) -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-slide-up">
       <!-- Header -->
-      <div
-        class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
-      >
+      <div class="px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 theme-transition animate-fade-in">
         <div class="flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 dark:text-indigo-400" fill="none"
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 dark:text-indigo-400 transition-transform duration-500 group-hover:rotate-360" fill="none"
                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="8" y1="6" x2="21" y2="6" />
             <line x1="8" y1="12" x2="21" y2="12" />
@@ -22,24 +17,21 @@
           </svg>
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Cultivos</h2>
         </div>
-        <div class="inline-flex bg-gray-100 dark:bg-gray-700 rounded-md p-1 text-sm">
-          <button class="px-3 py-1 rounded-md bg-indigo-600 text-white font-medium shadow hover:bg-indigo-700 transition">
+        <div class="inline-flex bg-gray-100 dark:bg-gray-700 rounded-md p-1 text-sm animate-slide-in-right">
+          <button class="px-3 py-1 rounded-md bg-indigo-600 text-white font-medium shadow hover:bg-indigo-700 transition-transform duration-300 hover:scale-105">
             Todos
           </button>
-          <button class="px-3 py-1 rounded-md text-gray-600 dark:text-gray-300">
-            Seleccionados(0)
+          <button class="px-3 py-1 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/70 transition-transform duration-300 hover:scale-105">
+            Seleccionados (0)
           </button>
         </div>
       </div>
 
-      <!-- Filtros -->
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Búsqueda -->
-        <div class="relative">
-          <svg xmlns="http://www.w3.org/2000/svg"
-               class="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500"
-               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-               stroke-linejoin="round">
+      <!-- Filtros mejorados -->
+      <div class="px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Búsqueda mejorada -->
+        <div class="relative group animate-fade-in">
+          <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 group-focus-within:text-indigo-500 transition-colors duration-300 group-hover:scale-110" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -47,60 +39,58 @@
             type="text"
             [(ngModel)]="texto"
             placeholder="Buscar cultivos..."
-            class="pl-10 pr-3 h-10 w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white"
+            class="pl-10 pr-3 h-10 w-full text-sm bg-gray-50 dark:text-white dark:bg-gray-700/70 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300 hover:border-indigo-300 dark:hover:border-indigo-500 focus:scale-[1.01]"
           />
         </div>
-        <!-- Select de familia y botón limpiar -->
-        <div class="flex gap-2">
-          <div class="relative w-full">
-            <select
-              [(ngModel)]="familiaSeleccionada"
-              class="appearance-none h-10 w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-sm text-gray-900 dark:text-white"
-            >
-              <option value="todas">Todas las familias</option>
-              <option *ngFor="let fam of family" [value]="fam.familia">
-                {{ fam.familia }}
-              </option>
-            </select>
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 class="absolute right-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500 pointer-events-none"
-                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
+        <!-- Select de familia -->
+        <div class="relative group animate-fade-in">
+          <select
+            [(ngModel)]="familiaSeleccionada"
+            class="appearance-none h-10 w-full dark:text-gray-300 bg-gray-50 dark:bg-gray-700/70 border border-gray-200 dark:border-gray-600 rounded-lg pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent text-sm transition-all duration-300 hover:border-indigo-300 dark:hover:border-indigo-500 focus:scale-[1.01]"
+          >
+            <option value="todas">Todas las familias</option>
+            <option *ngFor="let fam of family" [value]="fam.familia">{{ fam.familia }}</option>
+          </select>
+          <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 group-focus-within:text-indigo-500 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 pointer-events-none transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <!-- Botón limpiar filtros -->
+        <div class="flex items-center animate-fade-in">
           <button
             (click)="texto=''; familiaSeleccionada='todas'"
-            class="h-10 px-4 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition text-gray-800 dark:text-white"
+            class="h-10 px-4 text-sm border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-300 hover:scale-[1.03] hover:shadow-md"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
             Limpiar filtros
           </button>
         </div>
       </div>
 
       <!-- Listado de Géneros -->
-      <div class="max-h-56 overflow-y-auto">
-        <div class="px-6 py-4 space-y-6">
-          <ng-container *ngFor="let fam of busquedaFamilia">
-            <div>
-              <h3 class="text-xs font-medium text-gray-500 dark:text-gray-300 mb-2">
-                {{ fam.familia }}
-              </h3>
-              <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
-                <ng-container *ngFor="let gen of fam.nombreGenero">
-                  <div class="flex items-center">
+      <div class="max-h-72 sm:max-h-56 overflow-y-auto animate-fade-in">
+        <div class="px-4 sm:px-6 lg:px-8 py-4 space-y-6">
+          <ng-container *ngFor="let fam of busquedaFamilia; let i = index">
+            <div [style]="{'animation-delay': (i * 100) + 'ms'}" class="animate-slide-up">
+              <h3 class="text-xs font-medium text-gray-500 dark:text-gray-300 mb-2">{{ fam.familia }}</h3>
+              <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <ng-container *ngFor="let gen of fam.nombreGenero; let j = index">
+                  <div [style]="{'animation-delay': ((i * 100) + (j * 50)) + 'ms'}" class="flex items-center p-2 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-md animate-fade-in">
                     <input
                       type="radio"
                       name="genero"
                       [id]="'genero-'+gen.id"
                       [value]="gen.id"
                       (change)="onGeneroSelect(gen.id)"
-                      class="form-radio h-4 w-4 text-indigo-600 dark:text-indigo-400"
+                      class="form-radio h-4 w-4 text-indigo-600 dark:text-indigo-400 rounded transition-transform duration-300 hover:scale-125"
                     />
-                    <label
-                      [for]="'genero-'+gen.id"
-                      class="ml-2 text-sm text-gray-700 dark:text-white truncate"
-                    >
+                    <label [for]="'genero-'+gen.id" class="ml-2 text-sm text-gray-700 dark:text-gray-300 truncate transition-colors duration-300 hover:text-indigo-600 dark:hover:text-indigo-400">
                       {{ gen.nombre }}
                     </label>
                   </div>
@@ -111,22 +101,20 @@
         </div>
       </div>
 
-      <!-- Footer del selector -->
-      <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs text-gray-500 dark:text-gray-300">
+      <!-- Footer -->
+      <div class="px-4 sm:px-6 lg:px-8 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs text-gray-500 dark:text-gray-300 animate-slide-in-up">
         Filtrando por:
-        <span class="text-indigo-600 dark:text-indigo-400">
+        <span class="text-indigo-600 dark:text-indigo-400 font-medium">
           {{ familiaSeleccionada || 'Ningún filtro' }}
         </span>
       </div>
     </div>
 
-    <!-- ======================= -->
-    <!-- Panel de Gráficos -->
-    <!-- ======================= -->
+    <!-- Panel de Gráficos (Full responsive) -->
     <div *ngIf="superficieTotal > 0" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mt-6">
 
       <!-- Controles de Vista y Agrupación -->
-      <div class="flex justify-between mb-4">
+      <div class="flex flex-col sm:flex-row justify-between mb-4 gap-4">
         <!-- Pestañas de Vista -->
         <div class="inline-flex bg-gray-100 dark:bg-gray-700 rounded-md p-1 text-sm">
           <button
@@ -146,63 +134,48 @@
         </div>
 
         <!-- Botones de Agrupación / Desagrupar -->
-        <div class="inline-flex bg-gray-100 dark:bg-gray-700 rounded-md p-1 text-sm">
+        <div class="inline-flex bg-gray-100 dark:bg-gray-700 rounded-md p-1 text-sm overflow-x-auto">
           <button
             (click)="groupBy='variedad'; updateChart()"
-            class="px-3 py-1 rounded-md focus:outline-none"
-            [ngClass]="{
-              'bg-indigo-600 text-white': groupBy==='variedad',
-              'text-gray-600 dark:text-gray-300': groupBy!=='variedad'
-            }"
+            class="px-3 py-1 rounded-md whitespace-nowrap focus:outline-none"
+            [ngClass]="{ 'bg-indigo-600 text-white': groupBy==='variedad', 'text-gray-600 dark:text-gray-300': groupBy!=='variedad' }"
           >
             Variedad
           </button>
           <button
             (click)="groupBy='agricultor'; updateChart()"
-            class="px-3 py-1 rounded-md focus:outline-none"
-            [ngClass]="{
-              'bg-indigo-600 text-white': groupBy==='agricultor',
-              'text-gray-600 dark:text-gray-300': groupBy!=='agricultor'
-            }"
+            class="px-3 py-1 rounded-md whitespace-nowrap focus:outline-none"
+            [ngClass]="{ 'bg-indigo-600 text-white': groupBy==='agricultor', 'text-gray-600 dark:text-gray-300': groupBy!=='agricultor' }"
           >
             Agricultor
           </button>
           <button
             (click)="groupBy='individual'; updateChart()"
-            class="px-3 py-1 rounded-md focus:outline-none"
-            [ngClass]="{
-              'bg-indigo-600 text-white': groupBy==='individual',
-              'text-gray-600 dark:text-gray-300': groupBy!=='individual'
-            }"
+            class="px-3 py-1 rounded-md whitespace-nowrap focus:outline-none"
+            [ngClass]="{ 'bg-indigo-600 text-white': groupBy==='individual', 'text-gray-600 dark:text-gray-300': groupBy!=='individual' }"
           >
             Cultivo
           </button>
           <button
             (click)="groupBy='tecnico'; updateChart()"
-            class="px-3 py-1 rounded-md focus:outline-none"
-            [ngClass]="{
-              'bg-indigo-600 text-white': groupBy==='tecnico',
-              'text-gray-600 dark:text-gray-300': groupBy!=='tecnico'
-            }"
+            class="px-3 py-1 rounded-md whitespace-nowrap focus:outline-none"
+            [ngClass]="{ 'bg-indigo-600 text-white': groupBy==='tecnico', 'text-gray-600 dark:text-gray-300': groupBy!=='tecnico' }"
           >
             Técnico
           </button>
           <button
             (click)="groupBy='provincia'; updateChart()"
-            class="px-3 py-1 rounded-md focus:outline-none"
-            [ngClass]="{
-              'bg-indigo-600 text-white': groupBy==='provincia',
-              'text-gray-600 dark:text-gray-300': groupBy!=='provincia'
-            }"
+            class="px-3 py-1 rounded-md whitespace-nowrap focus:outline-none"
+            [ngClass]="{ 'bg-indigo-600 text-white': groupBy==='provincia', 'text-gray-600 dark:text-gray-300': groupBy!=='provincia' }"
           >
             Provincia
           </button>
         </div>
       </div>
 
-      <!-- Contenedores ECharts -->
-      <div echarts [options]="optionsPie" class="w-full h-80" *ngIf="view==='pie'"></div>
-      <div echarts [options]="optionsTree" class="w-full h-80" *ngIf="view==='tree'"></div>
+      <!-- Contenedores ECharts responsivos -->
+      <div echarts [options]="optionsPie" class="w-full h-64 sm:h-80" *ngIf="view==='pie'"></div>
+      <div echarts [options]="optionsTree" class="w-full h-64 sm:h-80" *ngIf="view==='tree'"></div>
     </div>
 
   </div>
