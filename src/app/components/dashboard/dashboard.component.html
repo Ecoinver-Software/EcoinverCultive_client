@@ -1,15 +1,16 @@
-<!-- dashboard.component.html - Versión responsiva completa -->
+
+<!-- dashboard.component.html - Versión mejorada con animaciones y diseño renovado -->
 <div
-  class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-2 sm:p-4 md:p-6">
+  class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-2 sm:p-4 md:p-6 theme-transition">
   <div class="max-w-full mx-auto space-y-4 sm:space-y-6">
     <!-- Header con logo y título -->
     <div
-      class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-4 md:p-6">
+      class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-3 sm:p-4 md:p-6 transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px] animate-fade-in">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <div class="flex items-center gap-2 sm:gap-3">
           <div
-            class="flex-shrink-0 w-10 sm:w-12 h-10 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
-            <svg class="w-6 sm:w-7 h-6 sm:h-7 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none"
+            class="flex-shrink-0 w-10 sm:w-12 h-10 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center transition-transform duration-300 hover:scale-110 hover:rotate-3 group">
+            <svg class="w-6 sm:w-7 h-6 sm:h-7 text-indigo-600 dark:text-indigo-400 transition-transform duration-500 group-hover:rotate-[360deg]" viewBox="0 0 24 24" fill="none"
               xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M3 13.125C3 12.504 3.504 12 4.125 12H6.375C6.996 12 7.5 12.504 7.5 13.125V19.875C7.5 20.496 6.996 21 6.375 21H4.125C3.504 21 3 20.496 3 19.875V13.125Z"
@@ -23,15 +24,14 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Analytics Dashboard</h1>
-            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Monitoreo de rendimiento y proyecciones</p>
+            <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white animate-fade-in">Analytics Dashboard</h1>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 animate-slide-in-right" style="animation-delay: 100ms;">Monitoreo de rendimiento y proyecciones</p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2 w-full sm:w-auto mt-3 sm:mt-0">
-
+        <div class="flex items-center gap-2 w-full sm:w-auto mt-3 sm:mt-0 animate-slide-in-right" style="animation-delay: 200ms;">
           <button
-            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-indigo-100 hover:text-indigo-600 dark:hover:bg-indigo-900/30 dark:hover:text-indigo-400 transition-colors">
+            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-indigo-100 hover:text-indigo-600 dark:hover:bg-indigo-900/30 dark:hover:text-indigo-400 transition-all duration-300 hover:scale-110">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1m-4-4-4 4m0 0-4-4m4 4V4"></path>
@@ -41,59 +41,72 @@
       </div>
     </div>
 
-    <div class="container-fluid w-full mx-auto">
-      <!-- Panel de Géneros de Cultivos -->
+    <div class="w-full mx-auto">
+      <!-- Panel de Géneros de Cultivos Rediseñado -->
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-md w-full mx-auto">
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px] animate-slide-up">
+        <!-- Encabezado con título y selector de vista -->
         <div
-          class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-          <div class="flex items-center gap-2">
-            <!-- Icono de lista -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 dark:text-indigo-400"
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <line x1="8" y1="6" x2="21" y2="6"></line>
-              <line x1="8" y1="12" x2="21" y2="12"></line>
-              <line x1="8" y1="18" x2="21" y2="18"></line>
-              <line x1="3" y1="6" x2="3.01" y2="6"></line>
-              <line x1="3" y1="12" x2="3.01" y2="12"></line>
-              <line x1="3" y1="18" x2="3.01" y2="18"></line>
-            </svg>
-            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Géneros de Cultivos</h2>
+          class="px-5 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/80">
+          <div class="flex items-center gap-3">
+            <div
+              class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg transition-transform duration-300 hover:scale-110 hover:rotate-3 group">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 dark:text-indigo-400 transition-transform duration-500 group-hover:rotate-[360deg]"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white animate-fade-in">Géneros de Cultivos</h2>
+            </div>
           </div>
-          <div class="flex items-center gap-2 w-full sm:w-auto">
-            <!-- Tabs -->
-            <div class="bg-gray-100 dark:bg-gray-700 rounded-md p-0.5 flex text-xs w-full sm:w-auto">
+
+          <div class="flex items-center gap-2 w-full sm:w-auto animate-slide-in-right">
+            <!-- Tabs mejorados -->
+            <div
+              class="bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 flex text-xs w-full sm:w-auto shadow-sm">
               <button
-                class="py-1 px-3 rounded-md bg-white dark:bg-gray-600 shadow-sm font-medium dark:text-white flex-1 sm:flex-none">Todos</button>
+                class="py-1.5 px-4 rounded-md transition-all duration-200 hover:scale-105 bg-white dark:bg-gray-600 shadow-sm font-medium dark:text-white flex-1 sm:flex-none">Todos</button>
               <button
-                class="py-1 px-3 rounded-md text-gray-600 dark:text-gray-300 flex-1 sm:flex-none">Seleccionados({{seleccionados}})</button>
+                class="py-1.5 px-4 rounded-md transition-all duration-200 hover:scale-105 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/70 flex-1 sm:flex-none">Seleccionados
+                <span class="inline-flex items-center justify-center ml-1 w-5 h-5 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 transition-transform duration-300 animate-pulse">{{seleccionados}}</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- NUEVA SECCIÓN: Botones para seleccionar tipo de gráfica -->
-        <div class="px-3 sm:px-6 py-3 border-b border-gray-200 dark:border-gray-700">
-          <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+        <!-- NUEVA SECCIÓN: Botones para seleccionar tipo de gráfica con estilo mejorado -->
+        <div class="px-5 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex flex-wrap gap-2 justify-center sm:justify-start animate-fade-in" style="animation-delay: 200ms;">
             <button (click)="setChartType('commercial')"
-              class="py-2 px-4 rounded-md text-sm font-medium flex items-center gap-2" [ngClass]="{
+              class="py-2 px-4 rounded-md text-sm font-medium flex items-center gap-2 transition-all duration-300 hover:scale-105 shadow-sm" 
+              [ngClass]="{
                 'bg-indigo-600 text-white hover:bg-indigo-700': chartType === 'commercial',
                 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600': chartType !== 'commercial'
               }">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="transition-transform duration-300 group-hover:rotate-3">
                 <path d="M3 3v18h18"></path>
                 <path d="m19 9-5 5-4-4-3 3"></path>
               </svg>
               <span>Comercial</span>
             </button>
             <button (click)="setChartType('production')"
-              class="py-2 px-4 rounded-md text-sm font-medium flex items-center gap-2" [ngClass]="{
+              class="py-2 px-4 rounded-md text-sm font-medium flex items-center gap-2 transition-all duration-300 hover:scale-105 shadow-sm" 
+              [ngClass]="{
                 'bg-indigo-600 text-white hover:bg-indigo-700': chartType === 'production',
                 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600': chartType !== 'production'
               }">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="transition-transform duration-300 group-hover:rotate-3">
                 <path d="M3 3v18h18"></path>
                 <path d="M18 17V9"></path>
                 <path d="M13 17V5"></path>
@@ -102,12 +115,14 @@
               <span>Producción</span>
             </button>
             <button (click)="setChartType('combined')"
-              class="py-2 px-4 rounded-md text-sm font-medium flex items-center gap-2" [ngClass]="{
+              class="py-2 px-4 rounded-md text-sm font-medium flex items-center gap-2 transition-all duration-300 hover:scale-105 shadow-sm" 
+              [ngClass]="{
                 'bg-indigo-600 text-white hover:bg-indigo-700': chartType === 'combined',
                 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600': chartType !== 'combined'
               }">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="transition-transform duration-300 group-hover:rotate-3">
                 <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
                 <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
               </svg>
@@ -116,63 +131,75 @@
           </div>
         </div>
 
-        <!-- Barra de búsqueda y filtros -->
-        <div
-          class="px-3 sm:px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-3">
-          <!-- Búsqueda -->
-          <div class="relative">
+        <!-- Barra de búsqueda y filtros mejorados -->
+        <div class="px-5 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- Búsqueda mejorada -->
+          <div class="relative group animate-fade-in" style="animation-delay: 300ms;">
             <svg xmlns="http://www.w3.org/2000/svg"
-              class="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 transition-colors transition-transform duration-300 group-hover:scale-110"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
             <input type="text" [(ngModel)]="texto" placeholder="Buscar cultivos..."
-              class="pl-8 h-9 w-full text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent dark:text-white dark:placeholder-gray-400">
+              class="pl-10 h-10 w-full text-sm bg-gray-50 dark:bg-gray-700/70 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent dark:text-white dark:placeholder-gray-400 transition-all duration-300 hover:border-indigo-300 dark:hover:border-indigo-500 focus:scale-[1.01]">
           </div>
 
-          <!-- Filtro por familia -->
-          <div class="flex gap-2">
-            <div class="relative w-full">
+          <!-- Filtro por familia mejorado -->
+          <div class="flex gap-2 animate-fade-in" style="animation-delay: 400ms;">
+            <div class="relative group w-full">
               <select [(ngModel)]="familiaSeleccionada"
-                class="h-9 w-full text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md pl-8 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent dark:text-white">
+                class="h-10 w-full text-sm bg-gray-50 dark:bg-gray-700/70 border border-gray-200 dark:border-gray-600 rounded-lg pl-10 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent dark:text-white transition-all duration-300 hover:border-indigo-300 dark:hover:border-indigo-500 focus:scale-[1.01]">
                 <option value="todas">Todas las familias</option>
                 @for(familia of family;track familia){
                 <option value={{familia.familia}}>{{familia.familia}}</option>
                 }
               </select>
               <svg xmlns="http://www.w3.org/2000/svg"
-                class="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 transition-colors transition-transform duration-300 group-hover:scale-110"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
               </svg>
               <svg xmlns="http://www.w3.org/2000/svg"
-                class="absolute right-2.5 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 pointer-events-none transition-transform duration-300 group-hover:translate-y-[2px]"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </div>
             <button (click)="borrarFiltros()"
-              class="h-9 px-3 text-xs border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300" [ngClass]="{'bg-indigo-600 text-white hover:bg-indigo-700':seleccionados>0}">Limpiar
-              filtros</button>
+              class="h-10 px-4 text-sm border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 hover:scale-[1.03] hover:shadow-md flex items-center justify-center gap-1.5 hover:border-red-200 dark:hover:border-red-800"
+              [ngClass]="{'bg-indigo-600 text-white hover:bg-indigo-700 hover:border-indigo-700':seleccionados>0, 'text-gray-600 dark:text-gray-300':seleccionados===0}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-90" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Limpiar filtros
+            </button>
           </div>
         </div>
 
-        <!-- Contenido - Vista de cuadrícula -->
-        <div class="max-h-48 overflow-y-auto">
-          <div class="px-3 sm:px-6 py-4">
-            @for(familia of busquedaFamilia;track familia){
-            <!-- Categoría: Cereales -->
-            <div class="mb-4">
+        <!-- Contenido - Vista de cuadrícula mejorada -->
+        <div class="max-h-48 overflow-y-auto custom-scrollbar pr-1">
+          <div class="px-5 sm:px-6 py-4">
+            @for(familia of busquedaFamilia;track familia; let i = $index){
+            <!-- Categoría -->
+            <div class="mb-4 animate-slide-up" [style]="{'animation-delay': i * 100 + 'ms'}">
               <h3 class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">{{familia.familia}}</h3>
               <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                @for(nombre of familia.nombreGenero; track nombre){
-                <div class="flex items-center group">
+                @for(nombre of familia.nombreGenero; track nombre; let j = $index){
+                <div class="flex items-center p-2 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-md animate-fade-in"
+                  [style]="{'animation-delay': (i * 100 + j * 50) + 'ms'}">
+                  <div class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 mr-2">
+                    <span class="text-indigo-700 dark:text-indigo-400 font-medium text-xs">{{nombre.charAt(0).toUpperCase()}}</span>
+                  </div>
                   <input type="radio" (click)="contarSeleccionados()" name="genero" [value]="nombre"
-                    class="form-checkbox h-4 w-4 text-indigo-600 dark:text-indigo-400 rounded border-gray-300 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-400">
+                    class="form-checkbox h-4 w-4 text-indigo-600 dark:text-indigo-400 rounded border-gray-300 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all duration-300 hover:scale-125">
                   <label for="gender_1"
-                    class="ml-2 text-sm text-gray-700 dark:text-gray-300 truncate flex-1">{{nombre}}</label>
-
+                    class="ml-2 text-sm text-gray-700 dark:text-gray-300 truncate flex-1 transition-all duration-300 hover:text-indigo-600 dark:hover:text-indigo-400">{{nombre}}</label>
                 </div>
                 }
               </div>
@@ -181,26 +208,26 @@
           </div>
         </div>
 
-
-
-        <!-- Footer con contador -->
+        <!-- Footer con contador mejorado -->
         <div
-          class="px-3 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs text-gray-500 dark:text-gray-400 flex justify-between items-center">
-          <span class="text-indigo-600 dark:text-indigo-400">Filtrando por: {{familiaSeleccionada || 'Ningún
-            filtro'}}</span>
+          class="px-5 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs text-gray-500 dark:text-gray-400 flex justify-between items-center animate-fade-in" style="animation-delay: 500ms;">
+          <span class="text-indigo-600 dark:text-indigo-400 font-medium">Filtrando por: 
+            <span class="bg-indigo-100 dark:bg-indigo-900/30 px-2 py-1 rounded-md text-indigo-800 dark:text-indigo-300 transition-all duration-300 hover:bg-indigo-200 dark:hover:bg-indigo-800/50">
+              {{familiaSeleccionada || 'Ningún filtro'}}
+            </span>
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- Métricas -->
+    <!-- Métricas mejoradas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
-
       <!-- Métrica 1: Géneros seleccionados -->
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-5 flex items-center gap-3 sm:gap-4 transition-transform duration-200 hover:-translate-y-1 hover:shadow-md">
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-3 sm:p-5 flex items-center gap-3 sm:gap-4 transition-all duration-300 hover:shadow-lg hover:translate-y-[-3px] hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 animate-slide-up" style="animation-delay: 100ms;">
         <div
-          class="flex-shrink-0 bg-indigo-100 dark:bg-indigo-900/30 w-10 sm:w-12 h-10 sm:h-12 rounded-lg flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 sm:h-6 w-5 sm:w-6 text-indigo-600 dark:text-indigo-400"
+          class="flex-shrink-0 bg-indigo-100 dark:bg-indigo-900/30 w-10 sm:w-12 h-10 sm:h-12 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:rotate-6 group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 sm:h-6 w-5 sm:w-6 text-indigo-600 dark:text-indigo-400 transition-transform duration-500 group-hover:rotate-[360deg]"
             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -211,17 +238,16 @@
         </div>
         <div>
           <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Géneros seleccionados</p>
-          <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{{ seleccionados || 'Ninguno' }}</p>
+          <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white animate-count-up">{{ seleccionados || 'Ninguno' }}</p>
         </div>
       </div>
 
-
       <!-- Métrica 2: Total KGs -->
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-5 flex items-center gap-3 sm:gap-4 transition-transform duration-200 hover:-translate-y-1 hover:shadow-md">
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-3 sm:p-5 flex items-center gap-3 sm:gap-4 transition-all duration-300 hover:shadow-lg hover:translate-y-[-3px] hover:bg-amber-50/50 dark:hover:bg-amber-900/20 animate-slide-up" style="animation-delay: 200ms;">
         <div
-          class="flex-shrink-0 bg-amber-100 dark:bg-amber-900/30 w-10 sm:w-12 h-10 sm:h-12 rounded-lg flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 sm:h-6 w-5 sm:w-6 text-amber-600 dark:text-amber-400"
+          class="flex-shrink-0 bg-amber-100 dark:bg-amber-900/30 w-10 sm:w-12 h-10 sm:h-12 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:rotate-6 group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 sm:h-6 w-5 sm:w-6 text-amber-600 dark:text-amber-400 transition-transform duration-500 group-hover:rotate-[360deg]"
             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round">
             <line x1="12" y1="1" x2="12" y2="23"></line>
@@ -230,7 +256,7 @@
         </div>
         <div>
           <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Total KGs</p>
-          <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{{ getTotalKgs() | number:'1.0-0' }}</p>
+          <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white animate-count-up">{{ getTotalKgs() | number:'1.0-0' }}</p>
         </div>
       </div>
     </div>
