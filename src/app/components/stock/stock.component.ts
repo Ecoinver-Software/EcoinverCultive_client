@@ -1,6 +1,7 @@
-// registros-stock.component.ts
+// INICIO DEL ARCHIVO
 import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 interface StockRecord {
   id: number;
@@ -8,12 +9,20 @@ interface StockRecord {
   itemCount: number;
   isBeingDragged?: boolean;
   lastUpdated?: Date;
+  notes?: string;
+}
+
+interface NewStockRecord {
+  date: string;
+  time: string;
+  itemCount: number;
+  notes?: string;
 }
 
 @Component({
   selector: 'app-registros-stock',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './stock.component.html',
   styleUrls: ['./stock.component.css']
 })
@@ -43,13 +52,24 @@ export class StockComponent implements OnInit, AfterViewInit {
     }
   ];
 
-  // Variables para el modal
+  // Variables para el modal de eliminación
   showDeleteModal: boolean = false;
   recordToDeleteId: number | null = null;
   recordToDeleteDate: Date | null = null;
   isDeleteConfirmed: boolean = false;
   isDeleting: boolean = false;
   showDeletedToast: boolean = false;
+
+  // Variables para el modal de añadir
+  showAddModal: boolean = false;
+  newRecord: NewStockRecord = {
+    date: this.getTodayISOString(),
+    time: this.getCurrentTimeString(),
+    itemCount: 1,
+    notes: ''
+  };
+  isSaving: boolean = false;
+  showAddedToast: boolean = false;
 
   // Variables para interactividad
   isScrolled: boolean = false;
@@ -98,10 +118,98 @@ export class StockComponent implements OnInit, AfterViewInit {
     return this.formatDate(date);
   }
 
+  // Método para obtener la fecha actual en formato ISO (YYYY-MM-DD)
+  getTodayISOString(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Método para obtener la hora actual (HH:MM)
+  getCurrentTimeString(): string {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
   // Método para abrir el modal de añadir registro
   openAddRecordModal(): void {
-    console.log('Abriendo modal para añadir nuevo registro');
-    // Aquí iría la lógica para abrir el modal de añadir
+    // Resetear el formulario con valores por defecto
+    this.newRecord = {
+      date: this.getTodayISOString(),
+      time: this.getCurrentTimeString(),
+      itemCount: 1,
+      notes: ''
+    };
+    this.showAddModal = true;
+    this.isSaving = false;
+  }
+
+  // Método para cerrar el modal de añadir
+  closeAddModal(event: Event): void {
+    event.stopPropagation();
+    this.showAddModal = false;
+  }
+
+  // Validar formulario
+  isFormValid(): boolean {
+    return !!this.newRecord.date && 
+           !!this.newRecord.time && 
+           this.newRecord.itemCount > 0;
+  }
+
+  // Guardar nuevo registro
+  saveNewRecord(): void {
+    if (!this.isFormValid()) {
+      return;
+    }
+    
+    // Iniciar animación de carga
+    this.isSaving = true;
+    
+    // Simular tiempo de procesamiento (en una app real, aquí iría la llamada al servicio)
+    setTimeout(() => {
+      // Crear nuevo registro
+      const dateTimeString = `${this.newRecord.date}T${this.newRecord.time}:00`;
+      const newDate = new Date(dateTimeString);
+      
+      // Generar ID único (en una app real, esto vendría del backend)
+      const newId = Math.max(...this.stockRecords.map(r => r.id), 0) + 1;
+      
+      // Crear nuevo objeto de registro
+      const newStockRecord: StockRecord = {
+        id: newId,
+        date: newDate,
+        itemCount: this.newRecord.itemCount,
+        notes: this.newRecord.notes,
+        lastUpdated: new Date()
+      };
+      
+      // Añadir al principio de la lista
+      this.stockRecords = [newStockRecord, ...this.stockRecords];
+      
+      // Cerrar el modal
+      this.showAddModal = false;
+      
+      // Mostrar notificación
+      this.showAddedToast = true;
+      
+      // Ocultar la notificación después de 4 segundos
+      setTimeout(() => {
+        this.showAddedToast = false;
+      }, 4000);
+      
+      // Limpiar variables
+      this.isSaving = false;
+      
+      // Actualizar la animación del contador
+      setTimeout(() => {
+        this.initCountUpAnimation();
+      }, 300);
+    }, 800); // Tiempo suficiente para ver la animación de la barra de progreso
   }
 
   // Método para ver detalles del registro
@@ -126,7 +234,7 @@ export class StockComponent implements OnInit, AfterViewInit {
     this.isDeleting = false;
   }
 
-  // Método para cerrar el modal
+  // Método para cerrar el modal de eliminación
   closeDeleteModal(event: Event): void {
     event.stopPropagation();
     this.showDeleteModal = false;
@@ -170,6 +278,11 @@ export class StockComponent implements OnInit, AfterViewInit {
       this.recordToDeleteDate = null;
       this.isDeleteConfirmed = false;
       this.isDeleting = false;
+      
+      // Actualizar la animación del contador
+      setTimeout(() => {
+        this.initCountUpAnimation();
+      }, 300);
     }, 800); // Tiempo suficiente para ver la animación de la barra de progreso
   }
 
@@ -290,3 +403,4 @@ export class StockComponent implements OnInit, AfterViewInit {
     }
   }
 }
+// FIN DEL ARCHIVO
