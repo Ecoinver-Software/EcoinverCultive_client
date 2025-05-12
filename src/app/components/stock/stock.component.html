@@ -13,7 +13,7 @@
         </div>
         
         <!-- Botón de añadir con animación -->
-        <button (click)="openAddRecordModal()"
+        <button (click)="addQuickRecord()"
             class="group relative flex items-center justify-center w-12 h-12 bg-green-400 hover:bg-green-300 text-white rounded-full shadow-xl transition-all duration-300 border-2 border-green-200 hover:border-white hover:rotate-3 hover:shadow-green-300/40"
             aria-label="Añadir nuevo registro">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -128,25 +128,18 @@
         <!-- Estado vacío mejorado -->
         <div *ngIf="stockRecords.length === 0" class="p-12 text-center">
             <!-- Ilustración decorativa -->
-            <div class="w-24 h-24 mx-auto mb-6 text-green-700/30">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-full w-full animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-            </div>
-            <p class="text-gray-400 mb-3">No hay registros de stock disponibles.</p>
-            <p class="text-sm text-gray-500 mb-6">Añade tu primer registro para comenzar a gestionar tu inventario</p>
-            <button (click)="openAddRecordModal()"
-                class="group relative px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white rounded-lg shadow-lg shadow-green-900/30 hover:shadow-green-800/40 transition-all duration-300 transform hover:-translate-y-1">
-                <span class="flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 group-hover:animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    Añadir primer registro
-                </span>
-                <!-- Efecto de resplandor en hover -->
-                <span class="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-20 group-hover:animate-pulse transition-opacity"></span>
-            </button>
-        </div>
+            <div class="flex justify-between items-center mb-8 bg-gradient-to-r from-green-800 to-green-600 p-4 rounded-xl shadow-lg">
+    <h1 class="text-2xl font-bold text-green-50">Registros de Stock</h1>
+    <button (click)="addQuickRecord()"
+            class="w-12 h-12 bg-green-400 hover:bg-green-300 text-white rounded-full shadow-xl flex items-center justify-center"
+            aria-label="Añadir registro rápido">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      </svg>
+    </button>
+  </div>
         
         <!-- Contador animado para mostrar el número total de registros -->
         <div *ngIf="stockRecords.length > 0" class="p-4 text-center border-t border-green-800/20">

@@ -91,26 +91,31 @@ export class StockComponent implements OnInit, AfterViewInit {
     this.initCountUpAnimation();
   }
 
+
+
+   /** Añade un registro instantáneo con 0 items */
+   addQuickRecord(): void {
+    const now = new Date();
+    const newId = Math.max(...this.stockRecords.map(r => r.id), 0) + 1;
+    this.stockRecords = [
+      { id: newId, date: now, itemCount: 0, lastUpdated: now },
+      ...this.stockRecords
+    ];
+    setTimeout(() => this.initCountUpAnimation(), 300);
+  }
   // Métodos de formato de fecha para reemplazar el pipe date
-  formatDay(date: Date): string {
-    if (!date) return '';
-    return date.getDate().toString().padStart(2, '0');
+  formatDay(d: Date) {
+    return d.getDate().toString().padStart(2, '0');
   }
-
-  formatDate(date: Date): string {
-    if (!date) return '';
-    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  formatDate(d: Date) {
+    return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
   }
-
-  formatTime(date: Date): string {
-    if (!date) return '';
-    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  formatTime(d: Date) {
+    return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
   }
-
-  formatWeekday(date: Date): string {
-    if (!date) return '';
-    const days = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-    return days[date.getDay()];
+  formatWeekday(d: Date) {
+    const days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+    return days[d.getDay()];
   }
 
   formatFullDate(date: Date | null): string {
@@ -135,18 +140,7 @@ export class StockComponent implements OnInit, AfterViewInit {
     return `${hours}:${minutes}`;
   }
 
-  // Método para abrir el modal de añadir registro
-  openAddRecordModal(): void {
-    // Resetear el formulario con valores por defecto
-    this.newRecord = {
-      date: this.getTodayISOString(),
-      time: this.getCurrentTimeString(),
-      itemCount: 1,
-      notes: ''
-    };
-    this.showAddModal = true;
-    this.isSaving = false;
-  }
+  
 
   // Método para cerrar el modal de añadir
   closeAddModal(event: Event): void {
@@ -287,11 +281,8 @@ export class StockComponent implements OnInit, AfterViewInit {
   }
 
   // Verificar si un registro es reciente (menos de 24 horas)
-  isRecent(date: Date): boolean {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = diffMs / (1000 * 60 * 60);
-    return diffHours < 24;
+  isRecent(d: Date): boolean {
+    return (Date.now() - d.getTime()) / 36e5 < 24;
   }
 
   // Verificar si un registro tiene actividad reciente
@@ -337,62 +328,52 @@ export class StockComponent implements OnInit, AfterViewInit {
   }
 
   // Métodos para el pull-to-refresh
-  onTouchStart(event: TouchEvent): void {
-    this.lastTouchY = event.touches[0].clientY;
+  onTouchStart(e: TouchEvent) {
+    this.lastTouchY = e.touches[0].clientY;
   }
 
-  onTouchMove(event: TouchEvent): void {
-    const currentY = event.touches[0].clientY;
+  onTouchMove(e: TouchEvent) {
+    const currentY = e.touches[0].clientY;
     const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    
-    // Si estamos en la parte superior y arrastramos hacia abajo
     if (scrollTop === 0 && currentY > this.lastTouchY + 70) {
       this.isPulling = true;
-      event.preventDefault();
+      e.preventDefault();
     }
   }
-
-  onTouchEnd(): void {
-    if (this.isPulling) {
-      this.refreshData();
-    }
+  onTouchEnd() {
+    if (this.isPulling) this.refreshData();
   }
 
   // Método para actualizar los datos
-  refreshData(): void {
-    // Mostrar animación de carga
+  refreshData() {
     this.isPulling = true;
-    
-    // Simular carga (en una app real, aquí iría la llamada al servicio)
-    setTimeout(() => {
-      // Actualizar datos (en este ejemplo, simplemente simulamos que no hay cambios)
-      console.log('Datos actualizados');
-      this.isPulling = false;
-    }, 1500);
+    setTimeout(() => this.isPulling = false, 1500);
   }
 
+
+
+
+  
   // Animación para el contador
-  initCountUpAnimation(): void {
+  private initCountUpAnimation() {
     setTimeout(() => {
-      const countElement = document.querySelector('.animate-countUp');
-      if (countElement) {
-        const targetCount = parseInt(countElement.getAttribute('data-count') || '0', 10);
-        let currentCount = 0;
-        const duration = 1000; // ms
-        const step = Math.max(1, Math.floor(targetCount / 20));
-        const interval = duration / (targetCount / step);
-        
-        const timer = setInterval(() => {
-          currentCount += step;
-          if (currentCount >= targetCount) {
-            currentCount = targetCount;
-            clearInterval(timer);
-          }
-          countElement.textContent = currentCount.toString();
-        }, interval);
-      }
-    }, 500); // Pequeño retraso para asegurar que el DOM está listo
+      const el = document.querySelector('.animate-countUp');
+      if (!el) return;
+      const target = +el.getAttribute('data-count')!;
+      let count = 0;
+      const step = Math.max(1, Math.floor(target / 20));
+      const interval = 1000 / (target / step);
+      const timer = setInterval(() => {
+        count += step;
+        if (count >= target) {
+          count = target;
+          clearInterval(timer);
+        }
+        el.textContent = count.toString();
+      }, interval);
+    }, 500);
   }
+
 
   // Prevenir el comportamiento de arrastre predeterminado en móviles
   @HostListener('touchmove', ['$event'])
