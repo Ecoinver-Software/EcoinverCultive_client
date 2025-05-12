@@ -1,75 +1,379 @@
 <div class="container mx-auto p-4 max-w-4xl">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-100">Registros de Stock</h1>
+    <!-- Header con efecto de gradiente y animación sutil -->
+    <div class="flex justify-between items-center mb-8 bg-gradient-to-r from-green-800 to-green-600 p-4 rounded-xl shadow-lg transform hover:scale-[1.01] transition-all duration-300">
+        <div class="flex items-center space-x-3">
+            <!-- Icono decorativo -->
+            <div class="bg-green-200 rounded-full p-2 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-green-50">Registros de Stock</h1>
+        </div>
+        
+        <!-- Botón de añadir con animación -->
         <button (click)="openAddRecordModal()"
-            class="flex items-center justify-center w-10 h-10 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg transition-colors duration-300"
+            class="group relative flex items-center justify-center w-12 h-12 bg-green-400 hover:bg-green-300 text-white rounded-full shadow-xl transition-all duration-300 border-2 border-green-200 hover:border-white hover:rotate-3 hover:shadow-green-300/40"
             aria-label="Añadir nuevo registro">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
+            <!-- Efecto de resplandor -->
+            <span class="absolute inset-0 rounded-full bg-green-300 opacity-0 group-hover:opacity-30 group-hover:scale-110 transition-all duration-500"></span>
         </button>
     </div>
 
-    <!-- Lista de registros -->
-    <div class="bg-gray-800 rounded-lg shadow-md overflow-hidden">
-        <ul class="divide-y divide-gray-700">
-            <li *ngFor="let record of stockRecords" (click)="viewRecordDetails(record.id)"
-                class="hover:bg-gray-700 cursor-pointer transition-colors duration-150">
-                <div class="p-4 flex justify-between items-center">
-                    <!-- Fecha / hora -->
-                    <div>
-                        <p class="text-sm font-medium text-white">
-                            {{ record.date | date:'dd/MM/yyyy' }}
+    <!-- Efecto de "pull to refresh" (para móviles) -->
+    <div class="pt-2 pb-8 flex justify-center items-center text-green-500" *ngIf="isPulling">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span class="ml-2 text-sm">Actualizando...</span>
+    </div>
+
+    <!-- Lista de registros con efectos de hover -->
+    <div class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl shadow-xl overflow-hidden border border-green-800/30 relative"
+         (touchstart)="onTouchStart($event)"
+         (touchmove)="onTouchMove($event)"
+         (touchend)="onTouchEnd()">
+        <!-- Fondo decorativo -->
+        <div class="absolute inset-0 bg-green-800/5 backdrop-blur-sm">
+            <!-- Patrón decorativo de hojas -->
+            <div class="absolute top-1/4 left-0 w-20 h-20 text-green-900/5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-full h-full">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                </svg>
+            </div>
+            <div class="absolute bottom-1/3 right-10 w-16 h-16 text-green-900/5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-full h-full">
+                    <path d="M17 8.41L15.59 7l-4.59 4.59L8.41 9 7 10.41l3.59 3.59L7 17.59 8.41 19l3.59-3.59L15.59 19 17 17.59 13.41 14z"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Encabezado de la lista -->
+        <div class="border-b border-green-700/30 px-4 py-3 bg-green-900/20">
+            <h2 class="text-green-100 font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Historial de inventario
+            </h2>
+        </div>
+        
+        <ul class="divide-y divide-gray-700/60">
+            <li *ngFor="let record of stockRecords; let i = index" 
+                class="group relative overflow-hidden animate-fadeIn" 
+                [style.animation-delay]="i * 100 + 'ms'">
+                
+                <!-- Indicador de "Nuevo" para registros recientes -->
+                <div *ngIf="isRecent(record.date)" 
+                    class="absolute top-2 left-2 bg-green-500 text-xs text-white px-2 py-0.5 rounded-full animate-pulse font-medium z-10">
+                    Nuevo
+                </div>
+                
+                <!-- Contenido principal con toda la fila clickeable -->
+                <div class="relative flex items-center py-3 px-4 hover:bg-gradient-to-r hover:from-green-900/30 hover:to-transparent cursor-pointer transition-all duration-300" (click)="viewRecordDetails(record.id)">
+                    <!-- Círculo decorativo con el día -->
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-800 to-green-500 flex items-center justify-center text-white shadow-lg group-hover:shadow-green-500/30 group-hover:scale-110 transition-all duration-300 mr-3">
+                        <span class="font-bold">{{ formatDay(record.date) }}</span>
+                    </div>
+                    
+                    <!-- Información del registro -->
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-white flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {{ formatDate(record.date) }}
                         </p>
-                        <p class="text-sm text-gray-300">
-                            {{ record.date | date:'HH:mm' }} – {{ record.date | date:'EEEE' }}
+                        <p class="text-sm text-gray-400 flex items-center mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ formatTime(record.date) }} – 
+                            <span class="ml-1 px-2 py-0.5 text-xs rounded-full bg-green-900/40 border border-green-700/30 group-hover:bg-green-700/40 transition-colors duration-300">
+                                {{ formatWeekday(record.date) }}
+                            </span>
                         </p>
                     </div>
-
-                    <!-- Acciones -->
-                    <div class="flex items-center space-x-4">
-                        <!-- Borrar -->
-                        <button (click)="onDeleteRecord(record.id, $event)" class="flex items-center justify-center w-8 h-8
-         bg-gray-700 hover:bg-red-600
-         text-gray-400 hover:text-white
-         rounded-full
-         transition-colors duration-200" aria-label="Eliminar registro">
-                            <!-- Icono de cruz -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
+                    
+                    <!-- Contador de items -->
+                    <div class="text-sm bg-green-900/60 text-green-200 py-1 px-3 rounded-full border border-green-700/40 group-hover:bg-green-800 group-hover:border-green-600/60 transition-all duration-300 flex items-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        {{ record.itemCount }} items
+                    </div>
+                    
+                    <!-- Botón para eliminar con tooltip -->
+                    <div class="group/tooltip relative">
+                        <button (click)="openDeleteModal(record.id, $event)" 
+                            class="flex items-center justify-center w-8 h-8 bg-gray-700 hover:bg-red-600 text-gray-400 hover:text-white rounded-full transition-all duration-300 hover:shadow-md hover:shadow-red-600/20 transform hover:scale-110"
+                            aria-label="Eliminar registro">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
-
-
-
-                        <!-- Contador -->
-                        <span class="text-sm text-gray-400">
-                            {{ record.itemCount }} items
-                        </span>
-
-                        <!-- Flecha detalle -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10
-                       7.293 6.707a1 1 0 011.414-1.414l4 4
-                       a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                        </svg>
+                        <!-- Tooltip -->
+                        <div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                            Eliminar registro
+                        </div>
                     </div>
                 </div>
             </li>
         </ul>
 
-        <!-- Estado vacío -->
-        <div *ngIf="stockRecords.length === 0" class="p-8 text-center">
-            <p class="text-gray-400">No hay registros de stock disponibles.</p>
+        <!-- Estado vacío mejorado -->
+        <div *ngIf="stockRecords.length === 0" class="p-12 text-center">
+            <!-- Ilustración decorativa -->
+            <div class="w-24 h-24 mx-auto mb-6 text-green-700/30">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-full w-full animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+            </div>
+            <p class="text-gray-400 mb-3">No hay registros de stock disponibles.</p>
+            <p class="text-sm text-gray-500 mb-6">Añade tu primer registro para comenzar a gestionar tu inventario</p>
             <button (click)="openAddRecordModal()"
-                class="mt-4 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md shadow transition-colors duration-300">
-                Añadir primer registro
+                class="group relative px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white rounded-lg shadow-lg shadow-green-900/30 hover:shadow-green-800/40 transition-all duration-300 transform hover:-translate-y-1">
+                <span class="flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 group-hover:animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Añadir primer registro
+                </span>
+                <!-- Efecto de resplandor en hover -->
+                <span class="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-20 group-hover:animate-pulse transition-opacity"></span>
             </button>
+        </div>
+        
+        <!-- Contador animado para mostrar el número total de registros -->
+        <div *ngIf="stockRecords.length > 0" class="p-4 text-center border-t border-green-800/20">
+            <div class="inline-block px-4 py-2 bg-gray-800 rounded-full border border-green-700/30">
+                <span class="text-green-300 text-sm font-medium">Total registros: </span>
+                <span class="text-white font-bold ml-1 animate-countUp" [attr.data-count]="stockRecords.length">
+                {{ stockRecords.length }}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Decoración inferior -->
+    <div class="mt-8 text-center relative">
+        <div class="h-px w-full bg-gradient-to-r from-transparent via-green-700/30 to-transparent"></div>
+        <span class="inline-block px-4 py-1 bg-gray-900 text-green-400 text-xs rounded-full -mt-2.5 relative">
+            Sistema de gestión de inventario
+        </span>
+    </div>
+    
+    <!-- Botón flotante de acción rápida (visible al hacer scroll) -->
+    <button *ngIf="isScrolled"
+            (click)="scrollToTop()"
+            class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center shadow-lg transform hover:scale-110 transition-all duration-300 animate-fadeIn z-50">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11l7-7 7 7M5 19l7-7 7 7" />
+        </svg>
+    </button>
+</div>
+
+<!-- Modal de confirmación para eliminar registro -->
+<div *ngIf="showDeleteModal" 
+     class="fixed inset-0 flex items-center justify-center z-50 animate-modalFadeIn"
+     (click)="closeDeleteModal($event)">
+    
+    <!-- Capa de fondo oscuro con efecto blur -->
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm animate-modalBackdrop"></div>
+    
+    <!-- Contenedor del modal -->
+    <div class="w-full max-w-md mx-4 bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl shadow-2xl border border-green-800/30 overflow-hidden relative animate-modalPopIn"
+         (click)="$event.stopPropagation()">
+        
+        <!-- Decoración superior -->
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-red-400 to-red-600"></div>
+        
+        <!-- Decoración de esquina -->
+        <div class="absolute top-0 right-0 w-20 h-20 overflow-hidden">
+            <div class="absolute top-0 right-0 w-6 h-6 transform rotate-45 translate-x-3 -translate-y-3 bg-red-500/60"></div>
+        </div>
+        
+        <!-- Cabecera -->
+        <div class="p-6 border-b border-gray-700 flex items-center justify-between">
+            <h3 class="text-xl font-semibold text-white flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 mr-2 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Confirmar eliminación
+            </h3>
+            
+            <!-- Botón para cerrar -->
+            <button (click)="closeDeleteModal($event)" class="group relative p-2 rounded-full hover:bg-gray-700/50 transition-colors duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span class="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 group-hover:scale-110 transition-all duration-300"></span>
+            </button>
+        </div>
+        
+        <!-- Contenido del modal -->
+        <div class="p-6">
+            <div class="mb-6 flex items-start">
+                <!-- Icono de advertencia con animación -->
+                <div class="mr-4 mt-1 bg-red-900/20 p-3 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+                
+                <!-- Texto de advertencia -->
+                <div>
+                    <h4 class="text-lg font-medium text-white mb-2">¿Estás seguro?</h4>
+                    <p class="text-gray-300">Estás a punto de eliminar el registro del <span class="font-semibold text-green-400">{{ formatFullDate(recordToDeleteDate) }}</span></p>
+                    <p class="text-sm text-gray-400 mt-2">Esta acción no se puede deshacer y eliminará todos los items asociados a este registro.</p>
+                </div>
+            </div>
+            
+            <!-- Checkbox de confirmación interactivo -->
+            <div class="flex items-center mb-6 hover:bg-gray-800/50 p-3 rounded-lg transition-colors cursor-pointer"
+                 (click)="toggleConfirmDelete()">
+                <div class="relative h-5 w-5 mr-3">
+                    <!-- Checkbox base -->
+                    <div class="border-2 rounded border-gray-500 h-5 w-5"></div>
+                    
+                    <!-- Checkmark con animación -->
+                    <div class="absolute inset-0 flex items-center justify-center transition-all duration-300"
+                         [class.opacity-100]="isDeleteConfirmed" 
+                         [class.scale-100]="isDeleteConfirmed" 
+                         [class.opacity-0]="!isDeleteConfirmed" 
+                         [class.scale-0]="!isDeleteConfirmed">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <label class="text-gray-300 text-sm select-none">Comprendo que esta acción no se puede deshacer</label>
+            </div>
+            
+            <!-- Botones con animaciones -->
+            <div class="flex space-x-4 mt-8">
+                <!-- Botón cancelar -->
+                <button (click)="closeDeleteModal($event)" 
+                        class="group relative flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                    <span class="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Cancelar
+                    </span>
+                    <span class="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                </button>
+                
+                <!-- Botón eliminar -->
+                <button (click)="confirmDelete()" 
+                        [disabled]="!isDeleteConfirmed"
+                        [class.bg-red-600]="isDeleteConfirmed"
+                        [class.hover:bg-red-500]="isDeleteConfirmed"
+                        [class.text-white]="isDeleteConfirmed"
+                        [class.cursor-pointer]="isDeleteConfirmed"
+                        [class.bg-red-900]="!isDeleteConfirmed"
+                        [class.bg-opacity-40]="!isDeleteConfirmed"
+                        [class.text-gray-500]="!isDeleteConfirmed"
+                        [class.cursor-not-allowed]="!isDeleteConfirmed"
+                        class="group relative flex-1 px-4 py-3 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                    <span class="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Eliminar registro
+                    </span>
+                    <!-- Efecto de resplandor -->
+                    <span *ngIf="isDeleteConfirmed" class="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-10 group-hover:animate-pulse transition-opacity"></span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Barra de progreso animada - aparece cuando se confirma la eliminación -->
+        <div *ngIf="isDeleting" class="h-1 bg-red-600 relative overflow-hidden animate-modalProgress">
+            <div class="absolute inset-0 bg-gradient-to-r from-red-500 via-red-300 to-red-500 animate-shimmer"></div>
         </div>
     </div>
 </div>
+
+<!-- Notificación toast para confirmar eliminación -->
+<div *ngIf="showDeletedToast" 
+     class="fixed bottom-4 right-4 flex items-center bg-gray-800 border-l-4 border-green-500 py-2 px-3 shadow-lg rounded-lg animate-toastSlideIn z-50">
+    <div class="text-green-500 rounded-full bg-green-100/10 p-1 mr-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg>
+    </div>
+    <div>
+        <span class="text-white text-sm">Registro eliminado correctamente</span>
+    </div>
+</div>
+
+<!-- Estilos personalizados para las animaciones -->
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out forwards;
+        opacity: 0;
+    }
+    
+    @keyframes spin-slow {
+        to { transform: rotate(360deg); }
+    }
+    
+    .animate-spin-slow {
+        animation: spin-slow 1.5s linear infinite;
+    }
+    
+    @keyframes modalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .animate-modalFadeIn {
+        animation: modalFadeIn 0.3s ease-out forwards;
+    }
+    
+    @keyframes modalBackdrop {
+        from { opacity: 0; backdrop-filter: blur(0px); }
+        to { opacity: 1; backdrop-filter: blur(4px); }
+    }
+    
+    .animate-modalBackdrop {
+        animation: modalBackdrop 0.3s ease-out forwards;
+    }
+    
+    @keyframes modalPopIn {
+        0% { opacity: 0; transform: scale(0.9); }
+        70% { opacity: 1; transform: scale(1.03); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+    
+    .animate-modalPopIn {
+        animation: modalPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    .animate-shimmer {
+        animation: shimmer 2s infinite linear;
+    }
+    
+    @keyframes modalProgress {
+        from { width: 0%; }
+        to { width: 100%; }
+    }
+    
+    .animate-modalProgress {
+        animation: modalProgress 0.8s linear;
+    }
+    </style>
