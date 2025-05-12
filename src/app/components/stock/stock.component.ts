@@ -24,32 +24,32 @@ interface NewStockRecord {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './stock.component.html',
-  styleUrls: ['./stock.component.css']
+  styleUrls: ['./stock.component.css'],
 })
 export class StockComponent implements OnInit, AfterViewInit {
   // Datos de ejemplo
   stockRecords: StockRecord[] = [
-    { 
-      id: 1, 
-      date: new Date('2025-05-11T14:30:00'), 
+    {
+      id: 1,
+      date: new Date('2025-05-11T14:30:00'),
       itemCount: 12,
-      lastUpdated: new Date('2025-05-11T16:45:00') 
+      lastUpdated: new Date('2025-05-11T16:45:00'),
     },
-    { 
-      id: 2, 
-      date: new Date('2025-05-09T09:15:00'), 
-      itemCount: 8 
+    {
+      id: 2,
+      date: new Date('2025-05-09T09:15:00'),
+      itemCount: 8,
     },
-    { 
-      id: 3, 
-      date: new Date('2025-05-05T11:20:00'), 
-      itemCount: 15 
+    {
+      id: 3,
+      date: new Date('2025-05-05T11:20:00'),
+      itemCount: 15,
     },
-    { 
-      id: 4, 
-      date: new Date('2025-04-30T16:45:00'), 
-      itemCount: 6 
-    }
+    {
+      id: 4,
+      date: new Date('2025-04-30T16:45:00'),
+      itemCount: 6,
+    },
   ];
 
   // Variables para el modal de eliminación
@@ -66,7 +66,7 @@ export class StockComponent implements OnInit, AfterViewInit {
     date: this.getTodayISOString(),
     time: this.getCurrentTimeString(),
     itemCount: 1,
-    notes: ''
+    notes: '',
   };
   isSaving: boolean = false;
   showAddedToast: boolean = false;
@@ -77,7 +77,7 @@ export class StockComponent implements OnInit, AfterViewInit {
   touchStartX: number = 0;
   lastTouchY: number = 0;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
     // Detectar scroll para mostrar/ocultar el botón flotante
@@ -91,15 +91,13 @@ export class StockComponent implements OnInit, AfterViewInit {
     this.initCountUpAnimation();
   }
 
-
-
-   /** Añade un registro instantáneo con 0 items */
-   addQuickRecord(): void {
+  /** Añade un registro instantáneo con 0 items */
+  addQuickRecord(): void {
     const now = new Date();
-    const newId = Math.max(...this.stockRecords.map(r => r.id), 0) + 1;
+    const newId = Math.max(...this.stockRecords.map((r) => r.id), 0) + 1;
     this.stockRecords = [
       { id: newId, date: now, itemCount: 0, lastUpdated: now },
-      ...this.stockRecords
+      ...this.stockRecords,
     ];
     setTimeout(() => this.initCountUpAnimation(), 300);
   }
@@ -108,13 +106,26 @@ export class StockComponent implements OnInit, AfterViewInit {
     return d.getDate().toString().padStart(2, '0');
   }
   formatDate(d: Date) {
-    return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+    return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}/${d.getFullYear()}`;
   }
   formatTime(d: Date) {
-    return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    return `${d.getHours().toString().padStart(2, '0')}:${d
+      .getMinutes()
+      .toString()
+      .padStart(2, '0')}`;
   }
   formatWeekday(d: Date) {
-    const days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+    const days = [
+      'domingo',
+      'lunes',
+      'martes',
+      'miércoles',
+      'jueves',
+      'viernes',
+      'sábado',
+    ];
     return days[d.getDay()];
   }
 
@@ -140,72 +151,6 @@ export class StockComponent implements OnInit, AfterViewInit {
     return `${hours}:${minutes}`;
   }
 
-  
-
-  // Método para cerrar el modal de añadir
-  closeAddModal(event: Event): void {
-    event.stopPropagation();
-    this.showAddModal = false;
-  }
-
-  // Validar formulario
-  isFormValid(): boolean {
-    return !!this.newRecord.date && 
-           !!this.newRecord.time && 
-           this.newRecord.itemCount > 0;
-  }
-
-  // Guardar nuevo registro
-  saveNewRecord(): void {
-    if (!this.isFormValid()) {
-      return;
-    }
-    
-    // Iniciar animación de carga
-    this.isSaving = true;
-    
-    // Simular tiempo de procesamiento (en una app real, aquí iría la llamada al servicio)
-    setTimeout(() => {
-      // Crear nuevo registro
-      const dateTimeString = `${this.newRecord.date}T${this.newRecord.time}:00`;
-      const newDate = new Date(dateTimeString);
-      
-      // Generar ID único (en una app real, esto vendría del backend)
-      const newId = Math.max(...this.stockRecords.map(r => r.id), 0) + 1;
-      
-      // Crear nuevo objeto de registro
-      const newStockRecord: StockRecord = {
-        id: newId,
-        date: newDate,
-        itemCount: this.newRecord.itemCount,
-        notes: this.newRecord.notes,
-        lastUpdated: new Date()
-      };
-      
-      // Añadir al principio de la lista
-      this.stockRecords = [newStockRecord, ...this.stockRecords];
-      
-      // Cerrar el modal
-      this.showAddModal = false;
-      
-      // Mostrar notificación
-      this.showAddedToast = true;
-      
-      // Ocultar la notificación después de 4 segundos
-      setTimeout(() => {
-        this.showAddedToast = false;
-      }, 4000);
-      
-      // Limpiar variables
-      this.isSaving = false;
-      
-      // Actualizar la animación del contador
-      setTimeout(() => {
-        this.initCountUpAnimation();
-      }, 300);
-    }, 800); // Tiempo suficiente para ver la animación de la barra de progreso
-  }
-
   // Método para ver detalles del registro
   viewRecordDetails(recordId: number): void {
     console.log(`Viendo detalles del registro ${recordId}`);
@@ -216,13 +161,15 @@ export class StockComponent implements OnInit, AfterViewInit {
   openDeleteModal(recordId: number, event: Event): void {
     event.stopPropagation(); // Prevenir que se active el click del item
     this.recordToDeleteId = recordId;
-    
+
     // Encontrar el registro para mostrar la fecha
-    const recordToDelete = this.stockRecords.find(record => record.id === recordId);
+    const recordToDelete = this.stockRecords.find(
+      (record) => record.id === recordId
+    );
     if (recordToDelete) {
       this.recordToDeleteDate = recordToDelete.date;
     }
-    
+
     this.isDeleteConfirmed = false;
     this.showDeleteModal = true;
     this.isDeleting = false;
@@ -247,32 +194,34 @@ export class StockComponent implements OnInit, AfterViewInit {
     if (!this.isDeleteConfirmed || this.recordToDeleteId === null) {
       return;
     }
-    
+
     // Iniciar animación de carga
     this.isDeleting = true;
-    
+
     // Simular tiempo de procesamiento (en una app real, aquí iría la llamada al servicio)
     setTimeout(() => {
       // Eliminar el registro
-      this.stockRecords = this.stockRecords.filter(record => record.id !== this.recordToDeleteId);
-      
+      this.stockRecords = this.stockRecords.filter(
+        (record) => record.id !== this.recordToDeleteId
+      );
+
       // Cerrar el modal
       this.showDeleteModal = false;
-      
+
       // Mostrar notificación
       this.showDeletedToast = true;
-      
+
       // Ocultar la notificación después de 4 segundos
       setTimeout(() => {
         this.showDeletedToast = false;
       }, 4000);
-      
+
       // Limpiar variables
       this.recordToDeleteId = null;
       this.recordToDeleteDate = null;
       this.isDeleteConfirmed = false;
       this.isDeleting = false;
-      
+
       // Actualizar la animación del contador
       setTimeout(() => {
         this.initCountUpAnimation();
@@ -289,7 +238,7 @@ export class StockComponent implements OnInit, AfterViewInit {
   hasRecentActivity(record: StockRecord): boolean {
     // Si tiene lastUpdated, usar esa fecha, si no, usar la fecha del registro
     const dateToCheck = record.lastUpdated || record.date;
-    
+
     const now = new Date();
     const diffMs = now.getTime() - dateToCheck.getTime();
     const diffHours = diffMs / (1000 * 60 * 60);
@@ -308,7 +257,7 @@ export class StockComponent implements OnInit, AfterViewInit {
     event.stopPropagation();
     const currentX = event.touches[0].clientX;
     const diffX = this.touchStartX - currentX;
-    
+
     // Si se arrastra más de 50px a la izquierda, mostrar el botón de eliminar
     if (diffX > 50) {
       record.isBeingDragged = true;
@@ -334,7 +283,8 @@ export class StockComponent implements OnInit, AfterViewInit {
 
   onTouchMove(e: TouchEvent) {
     const currentY = e.touches[0].clientY;
-    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
     if (scrollTop === 0 && currentY > this.lastTouchY + 70) {
       this.isPulling = true;
       e.preventDefault();
@@ -347,13 +297,9 @@ export class StockComponent implements OnInit, AfterViewInit {
   // Método para actualizar los datos
   refreshData() {
     this.isPulling = true;
-    setTimeout(() => this.isPulling = false, 1500);
+    setTimeout(() => (this.isPulling = false), 1500);
   }
 
-
-
-
-  
   // Animación para el contador
   private initCountUpAnimation() {
     setTimeout(() => {
@@ -373,7 +319,6 @@ export class StockComponent implements OnInit, AfterViewInit {
       }, interval);
     }, 500);
   }
-
 
   // Prevenir el comportamiento de arrastre predeterminado en móviles
   @HostListener('touchmove', ['$event'])

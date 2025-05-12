@@ -131,7 +131,7 @@
             <div class="flex justify-between items-center mb-8 bg-gradient-to-r from-green-800 to-green-600 p-4 rounded-xl shadow-lg">
     <h1 class="text-2xl font-bold text-green-50">Registros de Stock</h1>
     <button (click)="addQuickRecord()"
-            class="w-12 h-12 bg-green-400 hover:bg-green-300 text-white rounded-full shadow-xl flex items-center justify-center"
+            class="cursor-pointer w-12 h-12 bg-green-400 hover:bg-green-300 text-white rounded-full shadow-xl flex items-center justify-center"
             aria-label="Añadir registro rápido">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
            viewBox="0 0 24 24" stroke="currentColor">
@@ -292,143 +292,7 @@
     </div>
 </div>
 
-<!-- Modal para añadir nuevo registro -->
-<div *ngIf="showAddModal" 
-     class="fixed inset-0 flex items-center justify-center z-50 animate-modalFadeIn"
-     (click)="closeAddModal($event)">
-    
-    <!-- Capa de fondo oscuro con efecto blur -->
-    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm animate-modalBackdrop"></div>
-    
-    <!-- Contenedor del modal -->
-    <div class="w-full max-w-md mx-4 bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl shadow-2xl border border-green-800/30 overflow-hidden relative animate-modalPopIn"
-         (click)="$event.stopPropagation()">
-        
-        <!-- Decoración superior -->
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 via-green-400 to-green-600"></div>
-        
-        <!-- Decoración de esquina -->
-        <div class="absolute top-0 right-0 w-20 h-20 overflow-hidden">
-            <div class="absolute top-0 right-0 w-6 h-6 transform rotate-45 translate-x-3 -translate-y-3 bg-green-500/60"></div>
-        </div>
-        
-        <!-- Cabecera -->
-        <div class="p-6 border-b border-gray-700 flex items-center justify-between">
-            <h3 class="text-xl font-semibold text-white flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Añadir nuevo registro
-            </h3>
-            
-            <!-- Botón para cerrar -->
-            <button (click)="closeAddModal($event)" class="group relative p-2 rounded-full hover:bg-gray-700/50 transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <span class="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 group-hover:scale-110 transition-all duration-300"></span>
-            </button>
-        </div>
-        
-        <!-- Contenido del modal -->
-        <div class="p-6">
-            <!-- Formulario de añadir registro -->
-            <div class="space-y-4">
-                <!-- Campo de fecha -->
-                <div class="relative">
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Fecha</label>
-                    <div class="relative">
-                        <input type="date" [(ngModel)]="newRecord.date" 
-                        class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300">
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Campo de hora -->
-                <div class="relative">
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Hora</label>
-                    <div class="relative">
-                        <input type="time" [(ngModel)]="newRecord.time" 
-                               class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300">
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Campo de número de items -->
-                <div class="relative">
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Número de items</label>
-                    <div class="relative">
-                        <input type="number" [(ngModel)]="newRecord.itemCount" min="1" 
-                               class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300">
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Notas (opcional) -->
-                <div class="relative">
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Notas (opcional)</label>
-                    <textarea [(ngModel)]="newRecord.notes" rows="3" 
-                              class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300" 
-                              placeholder="Añade detalles adicionales..."></textarea>
-                </div>
-            </div>
-            
-            <!-- Botones de acción -->
-            <div class="flex space-x-4 mt-8">
-                <!-- Botón cancelar -->
-                <button (click)="closeAddModal($event)" 
-                        class="group relative flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800">
-                    <span class="flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Cancelar
-                    </span>
-                    <span class="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
-                </button>
-                
-                <!-- Botón guardar -->
-                <button (click)="saveNewRecord()" 
-                        [disabled]="!isFormValid()"
-                        [class.bg-green-600]="isFormValid()"
-                        [class.hover:bg-green-500]="isFormValid()"
-                        [class.text-white]="isFormValid()"
-                        [class.cursor-pointer]="isFormValid()"
-                        [class.bg-green-900]="!isFormValid()"
-                        [class.bg-opacity-40]="!isFormValid()"
-                        [class.text-gray-500]="!isFormValid()"
-                        [class.cursor-not-allowed]="!isFormValid()"
-                        class="group relative flex-1 px-4 py-3 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-800">
-                    <span class="flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Guardar registro
-                    </span>
-                    <!-- Efecto de resplandor -->
-                    <span *ngIf="isFormValid()" class="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-10 group-hover:animate-pulse transition-opacity"></span>
-                </button>
-            </div>
-        </div>
-        
-        <!-- Barra de progreso animada - aparece cuando se está guardando -->
-        <div *ngIf="isSaving" class="h-1 bg-green-600 relative overflow-hidden animate-modalProgress">
-            <div class="absolute inset-0 bg-gradient-to-r from-green-500 via-green-300 to-green-500 animate-shimmer"></div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Notificación toast para confirmar eliminación -->
 <div *ngIf="showDeletedToast" 
