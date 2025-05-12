@@ -170,15 +170,9 @@
               </svg>
             </div>
             <button (click)="borrarFiltros()"
-              class="h-10 px-4 text-sm border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 hover:scale-[1.03] hover:shadow-md flex items-center justify-center gap-1.5 hover:border-red-200 dark:hover:border-red-800"
-              [ngClass]="{'bg-indigo-600 text-white hover:bg-indigo-700 hover:border-indigo-700':seleccionados>0, 'text-gray-600 dark:text-gray-300':seleccionados===0}">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-90" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-              Limpiar filtros
-            </button>
+              class="h-9 px-3 text-xs border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300"
+              [ngClass]="{'bg-indigo-600 text-white hover:bg-indigo-700':seleccionados>0}">Limpiar
+              filtros</button>
           </div>
         </div>
 
@@ -275,7 +269,7 @@
               <line x1="12" y1="20" x2="12" y2="10"></line>
               <line x1="18" y1="20" x2="18" y2="4"></line>
               <line x1="6" y1="20" x2="6" y2="16"></line>
-              
+
             </svg>
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">Evolución General</h2>
           </div>
@@ -299,7 +293,7 @@
                 'text-gray-700 dark:text-gray-300': vistaSeleccionada !== 'año'
               }" class="py-1.5 px-2 sm:px-3 text-xs font-medium rounded-md flex-1 sm:flex-none" value="año">
               Año
-              
+
             </button>
           </div>
         </div>
@@ -416,6 +410,13 @@
           <div class="space-y-2">
             <button (click)="exportToPdf()"
               class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+              @if(isExporting){
+              <div
+                class="w-4 h-4 sm:w-5 sm:h-5 border-2 sm:border-3 border-t-transparent border-white rounded-full animate-spin">
+              </div>
+              <span>Exportando...</span>
+              }
+              @else{
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 sm:h-5 w-4 sm:w-5" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
@@ -423,6 +424,7 @@
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
               Exportar dashboard completo
+              }
             </button>
           </div>
         </div>
@@ -481,6 +483,7 @@
               <div
                 class="px-3 sm:px-4 py-2 sm:py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <h3 class="text-sm font-medium text-gray-900 dark:text-white">Teórica</h3>
+                @if(this.porcentajeReal>=0){
                 <div
                   class="flex items-center gap-1 px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-medium rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"
@@ -488,8 +491,20 @@
                     <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
                     <polyline points="17 6 23 6 23 12"></polyline>
                   </svg>
-                  <span>+4.5%</span>
+                  <span>{{porcentajeReal}}%</span>
                 </div>
+                }
+                @else {
+                  <div
+                  class="flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                    <polyline points="17 18 23 18 23 12"></polyline>
+                  </svg>
+                  <span>{{porcentajeReal}}%</span>
+                </div>
+                }
               </div>
               <div class="p-2 sm:p-4">
                 <!-- Altura ajustable para gráfica de teoría -->
