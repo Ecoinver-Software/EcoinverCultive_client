@@ -15,7 +15,11 @@ import { Cultive } from '../../types/Cultive';
 import { CultivoService } from '../../services/Cultivo.service';
 import { ComercialPlanningDetailsWithId } from '../../types/ComercialPlanningDetailsWithId';
 import { ProducRealService } from '../../services/producReal.service';
+
 import { ProducReal } from '../../types/ProducReal';
+
+
+
 
 @Component({
   selector: 'app-dashboard',
