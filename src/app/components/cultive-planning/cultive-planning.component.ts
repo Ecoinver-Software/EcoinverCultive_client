@@ -314,81 +314,120 @@ numTramos: number = this.numTramosInput;
     return meses[month];
   }
 
-  /**
-   * Maneja el cambio de quincena seleccionada
-   * Inicializa los tramos con las fechas correspondientes a la quincena
-   * y busca cultivos que comiencen dentro de la quincena
-   */
   onQuincenaChange(): void {
     console.log('Quincena seleccionada:', this.selectedQuincena);
-
-    // Si no hay selección, limpiar todo
+  
+    // 0️⃣ Si no hay selección, limpiar todo y salir
     if (!this.selectedQuincena) {
       this.cards = [];
-      this.selectedCultivos = [];
       this.selectedCultivosIds = [];
+      this.selectedCultivos   = [];
       return;
     }
-
-    // Buscar la quincena seleccionada
+  
+    // 1️⃣ Buscar la quincena en nuestro array
     const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
     if (!quincena) {
       console.error('No se encontró la quincena seleccionada');
       return;
     }
-
-    console.log('Quincena encontrada:', quincena);
-
-    // Inicializar los tramos para la quincena seleccionada
+  
+    // 2️⃣ Inicializar los tramos en base a la quincena
     this.initializeTramosPorQuincena(quincena);
-    
-    // Buscar si existen datos guardados para esta quincena
-    this.buscarDatosQuincena();
-    
-    // Buscar cultivos que comiencen dentro de esta quincena
+  
+    // 3️⃣ FILTRADO “EN FRÍO” por fecha de siembra (día/mes)
     this.buscarCultivosEnQuincena(quincena);
+  
+    // 4️⃣ Cargar la planificación y sus cultivos asociados desde la API
+    this.cultivoPlanningService.getAllCultivePlannings().subscribe(plans => {
+      const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
+      const planExist = plans.find(p => p.nombre === nombrePlan);
+  
+      if (planExist?.id != null) {
+        // 🔄 Convertimos a number aquí:
+        const planIdNum = typeof planExist.id === 'string'
+          ? parseInt(planExist.id, 10)
+          : planExist.id;
+  
+        // Carga los cultivos ligados a esta planificación
+        this.cultivoService.getAll().subscribe(allCultivos => {
+          const asociados = allCultivos
+            .filter(c => c.idCultivePlanning === planIdNum)
+            .map(c => c.id);
+  
+          // Fusionamos los dos sets de IDs
+          const union = Array.from(new Set([
+            ...this.selectedCultivosIds,
+            ...asociados
+          ]));
+  
+          this.selectedCultivosIds = union;
+          this.selectedCultivos = union.map(id => {
+            const c = this.cultivo.find(x => x.id === id);
+            return c
+              ? `${c.nombreAgricultor} - ${c.nombreGenero} - ${c.nombreVariedad}`
+              : `Cultivo ID ${id}`;
+          });
+  
+          console.log(`(API) Cultivos asociados fusionados: ${this.selectedCultivosIds.length}`);
+        });
+      } else {
+        console.log(
+          `No existe planificación para "${nombrePlan}", usamos solo filtro por fecha (${this.selectedCultivosIds.length})`
+        );
+      }
+    });
   }
+  
 
-  /**
- * Busca cultivos cuya fecha de siembra (solo día y mes) cae dentro del rango de la quincena
- * @param quincena Quincena seleccionada
+ /**
+ * Filtra los cultivos cuya fecha de siembra cae entre la quincena,
+ * comparando únicamente día y mes para evitar desfases de hora.
  */
 buscarCultivosEnQuincena(quincena: Quincena): void {
-  console.log('===== INICIO BÚSQUEDA DE CULTIVOS IGNORANDO AÑO =====');
-  const yearQ = quincena.fechaInicio.getFullYear();
-  const inicioMs = new Date(yearQ, quincena.fechaInicio.getMonth(), quincena.fechaInicio.getDate()).getTime();
-  const finMs    = new Date(yearQ, quincena.fechaFin.getMonth(),    quincena.fechaFin.getDate()).getTime();
+  const inicio = quincena.fechaInicio;
+  const fin    = quincena.fechaFin;
 
-  // Filtrar cultivos por día y mes, ignorando año
   const cultivosEnQuincena = this.cultivo.filter(c => {
     if (!c.fechaSiembra) return false;
     const fs = new Date(c.fechaSiembra);
-    // Normaliza la fecha al año de la quincena
-    const fsNormMs = new Date(yearQ, fs.getMonth(), fs.getDate()).getTime();
-    const enRango = fsNormMs >= inicioMs && fsNormMs <= finMs;
-    if (enRango) {
-      console.log(`✅ ${c.nombreGenero} - ${c.nombreVariedad} (siembra ${fs.toLocaleDateString()}) ➝ entra en quincena`);
+    const diaFs   = fs.getDate();
+    const mesFs   = fs.getMonth();
+    const diaIni  = inicio.getDate();
+    const mesIni  = inicio.getMonth();
+    const diaFin  = fin.getDate();
+    const mesFin  = fin.getMonth();
+
+    // Sólo incluimos si mes y día están dentro del rango [inicio, fin]
+    // (Esto funciona porque tus quincenas nunca abarcan más de un mes.)
+    const mismaQuincena = mesFs === mesIni
+      && diaFs >= diaIni
+      && diaFs <= diaFin;
+
+    if (mismaQuincena) {
+      console.log(`✅ ${c.nombreGenero} - ${c.nombreVariedad} (siembra ${fs.toLocaleDateString()})`);
     }
-    return enRango;
+    return mismaQuincena;
   });
 
-  console.log(`Se encontraron ${cultivosEnQuincena.length} cultivos en la quincena (día/mes)`);
+  // Si tienes filtro de género, aplícalo ahora
+  const cultivosFiltrados = this.selectedGeneroId
+    ? cultivosEnQuincena.filter(c =>
+        c.nombreGenero === this.genderList.find(g => g.idGenero === this.selectedGeneroId)?.nombreGenero
+      )
+    : cultivosEnQuincena;
 
-  // Luego aplicas tu filtro por género si lo tienes activo…
-  let cultivosFiltrados = cultivosEnQuincena;
-  if (this.selectedGeneroId) {
-    const nombreGen = this.genderList.find(g => g.idGenero === this.selectedGeneroId)?.nombreGenero;
-    cultivosFiltrados = cultivosEnQuincena.filter(c => c.nombreGenero === nombreGen);
-    console.log(`Después de filtro por género (${nombreGen}): ${cultivosFiltrados.length}`);
-  }
-
-  // Finalmente asignas a la UI
+  // Actualiza UI
   this.selectedCultivosIds = cultivosFiltrados.map(c => c.id);
-  this.selectedCultivos   = cultivosFiltrados.map(c =>
+  this.selectedCultivos    = cultivosFiltrados.map(c =>
     `${c.nombreAgricultor} - ${c.nombreGenero} - ${c.nombreVariedad}`
   );
-  console.log('===== FIN BÚSQUEDA =====');
+
+  console.log(`Total cultivos en quincena ${quincena.nombre}: ${this.selectedCultivosIds.length}`);
 }
+
+
+
 
 
   /**
@@ -498,116 +537,87 @@ buscarCultivosEnQuincena(quincena: Quincena): void {
    * Actualiza los cultivos afectados cuando cambian las fechas de los tramos
    */
   actualizarCultivosAfectados(): void {
-    // Si no hay quincena seleccionada, no hacer nada
+    // 1️⃣ Si no hay quincena seleccionada, salimos
     if (!this.selectedQuincena) {
       return;
     }
-    
-    // Buscar la quincena seleccionada
-    const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
-    if (!quincena) {
+  
+    // 2️⃣ Buscamos la quincena original sin alterarla
+    const quincenaOriginal = this.quincenas.find(q => q.id === this.selectedQuincena);
+    if (!quincenaOriginal) {
       console.error('No se encontró la quincena seleccionada');
       return;
     }
-    
-    // Obtener el nuevo rango de fechas de los tramos
-    const fechaInicioTramos = this.cards.reduce((min, card) => {
-      if (!card.startDate) return min;
-      const fecha = new Date(card.startDate);
-      return fecha < min ? fecha : min;
-    }, new Date('9999-12-31'));
-    
-    const fechaFinTramos = this.cards.reduce((max, card) => {
-      if (!card.endDate) return max;
-      const fecha = new Date(card.endDate);
-      return fecha > max ? fecha : max;
-    }, new Date('0000-01-01'));
-    
-    console.log('Nuevo rango de fechas de tramos:', {
-      inicio: this.formatDate(fechaInicioTramos),
-      fin: this.formatDate(fechaFinTramos)
-    });
-    
-    // Actualizar las fechas de la quincena
-    quincena.fechaInicio = fechaInicioTramos;
-    quincena.fechaFin = fechaFinTramos;
-    
-    // Buscar cultivos que caen dentro del nuevo rango
-    this.buscarCultivosEnQuincena(quincena);
+  
+    // 3️⃣ Volvemos a filtrar cultivos sólo con el rango de la quincena original
+    this.buscarCultivosEnQuincena(quincenaOriginal);
   }
 
   /**
-   * Busca si existen datos guardados para la quincena seleccionada
-   * y los carga si existen
-   */
-  /**
- * Busca si existen datos guardados para la quincena seleccionada
- * y los carga si existen. Además ajusta el número de tramos
- * al count real de detalles guardados.
+ * Busca si existen datos guardados para la quincena seleccionada,
+ * ajusta el número de tramos, inicializa los cards, y sincroniza
+ * todas las producciones (create/update/delete).
  */
 buscarDatosQuincena(): void {
-  // El ID de la planificación coincide con el ID de la quincena
   const planificacionId = this.selectedQuincena;
+  if (!planificacionId) return;
 
-  // Cargamos todas las planificaciones para encontrar la que coincide
-  this.cultivoPlanningService.getAllCultivePlannings().subscribe(
-    planificaciones => {
-      const quincena = this.quincenas.find(q => q.id === planificacionId);
-      if (!quincena) {
-        console.error('No se encontró la quincena seleccionada');
-        return;
-      }
+  // 1️⃣ Recuperar la quincena y el nombre de la planificación
+  const quincena = this.quincenas.find(q => q.id === planificacionId);
+  if (!quincena) {
+    console.error('No se encontró la quincena seleccionada');
+    return;
+  }
+  const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
 
-      // Encontrar planificación por nombre (incluye el género)
-      const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
-      const planExist = planificaciones.find(p => p.nombre === nombrePlan);
-
-      if (planExist && planExist.id) {
-        // Si existe, cargamos sus detalles
-        this.cultivePlanningDetailsService
-          .getDetailsByPlanningId(planExist.id.toString())
-          .subscribe(
-            details => {
-              if (!details || details.length === 0) {
-                console.log('No hay detalles guardados para esta planificación');
-                return;
-              }
-
-              // 1️⃣ Asignamos detalles al componente
-              this.details = details;
-
-              // 2️⃣ Ajustamos el número de tramos al tamaño real de los detalles
-              this.numTramosInput = details.length;
-              this.numTramos      = details.length;
-
-              // 3️⃣ Re-generamos los cards con el nuevo número de tramos
-              this.initializeTramosPorQuincena(quincena);
-
-              // 4️⃣ Asignamos los valores de kilos de cada detail a su card
-              details.forEach(detail => {
-                const idx = detail.tramo - 1;
-                if (this.cards[idx]) {
-                  this.cards[idx].value = detail.kilos;
-                }
-              });
-
-              // 5️⃣ Mensaje de éxito y carga de cultivos asociados
-              this.mostrarMensajeExito('Datos de la quincena cargados correctamente');
-              this.cargarCultivosAsociados(planExist.id);
-            },
-            error => {
-              console.error('Error al cargar los detalles de la planificación:', error);
-            }
-          );
-      } else {
-        console.log(`No existe planificación para la quincena ${quincena.nombre}`);
-      }
-    },
-    error => {
-      console.error('Error al buscar planificaciones:', error);
+  // 2️⃣ Buscar si ya existe esa planificación
+  this.cultivoPlanningService.getAllCultivePlannings().subscribe(planificaciones => {
+    const planExist = planificaciones.find(p => p.nombre === nombrePlan);
+    if (!planExist?.id) {
+      console.log(`No existe planificación "${nombrePlan}"`);
+      return;
     }
-  );
+
+    // 3️⃣ Cargar sus detalles (tramos)
+    this.cultivePlanningDetailsService
+      .getDetailsByPlanningId(planExist.id.toString())
+      .subscribe(details => {
+        if (!details?.length) {
+          console.log('No hay detalles guardados para esta planificación');
+          return;
+        }
+
+        // 4️⃣ Asignar detalles y regenerar cards
+        this.details = details;
+        this.numTramosInput = details.length;
+        this.numTramos      = details.length;
+        this.initializeTramosPorQuincena(quincena);
+        details.forEach(d => {
+          const idx = d.tramo - 1;
+          if (this.cards[idx]) this.cards[idx].value = d.kilos;
+        });
+
+        // 5️⃣ ¡Aquí es clave! Cargar primero todas las producciones
+        this.loadProductionsForDetails(this.details).subscribe(() => {
+          console.log(`→ ${this.produccionesMap.size} producciones cargadas, ahora sincronizo…`);
+
+          // 6️⃣ Sincronizar: crear, actualizar o borrar
+          this.syncAllProductions();
+
+          // 7️⃣ Finalmente, recargar los cultivos desde la API
+          this.cargarCultivosAsociados(planExist.id);
+
+          this.mostrarMensajeExito('Datos y producciones sincronizados correctamente');
+        });
+      }, err => {
+        console.error('Error al cargar detalles:', err);
+      });
+  }, err => {
+    console.error('Error al listar planificaciones:', err);
+  });
 }
+
+
 
   
   /**
@@ -1027,6 +1037,7 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
         });
       
       console.log(`Loaded ${this.produccionesMap.size} productions for details`);
+      console.log(`Loaded ${this.produccionesMap}`);
       return this.produccionesMap;
     })
   );

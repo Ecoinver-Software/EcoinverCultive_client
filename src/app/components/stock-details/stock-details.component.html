@@ -1,1 +1,84 @@
-<p>stock-details works!</p>
+<!-- stock-details.component.html -->
+<!-- stock-details.component.html -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+  integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
+<div class="mb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+  <!-- Lista de pestañas -->
+  <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
+    <li class="me-2" role="presentation">
+      <button (click)="setActiveTab('Datos de stock')" [class.active-tab]="activeTab === 'Datos de stock'"
+        class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all"
+        [ngClass]="{
+          'border-[#437d3f] dark:border-[#65b15f] text-[#437d3f] dark:text-[#65b15f]':
+            activeTab === 'Datos de stock'
+        }">
+        <i class="fas fa-box mr-2"></i>Datos de stock
+      </button>
+    </li>
+    <li class="me-2" role="presentation">
+      <button (click)="setActiveTab('Ubicacion')" [class.active-tab]="activeTab === 'Ubicacion'"
+        class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all"
+        [ngClass]="{
+          'border-[#437d3f] dark:border-[#65b15f] text-[#437d3f] dark:text-[#65b15f]':
+            activeTab === 'Ubicacion'
+        }">
+        <i class="fas fa-warehouse mr-2"></i>Ubicación
+      </button>
+    </li>
+    <li class="me-2" role="presentation">
+      <button (click)="setActiveTab('Historico')" [class.active-tab]="activeTab === 'Historico'"
+        class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all"
+        [ngClass]="{
+          'border-[#437d3f] dark:border-[#65b15f] text-[#437d3f] dark:text-[#65b15f]':
+            activeTab === 'Historico'
+        }">
+        <i class="fas fa-history mr-2"></i>Histórico
+      </button>
+    </li>
+    <!-- Nueva pestaña movimientos -->
+    <li class="me-2" role="presentation">
+      <button (click)="setActiveTab('Movimientos')" [class.active-tab]="activeTab === 'Movimientos'"
+        class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all"
+        [ngClass]="{
+          'border-[#437d3f] dark:border-[#65b15f] text-[#437d3f] dark:text-[#65b15f]':
+            activeTab === 'Movimientos'
+        }">
+        <i class="fas fa-exchange-alt mr-2"></i>Movimientos
+      </button>
+    </li>
+  </ul>
+
+  <!-- Cartelito a la derecha con información de stock y botón de exportación -->
+  <div class="bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white px-4 py-2 rounded-lg shadow flex items-center gap-3">
+    <p class="text-sm font-medium">
+      {{ stock?.nombreProducto }} - {{ stock?.tipoStock }}
+    </p>
+    <!-- Botón de exportación -->
+    <button 
+      (click)="exportToPdf()" 
+      class="cursor-pointer ml-2 bg-[#437d3f] hover:bg-[#396a35] text-white px-3 py-1 rounded-md text-xs flex items-center transition-colors"
+      title="Exportar a PDF">
+      <i class="fas fa-file-pdf mr-1"></i> PDF
+    </button>
+  </div>
+</div>
+
+<div id="tab-content">
+  <!-- Contenido de las pestañas irá aquí -->
+  <div [class.hidden]="activeTab !== 'Datos de stock'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+    <p>Contenido de datos de stock</p>
+  </div>
+  
+  <div [class.hidden]="activeTab !== 'Ubicacion'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+    <p>Contenido de ubicación</p>
+  </div>
+  
+  <div [class.hidden]="activeTab !== 'Historico'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+    <p>Contenido de histórico</p>
+  </div>
+  
+  <div [class.hidden]="activeTab !== 'Movimientos'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+    <p>Contenido de movimientos</p>
+  </div>
+</div>
