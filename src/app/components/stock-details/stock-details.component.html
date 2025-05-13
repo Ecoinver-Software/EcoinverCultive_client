@@ -2,7 +2,7 @@
   integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
   crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-<div class="mb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+<div class="mb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-wrap sm:flex-nowrap">
   <!-- Menú con dos pestañas -->
   <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
     <li class="me-2" role="presentation">
@@ -30,7 +30,8 @@
   <!-- Cabecera con datos de StockDto y botón PDF -->
   <div *ngIf="!loading && stock"
     class="bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white
-                                           px-4 py-2 rounded-lg shadow flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+           px-4 py-2 rounded-lg shadow flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 
+           mt-2 sm:mt-0 w-full sm:w-auto">
     <div class="flex flex-col sm:flex-row sm:items-center gap-1">
       <span class="font-semibold">ID:</span> <span>{{ stock.id }}</span>
     </div>
@@ -49,7 +50,7 @@
   </div>
 </div>
 
-<div id="tab-content">
+<div id="tab-content" class="w-full">
   <!-- Contenido Análisis de Stock -->
   <div [class.hidden]="activeTab !== 'Analisis de Stock'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
     <!-- Aquí irían tus gráficos y KPIs -->
@@ -57,43 +58,151 @@
   </div>
 
   <!-- Contenido Lectura de Stock -->
-  <div *ngIf="activeTab === 'Lectura de Stock'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
-
-    <!-- Botón para abrir/cerrar la cámara -->
-    <button (click)="scannerEnabled = !scannerEnabled"
-      class="mb-4 bg-[#437d3f] hover:bg-[#396a35] text-white px-3 py-1 rounded-md text-sm flex items-center">
-      <i class="fas fa-camera mr-1"></i>
-      {{ scannerEnabled ? 'Cerrar cámara' : 'Abrir cámara' }}
-    </button>
-
-    <!-- Selector de dispositivo -->
-    <div *ngIf="availableDevices.length > 0" class="mb-4">
-      <label class="mr-2">Selecciona cámara:</label>
-      <select [(ngModel)]="selectedDevice" class="border rounded p-1 text-sm">
-        <option *ngFor="let d of availableDevices" [ngValue]="d">
-          {{ d.label || d.deviceId }}
-        </option>
-      </select>
+  <div *ngIf="activeTab === 'Lectura de Stock'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 w-full">
+    
+    <!-- Sistema de tarjetas de escaneo con contenedor que crece -->
+    <div class="cards-container w-full overflow-x-auto pb-4 pt-2">
+      <div class="cards-wrapper flex gap-4" [ngStyle]="{'min-width': getCardWrapperWidth()}">
+        
+        <!-- Tarjeta fija con el símbolo + para activar el scanner (crece con los resultados) -->
+        <div (click)="toggleScanner()" 
+             class="card-scanner-trigger rounded-lg flex flex-col items-center justify-center cursor-pointer"
+             [ngClass]="{'dark-theme': isDarkMode}"
+             [ngStyle]="{'min-width': getAddCardWidth(), 'height': getCardHeight()}">
+          <div class="text-center">
+            <div class="plus-icon">+</div>
+            <p class="card-label">Escanear QR</p>
+            <div class="pulse-hint">Pulsa para escanear</div>
+          </div>
+        </div>
+        
+        <!-- Tarjetas de resultados mejoradas (la más reciente primero) -->
+        <div *ngFor="let scan of scannedResults; let i = index"
+             class="qr-result-card rounded-lg p-3 flex flex-col"
+             [ngClass]="{'dark-theme': isDarkMode}"
+             [ngStyle]="{'min-width': getResultCardWidth(), 'height': getCardHeight()}">
+          <div class="card-header">
+            <span class="card-timestamp">{{ scan.timestamp | date:'short' }}</span>
+            <button (click)="removeResult(i, $event)" class="delete-btn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="card-title">Código #{{ scannedResults.length - i }}</div>
+          <div class="card-content">
+            <div class="qr-value">{{ scan.value }}</div>
+          </div>
+          <div class="bulks-info">
+            <span class="bulks-label">Cantidad:</span>
+            <span class="bulks-value">
+              <i class="fas fa-box bulks-icon"></i>
+              {{ scan.bulksQuantity || 1 }}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
 
-
-    <!-- Lector de QR -->
-    <zxing-scanner *ngIf="scannerEnabled" [enable]="scannerEnabled" [autostart]="true" [device]="selectedDevice"
-      (camerasFound)="onCamerasFound($event)" (camerasNotFound)="onCamerasNotFound()"
-      (permissionResponse)="onPermissionResponse($event)" (scanError)="onScanError($event)"
-      (scanSuccess)="onCodeResult($event)">
-    </zxing-scanner>
-
-    <!-- Resultado -->
-    <div *ngIf="qrResult" class="mt-4 p-2 bg-green-100 text-green-800 rounded">
-      <strong>Resultado QR:</strong> {{ qrResult }}
-    </div>
-
-    <!-- Error -->
-    <div *ngIf="error" class="mt-2 p-2 bg-red-100 text-red-800 rounded">
-      {{ error }}
+    <!-- Scanner QR (Modal separado) -->
+    <div *ngIf="scannerEnabled" class="modal-overlay">
+      <div class="modal-container" [ngClass]="{'dark-theme': isDarkMode}">
+        <div class="modal-header">
+          <h3>Escanear código QR</h3>
+          <button (click)="closeScanner()" class="close-button">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- Selector de dispositivo -->
+          <div *ngIf="availableDevices.length > 0" class="device-selector">
+            <label>Selecciona cámara:</label>
+            <select [(ngModel)]="selectedDevice" (change)="onDeviceSelectChange()">
+              <option *ngFor="let d of availableDevices" [ngValue]="d">
+                {{ d.label || 'Cámara ' + (availableDevices.indexOf(d) + 1) }}
+              </option>
+            </select>
+          </div>
+          
+          <!-- Contenedor de la cámara -->
+          <div class="camera-container">
+            <!-- Componente del escáner -->
+            <zxing-scanner 
+              #scanner
+              [autostart]="true" 
+              [device]="selectedDevice"
+              [torch]="torchEnabled"
+              (camerasFound)="onCamerasFound($event)" 
+              (camerasNotFound)="onCamerasNotFound()"
+              (permissionResponse)="onPermissionResponse($event)" 
+              (scanError)="onScanError($event)"
+              (scanSuccess)="onCodeResult($event)">
+            </zxing-scanner>
+            
+            <!-- Esquinas del marco -->
+            <div class="scanner-corner top-left"></div>
+            <div class="scanner-corner top-right"></div>
+            <div class="scanner-corner bottom-left"></div>
+            <div class="scanner-corner bottom-right"></div>
+          </div>
+          
+          <!-- Mensaje de error -->
+          <div *ngIf="error" class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ error }}
+            <button (click)="retryScanner()" class="retry-button">
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 
-
+<!-- Modal para ingresar cantidad de bultos -->
+<div *ngIf="showBulkQuantityModal" class="bulks-modal-overlay">
+  <div class="bulks-modal-container" [ngClass]="{'dark-theme': isDarkMode}">
+    <div class="bulks-modal-header">
+      <h3>Añadir bultos</h3>
+      <button (click)="cancelBulkEntry()" class="close-button">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="bulks-modal-body">
+      <div class="scanned-code-info">
+        <div class="code-label">Código escaneado:</div>
+        <div class="code-value">{{ pendingQrResult }}</div>
+      </div>
+      
+      <div class="quantity-input-container">
+        <label for="bulksQuantity">Cantidad de bultos:</label>
+        <div class="quantity-controls">
+          <button (click)="decrementBulks()" class="quantity-btn" [disabled]="bulksQuantity <= 1">
+            <i class="fas fa-minus"></i>
+          </button>
+          <input 
+            type="number" 
+            id="bulksQuantity" 
+            [(ngModel)]="bulksQuantity" 
+            min="1" 
+            class="quantity-input"
+            (keyup.enter)="saveBulkQuantity()"
+          >
+          <button (click)="incrementBulks()" class="quantity-btn">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="bulks-modal-footer">
+        <button (click)="cancelBulkEntry()" class="cancel-btn">
+          Cancelar
+        </button>
+        <button (click)="saveBulkQuantity()" class="save-btn">
+          <i class="fas fa-save mr-1"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
