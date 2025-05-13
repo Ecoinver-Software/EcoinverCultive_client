@@ -182,33 +182,39 @@ numTramos: number = this.numTramosInput;
 
 
 
-  onNumTramosChange(): void {
-    // Convertir a entero
-    this.numTramosInput = Math.max(1, Math.floor(this.numTramosInput));
-    this.numTramos = this.numTramosInput;
-  
-    // Si hay quincena, reinicializa tramos
-    if (this.selectedQuincena) {
-      const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
-      if (quincena) {
-        this.initializeTramosPorQuincena(quincena);
-      }
-    }
-  }
+  /**
+ * Dispara al cambiar manualmente el número de tramos.
+ */
+onNumTramosChange(): void {
+  // 1) Normalizar a entero en rango
+  this.numTramosInput = Math.max(1, Math.min(this.maxTramos, Math.floor(this.numTramosInput)));
+  // 2) Ajustar cards sin resetear todo
+  this.adjustTramos(this.numTramosInput);
+  // 3) Reflejar el cambio
+  this.numTramos = this.numTramosInput;
+}
 
-  incrementTramos(): void {
-    if (this.numTramosInput < this.maxTramos) {
-      this.numTramosInput++;
-      this.onNumTramosChange();
-    }
+/**
+ * Aumenta en uno el número de tramos.
+ */
+incrementTramos(): void {
+  if (this.numTramosInput < this.maxTramos) {
+    this.numTramosInput++;
+    this.adjustTramos(this.numTramosInput);
+    this.numTramos = this.numTramosInput;
   }
-  
-  decrementTramos(): void {
-    if (this.numTramosInput > 1) {
-      this.numTramosInput--;
-      this.onNumTramosChange();
-    }
+}
+
+/**
+ * Disminuye en uno el número de tramos.
+ */
+decrementTramos(): void {
+  if (this.numTramosInput > 1) {
+    this.numTramosInput--;
+    this.adjustTramos(this.numTramosInput);
+    this.numTramos = this.numTramosInput;
   }
+}
 
 
 
@@ -315,69 +321,32 @@ numTramos: number = this.numTramosInput;
   }
 
   onQuincenaChange(): void {
-    console.log('Quincena seleccionada:', this.selectedQuincena);
-  
-    // 0️⃣ Si no hay selección, limpiar todo y salir
-    if (!this.selectedQuincena) {
-      this.cards = [];
-      this.selectedCultivosIds = [];
-      this.selectedCultivos   = [];
-      return;
-    }
-  
-    // 1️⃣ Buscar la quincena en nuestro array
-    const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
-    if (!quincena) {
-      console.error('No se encontró la quincena seleccionada');
-      return;
-    }
-  
-    // 2️⃣ Inicializar los tramos en base a la quincena
-    this.initializeTramosPorQuincena(quincena);
-  
-    // 3️⃣ FILTRADO “EN FRÍO” por fecha de siembra (día/mes)
-    this.buscarCultivosEnQuincena(quincena);
-  
-    // 4️⃣ Cargar la planificación y sus cultivos asociados desde la API
-    this.cultivoPlanningService.getAllCultivePlannings().subscribe(plans => {
-      const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
-      const planExist = plans.find(p => p.nombre === nombrePlan);
-  
-      if (planExist?.id != null) {
-        // 🔄 Convertimos a number aquí:
-        const planIdNum = typeof planExist.id === 'string'
-          ? parseInt(planExist.id, 10)
-          : planExist.id;
-  
-        // Carga los cultivos ligados a esta planificación
-        this.cultivoService.getAll().subscribe(allCultivos => {
-          const asociados = allCultivos
-            .filter(c => c.idCultivePlanning === planIdNum)
-            .map(c => c.id);
-  
-          // Fusionamos los dos sets de IDs
-          const union = Array.from(new Set([
-            ...this.selectedCultivosIds,
-            ...asociados
-          ]));
-  
-          this.selectedCultivosIds = union;
-          this.selectedCultivos = union.map(id => {
-            const c = this.cultivo.find(x => x.id === id);
-            return c
-              ? `${c.nombreAgricultor} - ${c.nombreGenero} - ${c.nombreVariedad}`
-              : `Cultivo ID ${id}`;
-          });
-  
-          console.log(`(API) Cultivos asociados fusionados: ${this.selectedCultivosIds.length}`);
-        });
-      } else {
-        console.log(
-          `No existe planificación para "${nombrePlan}", usamos solo filtro por fecha (${this.selectedCultivosIds.length})`
-        );
-      }
-    });
+  // Si no hay quincena seleccionada, reseteamos todo
+  if (!this.selectedQuincena) {
+    this.cards = [];
+    this.selectedCultivosIds = [];
+    this.selectedCultivos   = [];
+    return;
   }
+
+  // Buscamos la quincena y construimos el nombre de la planificación
+  const quincena = this.quincenas.find(q => q.id === this.selectedQuincena)!;
+  const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
+
+  // Consultamos todas las planificaciones para ver si ya existe ésta
+  this.cultivoPlanningService.getAllCultivePlannings().subscribe(plans => {
+    const planExist = plans.find(p => p.nombre === nombrePlan);
+
+    if (planExist?.id) {
+      //  —— Si existe, cargamos sus datos (tramos, valores y cultivos)
+      this.buscarDatosQuincena();
+    } else {
+      //  —— Si no existe, inicializamos “en blanco” basados en la quincena
+      this.initializeTramosPorQuincena(quincena);
+      this.buscarCultivosEnQuincena(quincena);
+    }
+  });
+}
   
 
  /**
@@ -559,55 +528,46 @@ buscarCultivosEnQuincena(quincena: Quincena): void {
  * todas las producciones (create/update/delete).
  */
 buscarDatosQuincena(): void {
-  const planificacionId = this.selectedQuincena;
-  if (!planificacionId) return;
-
-  // 1️⃣ Recuperar la quincena y el nombre de la planificación
-  const quincena = this.quincenas.find(q => q.id === planificacionId);
-  if (!quincena) {
-    console.error('No se encontró la quincena seleccionada');
-    return;
-  }
+  // Necesitamos la quincena y el nombre de la planificación
+  const quincena = this.quincenas.find(q => q.id === this.selectedQuincena)!;
   const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
 
-  // 2️⃣ Buscar si ya existe esa planificación
+  // 1️⃣ Obtenemos todas las planificaciones y buscamos la que corresponde
   this.cultivoPlanningService.getAllCultivePlannings().subscribe(planificaciones => {
     const planExist = planificaciones.find(p => p.nombre === nombrePlan);
     if (!planExist?.id) {
-      console.log(`No existe planificación "${nombrePlan}"`);
+      console.warn(`No existe planificación ${nombrePlan}`);
       return;
     }
 
-    // 3️⃣ Cargar sus detalles (tramos)
+    // 2️⃣ Traemos los detalles (tramos) que ya existen en BD
     this.cultivePlanningDetailsService
       .getDetailsByPlanningId(planExist.id.toString())
       .subscribe(details => {
-        if (!details?.length) {
-          console.log('No hay detalles guardados para esta planificación');
+        if (!details.length) {
+          console.warn('No hay tramos guardados para esta planificación');
           return;
         }
 
-        // 4️⃣ Asignar detalles y regenerar cards
-        this.details = details;
+        // 3️⃣ Ajustamos el número de tramos en la UI
         this.numTramosInput = details.length;
         this.numTramos      = details.length;
-        this.initializeTramosPorQuincena(quincena);
-        details.forEach(d => {
-          const idx = d.tramo - 1;
-          if (this.cards[idx]) this.cards[idx].value = d.kilos;
-        });
 
-        // 5️⃣ ¡Aquí es clave! Cargar primero todas las producciones
-        this.loadProductionsForDetails(this.details).subscribe(() => {
-          console.log(`→ ${this.produccionesMap.size} producciones cargadas, ahora sincronizo…`);
+        // 4️⃣ Montamos los cards EXACTAMENTE con los datos guardados
+        this.cards = details.map(d => ({
+          value:     d.kilos,
+          startDate: this.formatDateForInput(new Date(d.fechaInicio)),
+          endDate:   this.formatDateForInput(new Date(d.fechaFin))
+        }));
 
-          // 6️⃣ Sincronizar: crear, actualizar o borrar
+        // 5️⃣ Cargamos las producciones asociadas a estos tramos
+        this.loadProductionsForDetails(details).subscribe(() => {
+          // 6️⃣ Sincronizamos create/update/delete de producciones
           this.syncAllProductions();
-
-          // 7️⃣ Finalmente, recargar los cultivos desde la API
+          // 7️⃣ Cargamos los cultivos vinculados a esta planificación
           this.cargarCultivosAsociados(planExist.id);
-
-          this.mostrarMensajeExito('Datos y producciones sincronizados correctamente');
+          // 8️⃣ Mensaje de éxito
+          this.mostrarMensajeExito('Planificación cargada correctamente');
         });
       }, err => {
         console.error('Error al cargar detalles:', err);
@@ -617,7 +577,44 @@ buscarDatosQuincena(): void {
   });
 }
 
+private adjustTramos(newCount: number): void {
+  const oldCards = [...this.cards];
+  const actualCount = oldCards.length;
 
+  // Si sube el número de tramos, añadimos nuevos al final
+  if (newCount > actualCount) {
+    for (let i = actualCount; i < newCount; i++) {
+      let start: string;
+      let end: string;
+
+      if (i === 0) {
+        // Primer tramo: arrancamos en el inicio de la quincena si existe
+        if (this.selectedQuincena) {
+          const q = this.quincenas.find(q => q.id === this.selectedQuincena)!;
+          start = this.formatDateForInput(q.fechaInicio);
+        } else {
+          const today = new Date();
+          start = this.formatDateForInput(today);
+        }
+        end = start;
+      } else {
+        // Empieza el día siguiente al end del tramo anterior
+        const prevEnd = new Date(oldCards[i - 1].endDate!);
+        prevEnd.setDate(prevEnd.getDate() + 1);
+        start = this.formatDateForInput(prevEnd);
+        end = this.formatDateForInput(prevEnd);
+      }
+
+      oldCards.push({ value: 0, startDate: start, endDate: end });
+    }
+  }
+  // Si baja, recortamos el array
+  else if (newCount < actualCount) {
+    oldCards.splice(newCount, actualCount - newCount);
+  }
+
+  this.cards = oldCards;
+}
 
   
   /**
