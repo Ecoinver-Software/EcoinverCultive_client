@@ -1,84 +1,99 @@
-<!-- stock-details.component.html -->
-<!-- stock-details.component.html -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
   integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
   crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 <div class="mb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-  <!-- Lista de pestañas -->
+  <!-- Menú con dos pestañas -->
   <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
     <li class="me-2" role="presentation">
-      <button (click)="setActiveTab('Datos de stock')" [class.active-tab]="activeTab === 'Datos de stock'"
-        class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all"
-        [ngClass]="{
+      <button (click)="setActiveTab('Analisis de Stock')" [class.active-tab]="activeTab === 'Analisis de Stock'"
+        class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white
+               hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all" [ngClass]="{
           'border-[#437d3f] dark:border-[#65b15f] text-[#437d3f] dark:text-[#65b15f]':
-            activeTab === 'Datos de stock'
+            activeTab === 'Analisis de Stock'
         }">
-        <i class="fas fa-box mr-2"></i>Datos de stock
+        <i class="fas fa-chart-bar mr-2"></i>Análisis de Stock
       </button>
     </li>
     <li class="me-2" role="presentation">
-      <button (click)="setActiveTab('Ubicacion')" [class.active-tab]="activeTab === 'Ubicacion'"
-        class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all"
-        [ngClass]="{
+      <button (click)="setActiveTab('Lectura de Stock')" [class.active-tab]="activeTab === 'Lectura de Stock'"
+        class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white
+               hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all" [ngClass]="{
           'border-[#437d3f] dark:border-[#65b15f] text-[#437d3f] dark:text-[#65b15f]':
-            activeTab === 'Ubicacion'
+            activeTab === 'Lectura de Stock'
         }">
-        <i class="fas fa-warehouse mr-2"></i>Ubicación
-      </button>
-    </li>
-    <li class="me-2" role="presentation">
-      <button (click)="setActiveTab('Historico')" [class.active-tab]="activeTab === 'Historico'"
-        class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all"
-        [ngClass]="{
-          'border-[#437d3f] dark:border-[#65b15f] text-[#437d3f] dark:text-[#65b15f]':
-            activeTab === 'Historico'
-        }">
-        <i class="fas fa-history mr-2"></i>Histórico
-      </button>
-    </li>
-    <!-- Nueva pestaña movimientos -->
-    <li class="me-2" role="presentation">
-      <button (click)="setActiveTab('Movimientos')" [class.active-tab]="activeTab === 'Movimientos'"
-        class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all"
-        [ngClass]="{
-          'border-[#437d3f] dark:border-[#65b15f] text-[#437d3f] dark:text-[#65b15f]':
-            activeTab === 'Movimientos'
-        }">
-        <i class="fas fa-exchange-alt mr-2"></i>Movimientos
+        <i class="fas fa-book-open mr-2"></i>Lectura de Stock
       </button>
     </li>
   </ul>
 
-  <!-- Cartelito a la derecha con información de stock y botón de exportación -->
-  <div class="bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white px-4 py-2 rounded-lg shadow flex items-center gap-3">
-    <p class="text-sm font-medium">
-      {{ stock?.nombreProducto }} - {{ stock?.tipoStock }}
-    </p>
-    <!-- Botón de exportación -->
-    <button 
-      (click)="exportToPdf()" 
-      class="cursor-pointer ml-2 bg-[#437d3f] hover:bg-[#396a35] text-white px-3 py-1 rounded-md text-xs flex items-center transition-colors"
-      title="Exportar a PDF">
+  <!-- Cabecera con datos de StockDto y botón PDF -->
+  <div *ngIf="!loading && stock"
+    class="bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white
+                                           px-4 py-2 rounded-lg shadow flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-1">
+      <span class="font-semibold">ID:</span> <span>{{ stock.id }}</span>
+    </div>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-1">
+      <span class="font-semibold">Fecha:</span>
+      <span>{{ stock.date | date:'medium' }}</span>
+    </div>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-1">
+      <span class="font-semibold">Cantidad:</span>
+      <span>{{ stock.itemCount }}</span>
+    </div>
+    <button (click)="exportToPdf()" class="ml-auto bg-[#437d3f] hover:bg-[#396a35] text-white px-3 py-1 rounded-md text-xs
+             flex items-center transition-colors" title="Exportar a PDF">
       <i class="fas fa-file-pdf mr-1"></i> PDF
     </button>
   </div>
 </div>
 
 <div id="tab-content">
-  <!-- Contenido de las pestañas irá aquí -->
-  <div [class.hidden]="activeTab !== 'Datos de stock'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
-    <p>Contenido de datos de stock</p>
+  <!-- Contenido Análisis de Stock -->
+  <div [class.hidden]="activeTab !== 'Analisis de Stock'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+    <!-- Aquí irían tus gráficos y KPIs -->
+    <p>Análisis de stock: gráficos, indicadores, tendencias…</p>
   </div>
-  
-  <div [class.hidden]="activeTab !== 'Ubicacion'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
-    <p>Contenido de ubicación</p>
+
+  <!-- Contenido Lectura de Stock -->
+  <div *ngIf="activeTab === 'Lectura de Stock'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+
+    <!-- Botón para abrir/cerrar la cámara -->
+    <button (click)="scannerEnabled = !scannerEnabled"
+      class="mb-4 bg-[#437d3f] hover:bg-[#396a35] text-white px-3 py-1 rounded-md text-sm flex items-center">
+      <i class="fas fa-camera mr-1"></i>
+      {{ scannerEnabled ? 'Cerrar cámara' : 'Abrir cámara' }}
+    </button>
+
+    <!-- Selector de dispositivo -->
+    <div *ngIf="availableDevices.length > 0" class="mb-4">
+      <label class="mr-2">Selecciona cámara:</label>
+      <select [(ngModel)]="selectedDevice" class="border rounded p-1 text-sm">
+        <option *ngFor="let d of availableDevices" [ngValue]="d">
+          {{ d.label || d.deviceId }}
+        </option>
+      </select>
+    </div>
+
+
+    <!-- Lector de QR -->
+    <zxing-scanner *ngIf="scannerEnabled" [enable]="scannerEnabled" [autostart]="true" [device]="selectedDevice"
+      (camerasFound)="onCamerasFound($event)" (camerasNotFound)="onCamerasNotFound()"
+      (permissionResponse)="onPermissionResponse($event)" (scanError)="onScanError($event)"
+      (scanSuccess)="onCodeResult($event)">
+    </zxing-scanner>
+
+    <!-- Resultado -->
+    <div *ngIf="qrResult" class="mt-4 p-2 bg-green-100 text-green-800 rounded">
+      <strong>Resultado QR:</strong> {{ qrResult }}
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="mt-2 p-2 bg-red-100 text-red-800 rounded">
+      {{ error }}
+    </div>
   </div>
-  
-  <div [class.hidden]="activeTab !== 'Historico'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
-    <p>Contenido de histórico</p>
-  </div>
-  
-  <div [class.hidden]="activeTab !== 'Movimientos'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
-    <p>Contenido de movimientos</p>
-  </div>
+
+
 </div>
