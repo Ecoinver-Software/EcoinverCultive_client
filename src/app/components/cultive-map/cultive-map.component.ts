@@ -219,7 +219,9 @@ export class CultiveMapComponent implements OnInit {
       tooltip: {
         trigger: 'item',
         confine: true,
-        extraCssText: 'max-width: 200px; white-space: normal;',
+        position: 'top',
+        enterable: true,
+        extraCssText: 'max-width: 200px; white-space: normal; max-height: 300px; overflow-y: auto;',
         formatter: (p: any) => {
           const val = p.value as number;
           const pct = p.percent;
@@ -265,7 +267,9 @@ export class CultiveMapComponent implements OnInit {
       tooltip: {
         trigger: 'item',
         confine: true,
-        extraCssText: 'max-width: 200px; white-space: normal;',
+        position: 'top',
+        enterable: true,
+        extraCssText: 'max-width: 200px; white-space: normal; max-height: 300px; overflow-y: auto;',
         formatter: (p: any) => {
           const val = p.value as number;
           const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';

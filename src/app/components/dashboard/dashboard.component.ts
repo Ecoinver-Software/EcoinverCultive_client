@@ -16,10 +16,13 @@ import { CultivoService } from '../../services/Cultivo.service';
 import { ComercialPlanningDetailsWithId } from '../../types/ComercialPlanningDetailsWithId';
 
 
+import { ProducRealService } from '../../services/ProducReal.service';
+
+
 
 
 import { ProducReal } from '../../types/ProducReal';
-import { ProducRealService } from '../../services/ProducReal.service';
+
 
 
 
@@ -39,6 +42,7 @@ export class DashboardComponent implements OnInit {
   // Chart type selector addition for commercial/production view
   chartType: string = 'combined';
   kgs: any;
+selectedGeneroName: any;
 
   constructor(
     private comercialServicio: ComercialServiceService,
