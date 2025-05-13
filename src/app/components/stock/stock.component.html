@@ -95,7 +95,7 @@
             [style.animation-delay]="i * 100 + 'ms'">
   
           <!-- Badge Nuevo -->
-          <div *ngIf="isRecent(record.date)"
+          <div *ngIf="isRecent(record.fecha)"
                class="absolute top-2 left-2 bg-green-300 text-xs text-green-900 dark:bg-green-500 dark:text-white px-2 py-0.5 rounded-full animate-pulse font-medium z-10">
             Nuevo
           </div>
@@ -120,7 +120,7 @@
                 group-hover:scale-110 transition-all duration-300
                 mr-3
               ">
-              <span class="font-bold">{{ formatDay(record.date) }}</span>
+              <span class="font-bold">{{ formatDay(record.fecha) }}</span>
             </div>
   
             <!-- Detalles -->
@@ -129,13 +129,13 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                {{ formatDate(record.date) }}
+                {{ formatDate(record.fecha) }}
               </p>
               <p class="text-sm text-gray-600 dark:text-gray-400 flex items-center mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                {{ formatTime(record.date) }} –
+                {{ formatTime(record.fecha) }} –
                 <span
                   class="
                     ml-1 px-2 py-0.5 text-xs rounded-full
@@ -144,7 +144,7 @@
                     group-hover:bg-green-200/40 dark:group-hover:bg-green-700/40
                     transition-colors duration-300
                   ">
-                  {{ formatWeekday(record.date) }}
+                  {{ formatWeekday(record.fecha) }}
                 </span>
               </p>
             </div>
