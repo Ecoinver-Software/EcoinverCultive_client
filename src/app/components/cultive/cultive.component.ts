@@ -102,33 +102,38 @@ export class CultiveComponent implements OnInit {
   }
 
   filterData(): void {
-    const query = this.searchQuery.toLowerCase().trim();
-    if (query) {
-      this.filteredData = this.data.filter(item => {
-        return (
-          item.idCultivo.toString().includes(query) ||
-          item.idAgricultor.toString().includes(query) ||
-          item.nombreAgricultor.toLowerCase().includes(query) ||
-          item.idFinca.toString().includes(query) ||
-          item.nombreFinca.toLowerCase().includes(query) ||
-          item.idNave.toString().includes(query) ||
-          item.nombreNave.toLowerCase().includes(query) ||
-          item.idGenero.toString().includes(query) ||
-          item.nombreGenero.toLowerCase().includes(query) ||
-          item.nombreVariedad.toLowerCase().includes(query) ||
-          item.superficie.toString().includes(query) ||
-          item.produccionEstimada.toString().includes(query) ||
-          (item.fechaSiembra && item.fechaSiembra.toLocaleDateString().toLowerCase().includes(query)) ||
-          (item.fechaFin && item.fechaFin.toLocaleDateString().toLowerCase().includes(query))
-        );
-      });
-    } else {
-      this.filteredData = [...this.data];
-    }
-    this.currentPage = 1;
-    this.selectedCultivo = null;
-    this.updatePagination();
-  }
+  const q = this.searchQuery.toLowerCase().trim();
+
+  this.filteredData = q
+    ? this.data.filter(item => {
+        return [
+          (item.idCultivo       ?? '').toString(),
+          (item.idAgricultor    ?? '').toString(),
+          (item.idFinca         ?? '').toString(),
+          (item.idNave          ?? '').toString(),
+          (item.idGenero        ?? '').toString(),
+          (item.superficie      ?? '').toString(),
+          (item.produccionEstimada ?? '').toString(),
+          (item.nombreAgricultor ?? '').toLowerCase(),
+          (item.nombreFinca      ?? '').toLowerCase(),
+          (item.nombreNave       ?? '').toLowerCase(),
+          (item.nombreGenero     ?? '').toLowerCase(),
+          (item.nombreVariedad   ?? '').toLowerCase(),
+          item.fechaSiembra
+            ? item.fechaSiembra.toLocaleDateString().toLowerCase()
+            : '',
+          item.fechaFin
+            ? item.fechaFin.toLocaleDateString().toLowerCase()
+            : ''
+        ].some(field => field.includes(q));
+      })
+    : [...this.data];
+
+  this.currentPage = 1;
+  this.selectedCultivo = null;
+  this.updatePagination();
+}
+
 
   updatePagination(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
