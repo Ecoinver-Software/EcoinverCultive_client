@@ -14,7 +14,7 @@ import { CultiveProductionService } from '../../services/CultiveProduction.servi
 import { Cultive } from '../../types/Cultive';
 import { CultivoService } from '../../services/Cultivo.service';
 import { ComercialPlanningDetailsWithId } from '../../types/ComercialPlanningDetailsWithId';
-import { ProducRealService } from '../../services/producReal.service';
+import { ProducRealService } from '../../services/ProducReal.service';
 
 
 
@@ -38,6 +38,7 @@ export class DashboardComponent implements OnInit {
   // Chart type selector addition for commercial/production view
   chartType: string = 'combined';
   kgs: any;
+selectedGeneroName: any;
 
   constructor(
     private comercialServicio: ComercialServiceService,
