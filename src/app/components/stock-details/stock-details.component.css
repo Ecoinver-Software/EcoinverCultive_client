@@ -1,12 +1,42 @@
-/* Estilos adicionales para el componente stock-details */
+/* Estilos optimizados para el componente stock-details */
 
-/* Animación para la tarjeta + */
+/* ===== 1. ESTILOS PARA TARJETAS ===== */
+
+/* Tarjeta de escaneo con el símbolo + */
 .card-scanner-trigger {
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #b0b0b0 0%, #d0ffbe 100%);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: none !important;
 }
 
+.dark .card-scanner-trigger {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border: 1px solid #334155 !important;
+}
+
+/* Efecto hover de gradiente */
+.card-scanner-trigger::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(67, 125, 63, 0), rgba(67, 125, 63, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.dark .card-scanner-trigger::before {
+  background: linear-gradient(90deg, rgba(101, 177, 95, 0), rgba(101, 177, 95, 0.1));
+}
+
+.card-scanner-trigger:hover::before {
+  opacity: 1;
+}
+
+/* Efecto de línea de escaneo */
 .card-scanner-trigger::after {
   content: '';
   position: absolute;
@@ -20,26 +50,266 @@
   transition: opacity 0.3s;
 }
 
+.dark .card-scanner-trigger::after {
+  background: rgba(101, 177, 95, 0.3);
+}
+
 .card-scanner-trigger:hover::after {
   opacity: 1;
   animation: scanLine 1.5s infinite;
 }
 
 @keyframes scanLine {
+  0% { top: 5%; }
+  100% { top: 95%; }
+}
+
+/* Estilos para iconos y textos */
+.plus-icon {
+  font-size: 2.5rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s;
+}
+
+.dark .plus-icon {
+  color: #94b89c;
+}
+
+.card-scanner-trigger:hover .plus-icon {
+  color: #437d3f;
+  transform: scale(1.1);
+}
+
+.dark .card-scanner-trigger:hover .plus-icon {
+  color: #65b15f;
+}
+
+.card-label {
+  font-weight: 500;
+  color: #334155;
+  transition: color 0.3s;
+}
+
+.dark .card-label {
+  color: #e2e8f0;
+}
+
+.card-scanner-trigger:hover .card-label {
+  color: #437d3f;
+}
+
+.dark .card-scanner-trigger:hover .card-label {
+  color: #65b15f;
+}
+
+/* Animación de "Pulsa para escanear" */
+.pulse-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 11px;
+  color: #64748b;
+  opacity: 0;
+  animation: pulse 2s infinite;
+}
+
+.dark .pulse-hint {
+  color: #94a3b8;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; }
+}
+
+.card-scanner-trigger:hover .pulse-hint {
+  animation-play-state: paused;
+  opacity: 0.9;
+}
+
+/* Tarjetas de resultado */
+.qr-result-card {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: none !important;
+}
+
+.dark .qr-result-card {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.qr-result-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .qr-result-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Encabezado de tarjeta */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dark .card-header {
+  border-bottom-color: #334155;
+}
+
+.card-timestamp {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.dark .card-timestamp {
+  color: #94a3b8;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.dark .delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Contenido de tarjeta */
+.card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.dark .card-title {
+  color: #e2e8f0;
+}
+
+.card-content {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.qr-value {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #475569;
+  word-break: break-all;
+  background-color: #f1f5f9;
+  padding: 6px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.dark .qr-value {
+  color: #cbd5e1;
+  background-color: #334155;
+}
+
+/* Información de bultos */
+.bulks-info {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.dark .bulks-info {
+  border-top-color: #334155;
+}
+
+.bulks-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-right: 4px;
+}
+
+.dark .bulks-label {
+  color: #94a3b8;
+}
+
+.bulks-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #437d3f;
+  display: flex;
+  align-items: center;
+}
+
+.dark .bulks-value {
+  color: #4ade80;
+}
+
+.bulks-icon {
+  margin-right: 4px;
+}
+
+/* Animaciones para tarjetas */
+@keyframes newCard {
   0% {
-    top: 5%;
+    opacity: 0;
+    transform: translateX(-20px);
   }
   100% {
-    top: 95%;
+    opacity: 1;
+    transform: translateX(0);
   }
 }
+
+.qr-result-card:first-of-type {
+  animation: newCard 0.3s ease-out;
+}
+
+.qr-result-card.removing {
+  animation: removeCard 0.3s ease-out forwards;
+}
+
+@keyframes removeCard {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* ===== 2. CONTENEDOR DE TARJETAS ===== */
 
 /* Scroll horizontal suave */
 .cards-container {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: rgba(67, 125, 63, 0.5) transparent;
-  margin: 0 -0.5rem; /* Compensar el padding lateral */
+  margin: 0 -0.5rem;
   padding: 0 0.5rem;
   width: calc(100% + 1rem);
 }
@@ -57,282 +327,19 @@
   border-radius: 6px;
 }
 
-/* Cards wrapper - contenedor que controla el ancho total */
+.dark .cards-container::-webkit-scrollbar-thumb {
+  background-color: rgba(101, 177, 95, 0.5);
+}
+
 .cards-wrapper {
+  display: inline-flex;
+  gap: 1rem;          /* ya tenías gap: 16px */
+ 
   transition: min-width 0.3s ease-in-out;
 }
 
-/* Transición suave para las tarjetas */
-.qr-result-card {
-  transition: all 0.3s ease-in-out;
-  position: relative;
-  overflow: hidden;
-}
+/* ===== 3. MODAL DEL ESCÁNER ===== */
 
-.qr-result-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Efecto de tarjeta nueva */
-@keyframes newCard {
-  0% {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.qr-result-card:first-of-type {
-  animation: newCard 0.3s ease-out;
-}
-
-/* Efecto al eliminar una tarjeta */
-.qr-result-card.removing {
-  animation: removeCard 0.3s ease-out forwards;
-}
-
-@keyframes removeCard {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-}
-
-/* Estilos para el overlay del escáner */
-.scanner-overlay {
-  animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Marco para el escáner QR */
-.scanner-frame {
-  position: relative;
-}
-
-.scanner-frame::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border: 2px solid rgba(67, 125, 63, 0.6);
-  border-radius: 8px;
-  pointer-events: none;
-}
-
-/* Efecto en las esquinas del escáner */
-.scanner-corners::before,
-.scanner-corners::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  z-index: 2;
-}
-
-.scanner-corners::before {
-  border-top: 3px solid #437d3f;
-  border-right: 3px solid #437d3f;
-  top: 10px;
-  right: 10px;
-  border-radius: 0 2px 0 0;
-}
-
-.scanner-corners::after {
-  border-bottom: 3px solid #437d3f;
-  border-left: 3px solid #437d3f;
-  bottom: 10px;
-  left: 10px;
-  border-radius: 0 0 0 2px;
-}
-
-.scanner-frame::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-top: 3px solid #437d3f;
-  border-left: 3px solid #437d3f;
-  top: 10px;
-  left: 10px;
-  border-radius: 2px 0 0 0;
-  z-index: 2;
-}
-
-.scanner-bottom-right {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-bottom: 3px solid #437d3f;
-  border-right: 3px solid #437d3f;
-  bottom: 10px;
-  right: 10px;
-  border-radius: 0 0 2px 0;
-  z-index: 2;
-}
-
-/* Adaptaciones responsive */
-@media (max-width: 640px) {
-  .scanner-corners::before,
-  .scanner-corners::after,
-  .scanner-frame::after,
-  .scanner-bottom-right {
-    width: 15px;
-    height: 15px;
-  }
-}
-
-/* Pulsar para escanear - texto indicativo en la tarjeta + */
-.pulse-hint {
-  position: absolute;
-  bottom: 10px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 11px;
-  color: #666;
-  opacity: 0;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.8;
-  }
-  100% {
-    opacity: 0.3;
-  }
-}
-
-.card-scanner-trigger:hover .pulse-hint {
-  animation-play-state: paused;
-  opacity: 0.9;
-}
-/* Estilos adicionales para el botón de linterna y efectos */
-
-/* Botón de linterna */
-.torch-button {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  background-color: rgba(0, 0, 0, 0.5);
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 20px;
-  cursor: pointer;
-  z-index: 20;
-  transition: all 0.2s ease;
-}
-
-.torch-button:hover {
-  background-color: rgba(0, 0, 0, 0.7);
-  transform: scale(1.05);
-}
-
-.torch-button.torch-on {
-  background-color: rgba(255, 193, 7, 0.8);
-  box-shadow: 0 0 10px rgba(255, 193, 7, 0.6);
-}
-
-/* Animación de escaneo activo */
-.scanner-container::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(to right, transparent, rgba(76, 175, 80, 0.8), transparent);
-  animation: scanAnimation 2s linear infinite;
-  z-index: 5;
-}
-
-@keyframes scanAnimation {
-  0% {
-    top: 10%;
-    opacity: 0.8;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    top: 90%;
-    opacity: 0.8;
-  }
-}
-
-/* Mejorar la visualización del escáner en pantalla completa */
-@media (min-width: 768px) {
-  .scanner-modal-content {
-    max-width: calc(100vw - 60px);
-    max-height: calc(100vh - 60px);
-  }
-}
-
-@media (max-width: 767px) {
-  /* En móviles, usar pantalla completa real */
-  .scanner-modal-content {
-    width: 100vw;
-    height: 100vh;
-    border-radius: 0;
-  }
-  
-  .scanner-header {
-    padding: 10px;
-  }
-  
-  .camera-selector {
-    margin-bottom: 10px;
-  }
-  
-  .scanner-body {
-    padding: 10px;
-  }
-}
-
-/* Mejoras específicas para iOS */
-@supports (-webkit-touch-callout: none) {
-  .scanner-modal-content {
-    /* Evitar problemas con la barra de navegación en iOS */
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-top: env(safe-area-inset-top);
-  }
-  
-  .scanner-body {
-    /* Ajustar para evitar problemas con el notch */
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-}
-/* Estilos para el modal del escáner completamente separado */
-
-/* Overlay que cubre toda la pantalla */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -347,23 +354,27 @@
   animation: fadeIn 0.2s ease-out;
 }
 
-/* Contenedor del modal */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .modal-container {
   background-color: #fff;
   border-radius: 8px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  width: 95vw;
+  height: 95vh;
+  max-width: 1200px;
+  max-height: 95vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
-/* Modo oscuro */
-.dark-theme .modal-container {
-  background-color: #1e293b;
-  color: #e2e8f0;
+.dark .modal-container {
+  background-color: #0f172a;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 /* Cabecera del modal */
@@ -376,8 +387,8 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
-.dark-theme .modal-header {
-  background-color: #0f172a;
+.dark .modal-header {
+  background-color: #1e293b;
   border-bottom-color: #334155;
 }
 
@@ -388,7 +399,7 @@
   color: #334155;
 }
 
-.dark-theme .modal-header h3 {
+.dark .modal-header h3 {
   color: #e2e8f0;
 }
 
@@ -411,11 +422,11 @@
   color: #0f172a;
 }
 
-.dark-theme .close-button {
+.dark .close-button {
   color: #94a3b8;
 }
 
-.dark-theme .close-button:hover {
+.dark .close-button:hover {
   background-color: #334155;
   color: #f8fafc;
 }
@@ -427,6 +438,7 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+  flex-grow: 1;
 }
 
 /* Selector de dispositivo */
@@ -441,7 +453,7 @@
   color: #475569;
 }
 
-.dark-theme .device-selector label {
+.dark .device-selector label {
   color: #cbd5e1;
 }
 
@@ -454,7 +466,7 @@
   width: 100%;
 }
 
-.dark-theme .device-selector select {
+.dark .device-selector select {
   background-color: #1e293b;
   border-color: #475569;
   color: #e2e8f0;
@@ -468,6 +480,7 @@
   border-radius: 8px;
   overflow: hidden;
   background-color: #0f172a;
+  flex-grow: 1;
 }
 
 /* Componente del escáner */
@@ -532,11 +545,11 @@ zxing-scanner video {
   right: 0;
   height: 2px;
   background: linear-gradient(to right, transparent, #10b981, transparent);
-  animation: scanLine 2s linear infinite;
+  animation: scanAnimation 2s linear infinite;
   z-index: 5;
 }
 
-@keyframes scanLine {
+@keyframes scanAnimation {
   0% {
     top: 10%;
     opacity: 0.6;
@@ -564,7 +577,7 @@ zxing-scanner video {
   text-align: center;
 }
 
-.dark-theme .error-message {
+.dark .error-message {
   background-color: rgba(185, 28, 28, 0.2);
   color: #fca5a5;
 }
@@ -589,267 +602,7 @@ zxing-scanner video {
   background-color: #991b1b;
 }
 
-/* Animación de entrada */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Responsive para pantallas pequeñas */
-@media (max-width: 640px) {
-  .modal-container {
-    width: 95%;
-    max-height: 95vh;
-  }
-  
-  .modal-header {
-    padding: 12px 15px;
-  }
-  
-  .modal-body {
-    padding: 15px;
-  }
-  
-  .scanner-corner {
-    width: 25px;
-    height: 25px;
-  }
-}
-/* Estilos para el modal de cantidad de bultos y tarjetas mejoradas */
-
-/* ===== ESTILOS PARA LAS TARJETAS MEJORADAS ===== */
-
-/* Tarjeta de escaneo (con el +) */
-.card-scanner-trigger {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease-in-out;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: none !important;
-}
-
-.dark-theme .card-scanner-trigger {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.card-scanner-trigger::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(67, 125, 63, 0) 0%, rgba(67, 125, 63, 0.1) 100%);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.card-scanner-trigger:hover::before {
-  opacity: 1;
-}
-
-.card-scanner-trigger .plus-icon {
-  font-size: 2.5rem;
-  color: #64748b;
-  margin-bottom: 0.5rem;
-  transition: all 0.3s;
-}
-
-.dark-theme .card-scanner-trigger .plus-icon {
-  color: #94a3b8;
-}
-
-.card-scanner-trigger:hover .plus-icon {
-  color: #437d3f;
-  transform: scale(1.1);
-}
-
-.dark-theme .card-scanner-trigger:hover .plus-icon {
-  color: #65b15f;
-}
-
-.card-scanner-trigger .card-label {
-  font-weight: 500;
-  color: #334155;
-  transition: color 0.3s;
-}
-
-.dark-theme .card-scanner-trigger .card-label {
-  color: #e2e8f0;
-}
-
-.card-scanner-trigger:hover .card-label {
-  color: #437d3f;
-}
-
-.dark-theme .card-scanner-trigger:hover .card-label {
-  color: #65b15f;
-}
-
-.pulse-hint {
-  position: absolute;
-  bottom: 12px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 11px;
-  color: #64748b;
-  opacity: 0;
-  animation: pulse 2s infinite;
-}
-
-.dark-theme .pulse-hint {
-  color: #94a3b8;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.3; }
-  50% { opacity: 0.8; }
-  100% { opacity: 0.3; }
-}
-
-.card-scanner-trigger:hover .pulse-hint {
-  animation-play-state: paused;
-  opacity: 0.9;
-}
-
-/* Tarjetas de resultado mejoradas */
-.qr-result-card {
-  transition: all 0.3s ease-in-out;
-  position: relative;
-  overflow: hidden;
-  border: none !important;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.dark-theme .qr-result-card {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.qr-result-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.05);
-}
-
-.dark-theme .qr-result-card:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.dark-theme .card-header {
-  border-bottom-color: #334155;
-}
-
-.card-timestamp {
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-.dark-theme .card-timestamp {
-  color: #94a3b8;
-}
-
-.delete-btn {
-  background: none;
-  border: none;
-  color: #ef4444;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.delete-btn:hover {
-  background-color: rgba(239, 68, 68, 0.1);
-}
-
-.dark-theme .delete-btn:hover {
-  background-color: rgba(239, 68, 68, 0.2);
-}
-
-.card-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #334155;
-  margin-bottom: 8px;
-}
-
-.dark-theme .card-title {
-  color: #e2e8f0;
-}
-
-.card-content {
-  overflow-y: auto;
-  flex-grow: 1;
-}
-
-.qr-value {
-  font-family: monospace;
-  font-size: 0.75rem;
-  color: #475569;
-  word-break: break-all;
-  background-color: #f1f5f9;
-  padding: 6px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-}
-
-.dark-theme .qr-value {
-  color: #cbd5e1;
-  background-color: #334155;
-}
-
-.bulks-info {
-  display: flex;
-  align-items: center;
-  margin-top: auto;
-  padding-top: 8px;
-  border-top: 1px solid #e2e8f0;
-}
-
-.dark-theme .bulks-info {
-  border-top-color: #334155;
-}
-
-.bulks-label {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-right: 4px;
-}
-
-.dark-theme .bulks-label {
-  color: #94a3b8;
-}
-
-.bulks-value {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #437d3f;
-  display: flex;
-  align-items: center;
-}
-
-.dark-theme .bulks-value {
-  color: #65b15f;
-}
-
-.bulks-icon {
-  margin-right: 4px;
-}
-
-/* ===== ESTILOS PARA EL MODAL DE CANTIDAD DE BULTOS ===== */
+/* ===== 4. MODAL DE CANTIDAD DE BULTOS ===== */
 
 .bulks-modal-overlay {
   position: fixed;
@@ -875,6 +628,11 @@ zxing-scanner video {
   animation: slideUp 0.3s ease-out;
 }
 
+.dark .bulks-modal-container {
+  background-color: #0f172a;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -886,11 +644,6 @@ zxing-scanner video {
   }
 }
 
-.dark-theme .bulks-modal-container {
-  background-color: #1e293b;
-  color: #f8fafc;
-}
-
 .bulks-modal-header {
   display: flex;
   justify-content: space-between;
@@ -900,8 +653,8 @@ zxing-scanner video {
   border-bottom: 1px solid #e2e8f0;
 }
 
-.dark-theme .bulks-modal-header {
-  background-color: #0f172a;
+.dark .bulks-modal-header {
+  background-color: #1e293b;
   border-bottom-color: #334155;
 }
 
@@ -912,7 +665,7 @@ zxing-scanner video {
   color: #0f172a;
 }
 
-.dark-theme .bulks-modal-header h3 {
+.dark .bulks-modal-header h3 {
   color: #f8fafc;
 }
 
@@ -928,7 +681,7 @@ zxing-scanner video {
   overflow: hidden;
 }
 
-.dark-theme .scanned-code-info {
+.dark .scanned-code-info {
   background-color: #334155;
 }
 
@@ -939,7 +692,7 @@ zxing-scanner video {
   margin-bottom: 5px;
 }
 
-.dark-theme .code-label {
+.dark .code-label {
   color: #94a3b8;
 }
 
@@ -950,7 +703,7 @@ zxing-scanner video {
   color: #0f172a;
 }
 
-.dark-theme .code-value {
+.dark .code-value {
   color: #f8fafc;
 }
 
@@ -965,7 +718,7 @@ zxing-scanner video {
   color: #334155;
 }
 
-.dark-theme .quantity-input-container label {
+.dark .quantity-input-container label {
   color: #e2e8f0;
 }
 
@@ -990,7 +743,7 @@ zxing-scanner video {
   transition: all 0.2s;
 }
 
-.dark-theme .quantity-btn {
+.dark .quantity-btn {
   background-color: #1e293b;
   border-color: #334155;
   color: #f8fafc;
@@ -1000,7 +753,7 @@ zxing-scanner video {
   background-color: #e2e8f0;
 }
 
-.dark-theme .quantity-btn:hover:not(:disabled) {
+.dark .quantity-btn:hover:not(:disabled) {
   background-color: #334155;
 }
 
@@ -1022,7 +775,7 @@ zxing-scanner video {
   padding: 0 10px;
 }
 
-.dark-theme .quantity-input {
+.dark .quantity-input {
   background-color: #1e293b;
   border-color: #334155;
   color: #f8fafc;
@@ -1052,7 +805,7 @@ zxing-scanner video {
   transition: all 0.2s;
 }
 
-.dark-theme .cancel-btn {
+.dark .cancel-btn {
   background-color: #1e293b;
   border-color: #334155;
   color: #94a3b8;
@@ -1063,7 +816,7 @@ zxing-scanner video {
   color: #334155;
 }
 
-.dark-theme .cancel-btn:hover {
+.dark .cancel-btn:hover {
   background-color: #0f172a;
   color: #e2e8f0;
 }
@@ -1086,40 +839,22 @@ zxing-scanner video {
   background-color: #396a35;
 }
 
-/* Efecto de nueva tarjeta */
-@keyframes newCard {
-  0% {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.dark .save-btn {
+  background-color: #22c55e;
+  color: #000000;
 }
 
-.qr-result-card:first-of-type {
-  animation: newCard 0.3s ease-out;
+.dark .save-btn:hover {
+  background-color: #16a34a;
 }
 
-/* Efecto al eliminar una tarjeta */
-.qr-result-card.removing {
-  animation: removeCard 0.3s ease-out forwards;
-}
-
-@keyframes removeCard {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-}
-
-/* Responsive */
+/* ===== 5. RESPONSIVE ===== */
 @media (max-width: 640px) {
+  .scanner-corner {
+    width: 25px;
+    height: 25px;
+  }
+  
   .bulks-modal-container {
     width: 95%;
   }
@@ -1132,4 +867,17 @@ zxing-scanner video {
   .quantity-input {
     height: 36px;
   }
+  
+  .modal-body {
+    padding: 15px;
+  }
 }
+
+@media (max-width: 768px) {
+  .modal-container {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
+
