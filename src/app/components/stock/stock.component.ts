@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StockService } from '../../services/stock.service';
 import { StockDto } from '../../types/StockDto';
+import { Router } from '@angular/router';
 
 export interface StockRecord {
   fecha: Date;
@@ -43,7 +44,7 @@ export class StockComponent implements OnInit, AfterViewInit {
   touchStartX: number = 0;
   lastTouchY: number = 0;
 
-  constructor(private stockService: StockService) { }
+  constructor(private stockService: StockService, private router:Router) { }
 
   ngOnInit(): void {
     // Detectar scroll para mostrar/ocultar el botón flotante
@@ -153,7 +154,7 @@ export class StockComponent implements OnInit, AfterViewInit {
   // Método para ver detalles del registro
   viewRecordDetails(recordId: number): void {
     console.log(`Viendo detalles del registro ${recordId}`);
-    // Aquí iría la lógica para ver los detalles
+    this.router.navigate(['/stock-details',recordId]);
   }
 
   // Método para abrir el modal de confirmación de eliminación

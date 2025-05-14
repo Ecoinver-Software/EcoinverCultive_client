@@ -18,19 +18,7 @@ import { ComercialPlanningDetailsWithId } from '../../types/ComercialPlanningDet
 
 import { ProducRealService } from '../../services/ProducReal.service';
 
-
-
-
 import { ProducReal } from '../../types/ProducReal';
-
-
-
-
-
-
-
-
-
 
 @Component({
   selector: 'app-dashboard',
@@ -42,7 +30,7 @@ export class DashboardComponent implements OnInit {
   // Chart type selector addition for commercial/production view
   chartType: string = 'combined';
   kgs: any;
-selectedGeneroName: any;
+  selectedGeneroName: any;
 
   constructor(
     private comercialServicio: ComercialServiceService,
@@ -208,7 +196,7 @@ selectedGeneroName: any;
 
   // Inicializar las configuraciones de los gráficos
   initializeCharts() {
-    
+
     const d = new Date();//Para saber el mes en el que estamos
     let fechaPReal;
     fechaPReal = new Date();
@@ -250,15 +238,18 @@ selectedGeneroName: any;
     const day = String(fechaPReal.getDate()).padStart(2, '0');
 
     const fechaFormateada = `${year}-${month}-${day}`;
-    alert(generoProduccion[0].idGenero);
+
     //Para coger las fecha del dia de los dos meses anteriores
     this.producRealService.get(fechaFormateada, generoProduccion[0].idGenero).subscribe(
       (data) => {
         this.producReal = data;
-        for(let i=0;i<this.producReal.length;i++){
-          this.producReal[i].fechaFin=new Date(this.producReal[i].fechaFin);
-          this.producReal[i].fechaInicio=new Date(this.producReal[i].fechaInicio);
+        if (this.producReal) {
+          for (let i = 0; i < this.producReal.length; i++) {
+            this.producReal[i].fechaFin = new Date(this.producReal[i].fechaFin);
+            this.producReal[i].fechaInicio = new Date(this.producReal[i].fechaInicio);
+          }
         }
+
         generosSeleccionados.forEach((genero, indice) => {
           if (indice == generosSeleccionados.length - 1) {
             this.nombreComerciales += '[' + genero.clientName + ']';
@@ -267,7 +258,7 @@ selectedGeneroName: any;
             this.nombreComerciales += '[' + genero.clientName + ']-';
           }
         });
-    
+
         let planning: ComercialPlanning[] = [];
         let planningDetails: ComercialPlanningDetailsWithId[] = [];
         for (let i = 0; i < generosSeleccionados.length; i++) {
@@ -276,7 +267,7 @@ selectedGeneroName: any;
             planning.push(encontrado);
           }
         }
-    
+
         for (let i = 0; i < planning.length; i++) {
           if (this.planingDetails.find(item => item.idCommercialNeedsPlanning == planning[i].id)) {
             const encontrado = this.planingDetails.filter(item => item.idCommercialNeedsPlanning == planning[i].id);
@@ -285,33 +276,34 @@ selectedGeneroName: any;
             }
           }
         }
-    
+
         let mesActual = d.getMonth();
-    
+
         let meses: number[] = [];
         for (let i = mesActual - 2; i < (mesActual + 4); i++) {//Rellenamos el label
           meses.push(i + 1);
         }
-    
+
         let kgs: number[] = new Array(meses.length).fill(0);
         let kgsProduction = new Array(meses.length).fill(0);
         let kgsProductionReal = new Array(meses.length).fill(0);
         let clientes: string[] = new Array(meses.length);
         let repetidos: { mes: number, cliente: string }[] = [];
-    
-        for(let i=0;i<this.producReal.length;i++){
-          for(let j=0;j<meses.length;j++){
-            
-            if(this.producReal[i].fechaFin.getMonth()+1==meses[j]){
-              kgsProductionReal[j] = (kgsProductionReal[j] || 0) + this.producReal[i].kilosNetos;
+        if (this.producReal) {
+
+          for (let i = 0; i < this.producReal.length; i++) {
+            for (let j = 0; j < meses.length; j++) {
+
+              if (this.producReal[i].fechaFin.getMonth() + 1 == meses[j]) {
+                kgsProductionReal[j] = (kgsProductionReal[j] || 0) + this.producReal[i].kilosNetos;
+              }
             }
           }
         }
-    
         for (let i = 0; i < this.selectedProductions.length; i++) {//para ir sumando los kg de cada semana de la producción
           //Necesitamos saber en que mes entra la planificación de la necesidad
           const mes = new Date(this.selectedProductions[i].fechaInicio);
-    
+
           for (let j = 0; j < meses.length; j++) {
             if (mes.getMonth() + 1 == meses[j]) {
               //Saber los clientes que estan en la semana de la necesidad
@@ -319,13 +311,13 @@ selectedGeneroName: any;
             }
           }
         }
-    
+
         console.log(kgsProduction);
-    
+
         for (let i = 0; i < planningDetails.length; i++) {//para ir sumando los kg de cada semana del comercial
           //Necesitamos saber en que mes entra la planificación de la necesidad
           const mes = new Date(planningDetails[i].fechaDesde);
-    
+
           for (let j = 0; j < meses.length; j++) {
             if (mes.getMonth() + 1 == meses[j]) {
               //Saber los clientes que estan en la semana de la necesidad
@@ -339,7 +331,7 @@ selectedGeneroName: any;
             }
           }
         }
-    
+        console.log(kgs);
         let label: string[] = [];
         for (let i = 0; i < meses.length; i++) {
           switch (meses[i]) {
@@ -380,7 +372,7 @@ selectedGeneroName: any;
               label.push('Diciembre');
           }
         }
-    
+
         // Configuraciones para gráficos de barra     
         const barOptions = {
           responsive: true,
@@ -419,20 +411,20 @@ selectedGeneroName: any;
             }
           }
         };
-    
+
         //Para saber los nombres de fincas de las producciones
         let production: Cultive[] = [];
         for (let i = 0; i < this.cultiveProductions.length; i++) {
-    
+
           const encontrados = cultivo.filter(item => item.id == this.cultiveProductions[i].cultiveId);
-    
+
           if (encontrados.length > 0 && !production.some(item => item.id == this.cultiveProductions[i].cultiveId)) {
-    
+
             production = production.concat(encontrados);
           }
         }
-    
-    
+
+
         console.log(production);
         // Gráfico principal (combinado)    
         this.data = {
@@ -456,7 +448,7 @@ selectedGeneroName: any;
             }
           ]
         };
-    
+
         // Gráfico comercial
         this.commercialData = {
           labels: label,
@@ -471,7 +463,7 @@ selectedGeneroName: any;
             }
           ]
         };
-    
+
         // Gráfico producción
         this.productionData = {
           labels: label,
@@ -502,7 +494,7 @@ selectedGeneroName: any;
                 drawOnChartArea: true,
                 color: '#e2e8f0'
               },
-              beginAtZero: true,  // Asegura que el eje Y comience en 0
+              beginAtZero: true
             },
             y1: {
               type: 'linear',
@@ -514,7 +506,7 @@ selectedGeneroName: any;
               grid: {
                 drawOnChartArea: false
               },
-              beginAtZero: true,  // Asegura que el eje Y secundario también comience en 0
+              beginAtZero: true
             },
             x: {
               type: 'category',
@@ -523,63 +515,55 @@ selectedGeneroName: any;
               },
               ticks: {
                 color: '#64748b',
-                autoSkip: false,          // Asegurar que se muestren todas las etiquetas
-                maxRotation: 0            // Evitar rotación de etiquetas
+                autoSkip: false,         // Mostrar todas las etiquetas
+                maxRotation: 45,         // Permite rotación si es necesario
+                minRotation: 0           // Mantener horizontal si hay espacio
               },
-              offset: true,               // Mejor distribución de puntos
-              distribution: 'series',     // Distribución uniforme de etiquetas
-              bounds: 'ticks'             // Asegurar que el rango completo se muestre
+              bounds: 'ticks'            // Que el rango se ajuste a los ticks reales
             }
           },
           plugins: {
             legend: {
               labels: {
-                color: '#334155'         // Color de las etiquetas en la leyenda
+                color: '#334155'
               }
             },
             tooltip: {
-              enabled: true,  // Habilitar tooltips
-              mode: 'nearest', // Mostrar tooltip sobre el punto más cercano
-              intersect: false, // Para mostrar tooltips cuando el cursor esté sobre cualquier punto
+              enabled: true,
+              mode: 'nearest',
+              intersect: false,
               callbacks: {
-                // Personalización de las etiquetas del tooltip
                 label: function (tooltipItem: any) {
                   const dataValue = tooltipItem.raw;
                   const index = tooltipItem.dataIndex;
                   const datasetIndex = tooltipItem.datasetIndex;
                   let tipoDato = datasetIndex === 0 ? 'Necesidades Comerciales' : 'Producción';
                   let cliente = '';
-    
+
                   if (tipo == 'combined') {
                     if (datasetIndex === 0) {
                       tipoDato = 'Necesidades comerciales';
                       cliente = clientes[index];
-                    }
-                    else {
+                    } else {
                       tipoDato = 'Producción';
                       for (let i = 0; i < production.length; i++) {
                         cliente += production[i].nombreFinca + '-';
                       }
                     }
-                  }
-                  else if (tipo == 'production') {
+                  } else if (tipo == 'production') {
                     tipoDato = 'Producción';
                     for (let i = 0; i < production.length; i++) {
                       cliente += production[i].nombreFinca + '-';
                     }
-    
-                  }
-                  else {
+                  } else {
                     tipoDato = 'Necesidades comerciales';
                     cliente = clientes[index];
                   }
-    
-    
-    
+
                   if (dataValue === 0) {
                     return `${tipoDato} : Sin datos`;
                   }
-    
+
                   return `${tipoDato} - ${cliente}: ${dataValue} kg`;
                 }
               }
@@ -592,17 +576,18 @@ selectedGeneroName: any;
             }
           }
         };
+
         const totalProduccion2 = kgsProduction.reduce((a, b) => a + b, 0);
         const totalNecesidad2 = kgs.reduce((a, b) => a + b, 0);
-    
-    
-    
+
+
+
         if (totalNecesidad2 === 0) {
           this.porcentajeReal = 0; // O mostrar un error si es necesario
         } else if (totalNecesidad2 > totalProduccion2) {
           // Pérdida
           this.porcentajeReal = ((totalProduccion2 - totalNecesidad2) * 100) / totalNecesidad2;
-    
+
         } else {
           // Ganancia o producción igual
           this.porcentajeReal = ((totalNecesidad2 - totalProduccion2) * 100) / totalNecesidad2;
@@ -622,7 +607,7 @@ selectedGeneroName: any;
             }
           ]
         };
-    
+
         this.realData = {
           labels: label,
           datasets: [
@@ -636,10 +621,10 @@ selectedGeneroName: any;
             }
           ]
         };
-    
+
         this.teoricaOptions = { ...barOptions };
         this.realOptions = { ...barOptions };
-    
+
         // Configuración gráfica combinada
         this.combinedData = {
           labels: ['Q1', 'Q2', 'Q3', 'Q4'],
@@ -663,7 +648,7 @@ selectedGeneroName: any;
             }
           ]
         };
-    
+
         this.combinedOptions = {
           responsive: true,
           maintainAspectRatio: false,
@@ -707,12 +692,12 @@ selectedGeneroName: any;
         };
         if (kgs.reduce((a, b) => a + b) > kgsProduction.reduce((a, b) => a + b)) {
           this.porcentajeReal = (kgsProduction.reduce((a, b) => a + b) - kgs.reduce((a, b) => a + b)) * 100 / kgs.reduce((a, b) => a + b);
-    
+
         }
         else {
           this.porcentajeReal = (kgs.reduce((a, b) => a + b) - kgsProduction.reduce((a, b) => a + b)) * 100 / kgs.reduce((a, b) => a + b);
         }
-    
+
         // Forzar actualizaciones iniciales
         this.updateChartOptions();
       },
@@ -721,7 +706,7 @@ selectedGeneroName: any;
       }
     )
 
- 
+
   }
 
   // Método para actualizar gráficos con los datos filtrados
@@ -1040,7 +1025,7 @@ selectedGeneroName: any;
   }
 
   actualizarGrafica(vista: string) {
-    
+
     let genero: string;
     this.selectedProductions = [];
     const checkboxes = document.querySelectorAll('input[type="radio"]');
@@ -1119,17 +1104,17 @@ selectedGeneroName: any;
 
         let kgsProduction: number[] = new Array(meses.length).fill(0);
         let kgsProductionReal: number[] = new Array(meses.length).fill(0);
-        if(this.producReal){
-          for(let i=0;i<this.producReal.length;i++){
-            for(let j=0;j<meses.length;j++){
-              
-              if(this.producReal[i].fechaFin.getMonth()+1==meses[j]){
+        if (this.producReal) {
+          for (let i = 0; i < this.producReal.length; i++) {
+            for (let j = 0; j < meses.length; j++) {
+
+              if (this.producReal[i].fechaFin.getMonth() + 1 == meses[j]) {
                 kgsProductionReal[j] = (kgsProductionReal[j] || 0) + this.producReal[i].kilosNetos;
               }
             }
           }
         }
-       
+
 
         for (let i = 0; i < this.selectedProductions.length; i++) {//para ir sumando los kg de cada semana de la producción
           //Necesitamos saber en que mes entra la planificación de la necesidad

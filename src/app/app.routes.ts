@@ -37,7 +37,7 @@ export const routes: Routes = [
       {path:'cultive-map', component:CultiveMapComponent},
       {path:'cultive-ranking', component:RankingComponent},
       {path:'stock', component:StockComponent},
-      {path:'stock-details', component:StockDetailsComponent},
+      {path:'stock-details/:id', component:StockDetailsComponent},
 
 
 
