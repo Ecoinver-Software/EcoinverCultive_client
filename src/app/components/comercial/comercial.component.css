@@ -1,3 +1,17 @@
 .margen{
     margin-top: 30px;
 }
+   /* Estilos para asegurar que los ng-select tengan la misma altura que los inputs */
+  .custom-select ::ng-deep .ng-select-container {
+    height: 34px !important;
+    min-height: 34px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .custom-select ::ng-deep .ng-placeholder {
+    font-size: 0.75rem !important;
+  }
+  
+  .custom-select ::ng-deep .ng-value {
+    font-size: 0.75rem !important;
+  }

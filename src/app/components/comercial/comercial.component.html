@@ -63,8 +63,8 @@
 
     <!-- Modal para crear -->
     <div *ngIf="showCreateModal"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 sm:p-6 lg:p-8">
-  <div class="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
+    class="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-xs">
+  <div class="relative p-4 w-full max-w-md max-h-[90vh] sm:max-h-[95vh] overflow-y-auto">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
           <!-- Modal header -->
@@ -199,7 +199,8 @@
     <!--Modal para editar-->
     <div *ngIf="showEditModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-xs">
-      <div class="relative p-4 w-full max-w-md max-h-full">
+     <div class="relative p-4 w-full max-w-md max-h-[90vh] sm:max-h-[95vh] overflow-y-auto">
+
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
           <!-- Modal header -->

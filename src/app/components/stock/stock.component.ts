@@ -193,7 +193,7 @@ export class StockComponent implements OnInit, AfterViewInit {
     if (!this.isDeleteConfirmed || this.recordToDeleteId === null) {
       return;
     }
-    alert(this.recordToDeleteId)
+    
     this.stockService.deleteStock(this.recordToDeleteId).subscribe(
       
       (data) => {
