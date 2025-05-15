@@ -1,4 +1,5 @@
-import { Component, OnInit, HostListener, ViewChild, AfterViewInit } from '@angular/core';
+// Update class to include necessary fields for API interaction
+import { Component, OnInit, HostListener, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ZXingScannerComponent, ZXingScannerModule } from '@zxing/ngx-scanner';
@@ -6,6 +7,8 @@ import { StockDto } from '../../types/StockDto';
 import { ControlStockDetailsService } from '../../services/stock-details.service';
 import { ActivatedRoute } from '@angular/router';
 import { StockService } from '../../services/stock.service';
+import { switchMap } from 'rxjs/operators';
+import { PutIdPartidaDto } from '../../types/ControlStockDetailsTypes';
 import { GenderService } from '../../services/Gender.service';
 import { Gender } from '../../types/gender';
 
@@ -15,6 +18,22 @@ interface ScannedResult {
   timestamp: Date;
   bulksQuantity: number;
   saved?: boolean;
+}
+
+// Interfaz para enviar al crear un nuevo stock
+interface CreateStockDto {
+  NumBultos: number;
+  CodigoPartida: number;
+  IdGenero: number;
+  Categoria: string;
+  idControl: number;
+  FechaCreacion?: string; // Añadido para manejar fechas explícitamente
+}
+
+// Interfaz extendida para actualizar partida en ERP
+interface UpdatePartidaDto extends PutIdPartidaDto {
+  idPartida: number;
+  fechaCreacion?: string; // Añadido para manejar fechas explícitamente
 }
 
 // Interface para los datos de categoría
@@ -28,6 +47,7 @@ interface GeneroAgrupado {
   idGenero: number;
   nombreGenero: string;
   count: number;
+  nombreFamilia?: string; // Añadido para agrupar por familia
 }
 
 // Interface para los datos de categoría agrupados
@@ -44,45 +64,44 @@ interface CategoriaAgrupada {
   templateUrl: './stock-details.component.html',
   styleUrl: './stock-details.component.css'
 })
-export class StockDetailsComponent implements OnInit, AfterViewInit {
+export class StockDetailsComponent implements OnInit {
   @ViewChild('scanner') scanner!: ZXingScannerComponent;
-
   activeTab: 'Analisis de Stock' | 'Lectura de Stock' = 'Analisis de Stock';
   stock: StockDto | null = null;
   loading = true;
   error: string | null = null;
-
+  
   // ID de control obtenido de la URL
   idControl: number | null = null;
 
   // PARA EL ESCÁNER
   scannerEnabled = false;
   qrResult: string | null = null;
-
+  
   // Para el modal de cantidad de bultos
   showBulkQuantityModal = false;
   pendingQrResult: string = '';
   bulksQuantity: number = 1;
-
+  
   // Para la linterna
   torchEnabled = false;
   torchAvailable = false;
   scanActive = false;
-
+  
   // Tema oscuro
   isDarkMode = false;
-
+  
   // Historial de resultados de escaneo (el más reciente primero)
   scannedResults: ScannedResult[] = [];
 
   // DISPOSITIVOS DE CÁMARA
   availableDevices: MediaDeviceInfo[] = [];
   selectedDevice: MediaDeviceInfo | undefined;
-
+  
   // Variables para responsive
   screenWidth: number = 0;
   baseCardSize: number = 160; // Tamaño base en píxeles
-
+  
   // Variables para la sección de análisis y edición
   searchTerm: string = '';
   showSaveSuccess: boolean = false;
@@ -91,6 +110,9 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   currentEditIndex: number = -1;
   editBulksQuantity: number = 1;
 
+  // Offset de la zona horaria local en minutos
+  private timezoneOffset: number = new Date().getTimezoneOffset() * -1;
+  
   // Datos para el análisis (se llenarán desde la API)
   stockDetails: any[] = []; // Datos crudos de la API
   generoData: Gender[] = [];
@@ -99,10 +121,16 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   generosUnicos: GeneroAgrupado[] = [];
   categoriasAgrupadas: CategoriaAgrupada[] = [];
 
+  // Variables para el filtrado de familias y categorías
+  familias: string[] = []; // Lista de familias únicas
+  selectedFamilia: string | null = null; // Familia seleccionada
+  selectedGenero: number | null = null; // Género seleccionado
+  categoriasPorGenero: CategoriaAgrupada[] = []; // Categorías filtradas por género
+
   constructor(
     private stockService: StockService,
     private stockDetailsService: ControlStockDetailsService,
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private generoService: GenderService
   ) {
     this.screenWidth = window.innerWidth;
@@ -114,65 +142,51 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
     this.screenWidth = window.innerWidth;
   }
 
-  // Cerrar los menús al hacer clic fuera de ellos
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-
-    // Cerrar menú de agrupación si se hace clic fuera
-    if (!target.closest('#group-menu') && !target.closest('[aria-labelledby="group-menu"]')) {
-      //this.showGroupMenu = false;
-    }
-  }
-
-  ngOnInit(): void {
+  ngOnInit(): void { 
     // Get the ID from the URL
     this.route.params.subscribe(params => {
       const id = params['id'];
       if (id && !isNaN(parseInt(id))) {
         this.idControl = parseInt(id);
         console.log('ID de control obtenido de la URL:', this.idControl);
-
-        // Load main stock data
-        this.loadStock();
-
-        // Load stock details associated with this ID
-        this.loadStockDetails();
+        
+        // Primero, cargar los géneros para tener referencia
+        this.loadGeneros(() => {
+          // Después cargar el stock y detalles
+          this.loadStock();
+          this.loadStockDetails();
+        });
       } else {
         this.error = 'ID de control no válido en la URL';
         this.loading = false;
       }
     });
-
-    // Nos traemos los géneros
-    this.generoService.get().subscribe(
-      (data) => {
-        this.generoData = data;
-        console.log('Géneros cargados:', this.generoData);
-      },
-      (error) => {
-        console.log('Error al cargar géneros:', error);
-      }
-    );
-    
-    // Nos treamos los datos de los detalles del stockDetails
-    this.stockDetailsService.getAll().subscribe(
-      (data) => {
-        this.stockDetails = data;
-        console.log('Stock details cargados:', this.stockDetails);
-        // Procesar los datos para análisis
-        this.processGeneroData();
-        this.processCategoriaData();
-      },
-      (error) => {
-        console.log('Error al cargar stock details:', error);
-      }
-    );
     
     // Detect initial dark mode
     this.checkDarkMode();
-
+    
     // Request camera permission explicitly when starting
+    this.requestCameraPermission();
+  }
+  
+  // Método para cargar géneros con callback
+  private loadGeneros(onComplete?: () => void): void {
+    this.generoService.get().subscribe({
+      next: (data) => {
+        this.generoData = data;
+        console.log('Géneros cargados:', this.generoData);
+        if (onComplete) onComplete();
+      },
+      error: (error) => {
+        console.log('Error al cargar géneros:', error);
+        this.error = 'Error al cargar géneros. Algunos datos pueden no mostrarse correctamente.';
+        if (onComplete) onComplete(); // Continuar aunque haya error
+      }
+    });
+  }
+
+  // Método para solicitar permisos de cámara 
+  private requestCameraPermission(): void {
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         console.log('Permiso de cámara concedido');
@@ -185,31 +199,27 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
       });
   }
 
-  ngAfterViewInit(): void {
-    // No necesitamos inicializar gráficos en esta versión simplificada
-  }
-
   // Helper method to adjust dates to local timezone
   private adjustDateToLocalTimezone(date: Date | string): Date {
     let adjustedDate: Date;
-
+    
     if (typeof date === 'string') {
       adjustedDate = new Date(date);
     } else {
       adjustedDate = new Date(date);
     }
-
+    
     // Adjust for the timezone offset
     const userTimezoneOffset = 120; // 2 hours in minutes for your timezone (GMT+2)
     adjustedDate.setMinutes(adjustedDate.getMinutes() + userTimezoneOffset);
-
+    
     return adjustedDate;
   }
 
   // Cargar la información del Stock principal usando el ID
   private loadStock(): void {
     if (!this.idControl) return;
-
+    
     this.loading = true;
     // Buscar el stock específico por ID
     this.stockService.getStock().subscribe({
@@ -234,7 +244,7 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   // Método para cargar los detalles del stock asociados al idControl
   private loadStockDetails(): void {
     if (!this.idControl) return;
-
+    
     this.loading = true;
     // Obtener detalles del stock filtrados por idControl
     this.stockDetailsService.getAll().subscribe({
@@ -242,7 +252,7 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
         // Filtrar solo los detalles que corresponden a este idControl
         this.stockDetails = datos.filter(d => d.idControl === this.idControl);
         console.log('Datos filtrados:', this.stockDetails);
-
+        
         // Mapear a ScannedResult para la pestaña de lectura
         this.scannedResults = this.stockDetails.map(d => ({
           value: d.codigoPartida,
@@ -250,11 +260,17 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
           bulksQuantity: d.numBultos,
           saved: true // Los datos cargados desde la DB ya están guardados
         }));
-
+        
         // Procesar los datos para el análisis
         this.processGeneroData();
         this.processCategoriaData();
-
+        
+        // Cargar las familias disponibles
+        this.loadFamilias();
+        
+        // Inicializar categorías con todas las categorías
+        this.categoriasPorGenero = [...this.categoriasAgrupadas];
+        
         this.loading = false;
       },
       error: err => {
@@ -266,64 +282,164 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
       }
     });
   }
-
-  // Procesar datos para géneros
+  
+  // MÉTODO NUEVO: Cargar las familias únicas
+  loadFamilias(): void {
+    // Inicializar array
+    this.familias = [];
+    
+    // Crear conjunto para evitar duplicados
+    const familiasSet = new Set<string>();
+    
+    // Recopilar todas las familias de géneros
+    this.generoData.forEach(genero => {
+      if (genero.nombreFamilia) {
+        familiasSet.add(genero.nombreFamilia);
+      }
+    });
+    
+    // Convertir a array y ordenar
+    this.familias = Array.from(familiasSet).sort();
+    
+    // Añadir opción "Todas las familias"
+    this.familias.unshift('Todas');
+    console.log('Familias cargadas:', this.familias);
+  }
+  
+  // MÉTODO NUEVO: Cuando cambia la familia seleccionada
+  onFamiliaChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const familia = selectElement.value;
+    this.selectedFamilia = familia === 'Todas' ? null : familia;
+    this.selectedGenero = null; // Resetear el género seleccionado
+    this.categoriasPorGenero = [...this.categoriasAgrupadas]; // Resetear a todas las categorías
+  }
+  
+  // MÉTODO NUEVO: Cuando se selecciona un género
+  onGeneroSelected(genero: GeneroAgrupado): void {
+    this.selectedGenero = genero.idGenero;
+    // Filtrar categorías solo para este género específico
+    this.filterCategoriasByGenero(genero.idGenero);
+  }
+  
+  // MÉTODO NUEVO: Filtrar categorías por género específico seleccionado
+  filterCategoriasByGenero(idGenero: number): void {
+    // Filtrar stockDetails para obtener solo los items de ese género
+    const itemsFiltrados = this.stockDetails.filter(item => 
+      Number(item.idGenero) === idGenero
+    );
+    
+    // Agrupar por categoría
+    const categoriaMap = new Map<string, number>();
+    let totalBultos = 0;
+    
+    itemsFiltrados.forEach(item => {
+      const categoriaName = item.categoria || "Sin categoría";
+      const numBultos = Number(item.numBultos) || 0;
+      
+      totalBultos += numBultos;
+      
+      const currentCount = categoriaMap.get(categoriaName) || 0;
+      categoriaMap.set(categoriaName, currentCount + numBultos);
+    });
+    
+    // Convertir el mapa a un array para la tabla
+    this.categoriasPorGenero = Array.from(categoriaMap.entries()).map(([categoria, count]) => ({
+      categoria,
+      count,
+      porcentaje: totalBultos > 0 ? Math.round((count / totalBultos) * 100) : 0
+    }));
+    
+    // Si no hay datos, añadir un valor por defecto
+    if (this.categoriasPorGenero.length === 0) {
+      const genero = this.generoData.find(g => g.idGenero === idGenero);
+      const nombreGenero = genero ? genero.nombreGenero : `Género ${idGenero}`;
+      
+      this.categoriasPorGenero = [
+        { categoria: `Sin datos para ${nombreGenero}`, count: 0, porcentaje: 0 }
+      ];
+    }
+    
+    console.log('Categorías filtradas por género:', this.categoriasPorGenero);
+  }
+  
+  // MÉTODO NUEVO: Procesar datos para géneros
   processGeneroData(): number {
     // Inicializar arrays
     this.generos = [];
     this.generosUnicos = [];
     
-    if (!this.stockDetails || this.stockDetails.length === 0) {
+    if (!this.generoData || this.generoData.length === 0) {
+      console.warn('No hay datos de géneros disponibles');
       return 0;
     }
     
-    // Agrupar los datos de género
+    // Crear un mapa para contabilizar bultos por género
+    const conteoGeneros = new Map<number, number>();
+    
+    // Primero, contar todos los bultos por género que aparecen en stockDetails
+    if (this.stockDetails && this.stockDetails.length > 0) {
+      for (const item of this.stockDetails) {
+        // Convertir a número para evitar problemas de tipo
+        const idGenero = Number(item.idGenero);
+        const numBultos = Number(item.numBultos) || 0;
+        
+        if (!isNaN(idGenero)) {
+          const actual = conteoGeneros.get(idGenero) || 0;
+          conteoGeneros.set(idGenero, actual + numBultos);
+        }
+      }
+    }
+    
+    // Ahora, incluir TODOS los géneros de la base de datos
     const generosMap = new Map<number, GeneroAgrupado>();
     
-    // Primero, procesar cada detalle del stock
-    for (let i = 0; i < this.stockDetails.length; i++) {
-      const idGenero = this.stockDetails[i].idGenero;
+    // Procesar todos los géneros de la BD
+    for (const genero of this.generoData) {
+      const idGenero = Number(genero.idGenero);
+      const nombreFamilia = genero.nombreFamilia || 'Sin familia';
       
-      // Buscar el género en los datos cargados
-      const genero = this.generoData.find(g => g.idGenero === idGenero);
+      // Crear el objeto de género agrupado
+      const generoAgrupado: GeneroAgrupado = {
+        idGenero: idGenero,
+        nombreGenero: genero.nombreGenero || 'Desconocido',
+        count: conteoGeneros.get(idGenero) || 0, // Si no hay datos en stockDetails, será 0
+        nombreFamilia: nombreFamilia // Guardar también el nombre de la familia
+      };
       
-      if (genero) {
-        // Añadir a la lista de géneros para mostrar
-        this.generos.push(genero);
-        
-        // Agregar o actualizar en el mapa de géneros agrupados
-        if (generosMap.has(idGenero)) {
-          const existente = generosMap.get(idGenero);
-          if (existente) {
-            existente.count += this.stockDetails[i].numBultos;
-          }
-        } else {
-          generosMap.set(idGenero, {
-            idGenero: idGenero,
-            nombreGenero: genero.nombreGenero || 'Desconocido',
-            count: this.stockDetails[i].numBultos
-          });
-        }
-      } else {
-        // Si no encontramos el género, lo añadimos como desconocido
-        this.generos.push({
-          idGenero: idGenero,
-          nombreGenero: 'Desconocido',
-          nombreFamilia: 'Desconocido',
-          idFamilia: '0'
-        });
-      }
+      // Guardar en el mapa
+      generosMap.set(idGenero, generoAgrupado);
     }
     
     // Convertir el mapa a array para mostrar en la UI
     this.generosUnicos = Array.from(generosMap.values());
     
-    console.log('Géneros procesados:', this.generosUnicos);
+    // Si no hay géneros, añadir uno por defecto
+    if (this.generosUnicos.length === 0) {
+      this.generosUnicos = [{
+        idGenero: 0,
+        nombreGenero: 'Sin datos',
+        count: 0,
+        nombreFamilia: 'Sin familia'
+      }];
+    }
     
-    return this.generos.length;
+    console.log('Géneros procesados:', this.generosUnicos);
+    return this.generosUnicos.length;
   }
-
-  // Procesar datos para categorías
+  
+  // MÉTODO NUEVO: Obtener géneros filtrados por familia seleccionada
+  getGenerosPorFamilia(): GeneroAgrupado[] {
+    if (!this.selectedFamilia || this.selectedFamilia === 'Todas') {
+      // Si no hay familia seleccionada o se eligió "Todas", mostrar todos los géneros
+      return this.generosUnicos;
+    }
+    
+    // Filtrar por la familia seleccionada
+    return this.generosUnicos.filter(g => g.nombreFamilia === this.selectedFamilia);
+  }
+  
+  // MÉTODO NUEVO: Procesar datos para categorías
   processCategoriaData(): void {
     // Agrupar por categoría y contar
     const categoriaMap = new Map<string, number>();
@@ -339,7 +455,7 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
       const currentCount = categoriaMap.get(categoriaName) || 0;
       categoriaMap.set(categoriaName, currentCount + numBultos);
     });
-
+    
     // Convertir el mapa a un array para las tablas y gráficos
     this.categoriaData = Array.from(categoriaMap.entries()).map(([name, count]) => ({
       name,
@@ -366,42 +482,34 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
     
     console.log('Categorías procesadas:', this.categoriasAgrupadas);
   }
-
-  // Obtener el nombre del género a partir del ID
-  getGeneroName(idGenero: number): string {
-    // Buscar en generoData el género correspondiente
-    const genero = this.generoData.find(g => g.idGenero === idGenero);
-    if (genero && genero.nombreGenero) {
-      return genero.nombreGenero;
+  
+  // MÉTODO NUEVO: Calcular el porcentaje del total para la tabla
+  calculatePercentage(type: string, item: any): string {
+    const totalBultos = this.getTotalBulks();
+    if (totalBultos === 0) return '0';
+    
+    // Para el caso de géneros con la nueva estructura
+    if (type === 'genero') {
+      // Ya tenemos el count precalculado en el objeto
+      const itemCount = item.count || 0;
+      const percentage = (itemCount / totalBultos) * 100;
+      return percentage.toFixed(1); // Redondear a 1 decimal
+    } 
+    // Para categorías, el método original funciona bien
+    else if (type === 'categoria') {
+      const categoria = item.categoria || 'Sin categoría';
+      const itemCount = this.stockDetails
+        .filter(d => (d.categoria || 'Sin categoría') === categoria)
+        .reduce((total, d) => total + (Number(d.numBultos) || 0), 0);
+      
+      const percentage = (itemCount / totalBultos) * 100;
+      return percentage.toFixed(1);
     }
     
-    // Si no se encuentra en el servicio, devolver un valor genérico
-    return `Género ${idGenero}`;
+    return '0';
   }
-
-  // Método para cargar resultados guardados
-  private loadSavedResults(): void {
-    const savedResults = localStorage.getItem('scannedQrResults');
-    if (savedResults) {
-      try {
-        // Convertir las cadenas de fecha a objetos Date
-        const parsed = JSON.parse(savedResults);
-        this.scannedResults = parsed.map((item: any) => ({
-          value: item.value,
-          timestamp: this.adjustDateToLocalTimezone(item.timestamp),
-          bulksQuantity: item.bulksQuantity || 1,
-          saved: item.saved || false
-        }));
-
-        // Crear datos de análisis a partir de los resultados guardados
-        this.processDataFromScannedResults();
-      } catch (e) {
-        console.error('Error al cargar resultados guardados:', e);
-      }
-    }
-  }
-
-  // Procesar datos de análisis a partir de los resultados escaneados
+  
+  // MÉTODO NUEVO: Procesar datos de análisis a partir de los resultados escaneados
   private processDataFromScannedResults(): void {
     // Convertir los resultados escaneados a un formato similar al de la API
     this.stockDetails = this.scannedResults.map(scan => {
@@ -421,6 +529,31 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
     // Una vez convertidos, procesamos para análisis
     this.processGeneroData();
     this.processCategoriaData();
+    
+    // Cargar las familias disponibles
+    this.loadFamilias();
+  }
+
+  // Método para cargar resultados guardados
+  private loadSavedResults(): void {
+    const savedResults = localStorage.getItem('scannedQrResults');
+    if (savedResults) {
+      try {
+        // Convertir las cadenas de fecha a objetos Date
+        const parsed = JSON.parse(savedResults);
+        this.scannedResults = parsed.map((item: any) => ({
+          value: item.value,
+          timestamp: this.adjustDateToLocalTimezone(item.timestamp),
+          bulksQuantity: item.bulksQuantity || 1,
+          saved: item.saved || false
+        }));
+        
+        // Crear datos de análisis a partir de los resultados guardados
+        this.processDataFromScannedResults();
+      } catch (e) {
+        console.error('Error al cargar resultados guardados:', e);
+      }
+    }
   }
 
   // Cambiar la pestaña activa
@@ -430,20 +563,20 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
     if (tab !== 'Lectura de Stock') {
       this.closeScanner();
     }
-
+    
     // Actualizar los datos si cambiamos a la pestaña de análisis
     if (tab === 'Analisis de Stock') {
       // Actualizar los datos de análisis
       this.processGeneroData();
       this.processCategoriaData();
+      this.loadFamilias();
     }
   }
 
   // Método para exportar a PDF
-  exportToPdf(): void {
+  exportToPdf(): void { 
     // Implementar la lógica de exportación a PDF
     console.log('Exportando a PDF...');
-    alert('Exportando a PDF...');
   }
 
   // Método mejorado para activar/desactivar el escáner
@@ -480,7 +613,7 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   onDeviceSelectChange(): void {
     // Resetear error al cambiar de dispositivo
     this.error = null;
-
+    
     // Verificar si el nuevo dispositivo seleccionado tiene flash
     this.checkTorchAvailability();
   }
@@ -489,9 +622,9 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   checkTorchAvailability(): void {
     if (this.selectedDevice && this.selectedDevice.label) {
       // La mayoría de las cámaras traseras tienen flash
-      this.torchAvailable = this.selectedDevice.label.toLowerCase().includes('back') ||
-        this.selectedDevice.label.toLowerCase().includes('trasera') ||
-        this.selectedDevice.label.toLowerCase().includes('rear');
+      this.torchAvailable = this.selectedDevice.label.toLowerCase().includes('back') || 
+                           this.selectedDevice.label.toLowerCase().includes('trasera') ||
+                           this.selectedDevice.label.toLowerCase().includes('rear');
     } else {
       this.torchAvailable = false;
     }
@@ -501,42 +634,42 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   onQrCodeDetected(resultString: string): void {
     // Pausar el escáner
     this.scannerEnabled = false;
-
+    
     // Almacenar el resultado temporalmente
     this.pendingQrResult = resultString;
-
+    
     // Mostrar el modal para ingresar la cantidad de bultos
     this.bulksQuantity = 1; // Resetear a valor por defecto
     this.showBulkQuantityModal = true;
-
+    
     // Reproducir sonido de éxito (opcional)
     this.playSuccessSound();
   }
-
+  
   // Para mantener compatibilidad con el código anterior
   onCodeResult(resultString: string): void {
     this.onQrCodeDetected(resultString);
   }
-
+  
   // Incrementar la cantidad de bultos
   incrementBulks(): void {
     this.bulksQuantity++;
   }
-
+  
   // Decrementar la cantidad de bultos (mínimo 1)
   decrementBulks(): void {
     if (this.bulksQuantity > 1) {
       this.bulksQuantity--;
     }
   }
-
+  
   // Cancelar la entrada de bultos
   cancelBulkEntry(): void {
     this.showBulkQuantityModal = false;
     this.pendingQrResult = '';
     this.bulksQuantity = 1;
   }
-
+  
   // Guardar la cantidad de bultos y el resultado del escaneo
   saveBulkQuantity(): void {
     if (!this.idControl) {
@@ -552,10 +685,10 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
       this.showBulkQuantityModal = false;
       return;
     }
-
+    
     // Crear objeto con fecha actual explícita en formato ISO
     const fechaActual = new Date();
-
+    
     const crearStock = {
       NumBultos: this.bulksQuantity,
       CodigoPartida: codigoNum,
@@ -564,9 +697,9 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
       idControl: this.idControl,
       FechaCreacion: fechaActual.toISOString() // Añadir la fecha actual en formato ISO
     };
-
+    
     console.log('Enviando fecha de creación:', fechaActual, fechaActual.toISOString());
-
+    
     this.stockDetailsService.create(crearStock).subscribe(
       (data: any) => {
         console.log('Se ha creado correctamente', data);
@@ -585,9 +718,6 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
         this.pendingQrResult = '';
         // Mostrar mensaje de error
         this.error = 'Error al guardar en la base de datos';
-
-        // Actualizar los datos de análisis
-        this.processDataFromScannedResults();
       }
     );
   }
@@ -595,10 +725,11 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   // Método secundario que hace el PUT a ERP usando el número del QR
   private updatePartidaFromQr(codigoNum: number): void {
     const fechaActual = new Date();
-
+    
     this.stockDetailsService
-      .updatePartidaErp(codigoNum, {
+      .updatePartidaErp(codigoNum, { 
         idPartida: codigoNum,
+        //fechaCreacion: fechaActual.toISOString() // Aseguramos de enviar la fecha actual
       })
       .subscribe({
         next: () => {
@@ -629,9 +760,6 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
             bulksQuantity: this.bulksQuantity,
             saved: false // Marcado como no guardado
           });
-
-          // Actualizar los datos de análisis
-          this.processDataFromScannedResults();
         }
       });
   }
@@ -645,26 +773,25 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
       console.log('No se pudo reproducir el sonido');
     }
   }
-
   // Eliminar un resultado del historial
   removeResult(index: number, event?: Event): void {
     // Stop propagation to avoid triggering the scanner
     if (event) {
       event.stopPropagation();
     }
-
+    
     const itemToRemove = this.scannedResults[index];
-
+    
     // Find the corresponding ID in the database to delete it
     this.stockDetailsService.getAll().subscribe({
       next: (datos: any[]) => {
         // Find the element that matches the scanned one (by partition code and quantity)
-        const matchingItem = datos.find(d =>
-          d.codigoPartida === itemToRemove.value &&
+        const matchingItem = datos.find(d => 
+          d.codigoPartida === itemToRemove.value && 
           d.numBultos === itemToRemove.bulksQuantity &&
           d.idControl === this.idControl
         );
-
+        
         if (matchingItem) {
           // Delete from the database
           this.stockDetailsService.delete(matchingItem.id).subscribe({
@@ -672,9 +799,6 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
               console.log('Elemento eliminado de la base de datos');
               // Only remove locally AFTER successful API deletion
               this.performLocalRemove(index);
-
-              // Actualizar los datos de análisis
-              this.loadStockDetails();
             },
             error: (err: any) => {
               console.error('Error al eliminar de la base de datos:', err);
@@ -695,14 +819,14 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
       }
     });
   }
-
+  
   // Función auxiliar para eliminar visualmente con animación
   private performLocalRemove(index: number): void {
     // Añadir clase de animación antes de eliminar
     const cardElement = document.querySelectorAll('.qr-result-card')[index] as HTMLElement;
     if (cardElement) {
       cardElement.classList.add('removing');
-
+      
       // Esperar a que termine la animación
       setTimeout(() => {
         this.scannedResults.splice(index, 1);
@@ -726,20 +850,20 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
     // La tarjeta de añadir (+) crece con la cantidad de resultados
     const baseWidth = this.getBaseCardWidth();
     const growFactor = Math.min(this.scannedResults.length * 0.05, 0.5); // Crecer hasta un 50% más
-
+    
     return `${baseWidth + (baseWidth * growFactor)}px`;
   }
-
+  
   getResultCardWidth(): string {
     return `${this.getBaseCardWidth()}px`;
   }
-
+  
   getCardHeight(): string {
     // Altura responsiva basada en el ancho de la pantalla
     const heightFactor = this.screenWidth < 640 ? 1.2 : 1.4;
     return `${this.getBaseCardWidth() * heightFactor}px`;
   }
-
+  
   private getBaseCardWidth(): number {
     // Ajustar el tamaño base dependiendo del ancho de la pantalla
     if (this.screenWidth < 640) {
@@ -750,17 +874,17 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
       return this.baseCardSize; // Tamaño completo en desktop
     }
   }
-
+  
   getCardWrapperWidth(): string {
     // Asegurar que el contenedor sea lo suficientemente ancho
     const totalCards = this.scannedResults.length + 1; // +1 por la tarjeta de añadir
     const gap = 16; // 4rem de gap entre tarjetas
-
+    
     const addCardWidth = parseFloat(this.getAddCardWidth());
     const resultCardWidth = parseFloat(this.getResultCardWidth());
-
+    
     const totalWidth = addCardWidth + (resultCardWidth * this.scannedResults.length) + (gap * (totalCards - 1));
-
+    
     return `${totalWidth}px`;
   }
 
@@ -774,7 +898,7 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
 
   onScanError(err: any): void {
     console.error('Error al escanear:', err);
-
+    
     // Mensaje más amigable para el usuario
     if (err.name === 'NotAllowedError') {
       this.error = 'Necesito permiso para usar la cámara.';
@@ -790,16 +914,16 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   onCamerasFound(devices: MediaDeviceInfo[]): void {
     console.log('Cámaras detectadas:', devices);
     this.availableDevices = devices;
-
+    
     if (!this.selectedDevice && devices.length > 0) {
       // Intentar seleccionar la cámara trasera por defecto (mejor para QR)
-      const rearCamera = devices.find(d =>
-        d.label.toLowerCase().includes('back') ||
+      const rearCamera = devices.find(d => 
+        d.label.toLowerCase().includes('back') || 
         d.label.toLowerCase().includes('trasera') ||
         d.label.toLowerCase().includes('rear')
       );
       this.selectedDevice = rearCamera || devices[0];
-
+      
       // Verificar disponibilidad de linterna
       this.checkTorchAvailability();
     }
@@ -814,14 +938,14 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   // Método mejorado para reintentar el escaneo
   retryScanner(): void {
     this.error = null;
-
+    
     // Reiniciar el escáner con una pequeña pausa
     setTimeout(() => {
       this.scannerEnabled = false;
-
+      
       setTimeout(() => {
         this.scannerEnabled = true;
-
+        
         // Volver a pedir permiso
         if (this.scanner) {
           this.scanner.askForPermission();
@@ -833,29 +957,30 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   // Método para detectar tema oscuro/claro
   checkDarkMode(): void {
     // Puedes adaptar esto según cómo manejes los temas en tu aplicación
-    this.isDarkMode = document.documentElement.classList.contains('dark') ||
-      window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.isDarkMode = document.documentElement.classList.contains('dark') || 
+                     window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
-
-  // MÉTODOS PARA EL ANÁLISIS DE STOCK
-
-  // Obtener el total de bultos
-  getTotalBulks(): number {
-    return this.stockDetails.reduce((total, item) => total + (item.numBultos || 0), 0);
+  
+  // Métodos para la sección de análisis
+  
+   getTotalBulks(): number {
+    if (!this.idControl) return 0;
+    return this.stockDetails
+      .filter(item => item.idControl === this.idControl)
+      .reduce((sum, item) => sum + (Number(item.numBultos) || 0), 0);
   }
-
   // Filtrar resultados para la búsqueda
   get filteredResults(): ScannedResult[] {
     if (!this.searchTerm.trim()) {
       return [...this.scannedResults];
     }
-
+    
     const term = this.searchTerm.toLowerCase().trim();
-    return this.scannedResults.filter(scan =>
+    return this.scannedResults.filter(scan => 
       scan.value.toLowerCase().includes(term)
     );
   }
-
+  
   // Editar cantidad de bultos
   editBulkQuantity(scan: ScannedResult, index: number): void {
     this.currentEditScan = scan;
@@ -863,66 +988,66 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
     this.editBulksQuantity = scan.bulksQuantity || 1;
     this.showEditBulkModal = true;
   }
-
+  
   // Cancelar edición de bultos
   cancelEditBulk(): void {
     this.showEditBulkModal = false;
     this.currentEditScan = null;
     this.currentEditIndex = -1;
   }
-
+  
   // Incrementar bultos en edición
   incrementEditBulks(): void {
     this.editBulksQuantity++;
   }
-
+  
   // Decrementar bultos en edición
   decrementEditBulks(): void {
     if (this.editBulksQuantity > 1) {
       this.editBulksQuantity--;
     }
   }
-
+  
   // Actualizar la cantidad de bultos
   updateBulkQuantity(): void {
     if (!this.currentEditScan || this.currentEditIndex < 0) {
       return;
     }
-
+    
     // Obtener el elemento original
     const originalScan = this.scannedResults[this.currentEditIndex];
-
+    
     // Actualizar en la API solo si el elemento está guardado
     if (originalScan.saved) {
       this.stockDetailsService.getAll().subscribe({
         next: (datos: any[]) => {
           // Encontrar el elemento correspondiente
-          const matchingItem = datos.find(d =>
-            d.codigoPartida === originalScan.value &&
+          const matchingItem = datos.find(d => 
+            d.codigoPartida === originalScan.value && 
             d.numBultos === originalScan.bulksQuantity &&
             d.idControl === this.idControl
           );
-
+          
           if (matchingItem) {
             // Actualizar en la base de datos
             const updateData = {
               ...matchingItem,
               numBultos: this.editBulksQuantity
             };
-
+            
             this.stockDetailsService.update(matchingItem.id, updateData).subscribe({
               next: () => {
                 // Actualizar localmente
                 this.scannedResults[this.currentEditIndex].bulksQuantity = this.editBulksQuantity;
                 this.showEditBulkModal = false;
                 this.showSaveSuccess = true;
-
+                
                 // Ocultar mensaje después de 3 segundos
                 setTimeout(() => {
                   this.showSaveSuccess = false;
                 }, 3000);
-
-                // Actualizar los datos de análisis
+                
+                // Actualizar datos de análisis
                 this.loadStockDetails();
               },
               error: (err: any) => {
@@ -947,36 +1072,31 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
       // Si no está guardado, solo actualizamos localmente
       this.scannedResults[this.currentEditIndex].bulksQuantity = this.editBulksQuantity;
       this.showEditBulkModal = false;
-
+      
       // Guardar en localStorage
       this.saveResults();
-
-      // Actualizar los datos de análisis
+      
+      // Actualizar datos de análisis
       this.processDataFromScannedResults();
     }
   }
-  // Calcular el porcentaje del total para la tabla
-  calculatePercentage(type: string, item: any): string {
-    const totalBultos = this.getTotalBulks();
-    if (totalBultos === 0) return '0';
-    
-    let itemCount = 0;
-    
-    if (type === 'genero') {
-      // Para géneros, buscar todos los items que tengan ese idGenero
-      itemCount = this.stockDetails
-        .filter(d => d.idGenero === item.idGenero)
-        .reduce((total, d) => total + (d.numBultos || 0), 0);
-    } 
-    else if (type === 'categoria') {
-      // Para categorías, buscar todos los items que tengan esa categoría
-      const categoria = item.categoria || 'Sin categoría';
-      itemCount = this.stockDetails
-        .filter(d => (d.categoria || 'Sin categoría') === categoria)
-        .reduce((total, d) => total + (d.numBultos || 0), 0);
-    }
-    
-    const percentage = (itemCount / totalBultos) * 100;
-    return percentage.toFixed(1); // Redondear a 1 decimal
+   getGeneroFamilia(idGenero: number): string {
+    const g = this.generoData.find(x => x.idGenero === idGenero);
+    return g?.nombreGenero || 'Desconocido';
   }
+  getVisibleGenerosCount(): number {
+  return this.generosUnicos
+    .filter(g => g.count > 0 && this.stockDetails.some(d => d.idGenero === g.idGenero && d.idControl === this.idControl))
+    .length;
+}
+getVisibleCategoriasCount(): number {
+  if (!this.idControl) return 0;
+  return this.categoriasAgrupadas
+    .filter(c => c.count > 0 &&
+      this.stockDetails
+        .filter(d => d.idControl === this.idControl)
+        .some(d => (d.categoria || 'Sin categoría') === c.categoria)
+    )
+    .length;
+}
 }

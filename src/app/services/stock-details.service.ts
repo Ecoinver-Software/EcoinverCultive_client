@@ -11,6 +11,7 @@ import { environment } from '../environment/environment';
 })
 export class ControlStockDetailsService {
   apiUrl=environment.baseUrl;
+  getByControlId: any;
 
   constructor(private http: HttpClient) {}
 
