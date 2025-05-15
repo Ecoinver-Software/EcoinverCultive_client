@@ -1,49 +1,36 @@
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
   integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
-  crossorigin="anonymous"
-  referrerpolicy="no-referrer"
-/>
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <div
-  class="mb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-wrap sm:flex-nowrap"
->
+  class="mb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-wrap sm:flex-nowrap">
   <!-- Menú con dos pestañas -->
   <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
     <li class="me-2" role="presentation">
-      <button
-        (click)="setActiveTab('Analisis de Stock')"
-        [class.active-tab]="activeTab === 'Analisis de Stock'"
+      <button (click)="setActiveTab('Analisis de Stock')" [class.active-tab]="activeTab === 'Analisis de Stock'"
         class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all"
         [ngClass]="{
           'border-[#437d3f] dark:border-[#65b15f] text-[#437d3f] dark:text-[#65b15f]':
             activeTab === 'Analisis de Stock'
-        }"
-      >
+        }">
         <i class="fas fa-chart-bar mr-2"></i>Análisis de Stock
       </button>
     </li>
     <li class="me-2" role="presentation">
-      <button
-        (click)="setActiveTab('Lectura de Stock')"
-        [class.active-tab]="activeTab === 'Lectura de Stock'"
+      <button (click)="setActiveTab('Lectura de Stock')" [class.active-tab]="activeTab === 'Lectura de Stock'"
         class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg dark:text-white hover:text-[#437d3f] dark:hover:text-[#65b15f] hover:border-[#437d3f] dark:hover:border-[#65b15f] transition-all"
         [ngClass]="{
           'border-[#437d3f] dark:border-[#65b15f] text-[#437d3f] dark:text-[#65b15f]':
             activeTab === 'Lectura de Stock'
-        }"
-      >
+        }">
         <i class="fas fa-book-open mr-2"></i>Lectura de Stock
       </button>
     </li>
   </ul>
 
   <!-- Cabecera con datos de StockDto y botón PDF -->
-  <div
-    *ngIf="!loading && stock"
-    class="bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-2 rounded-lg shadow flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-2 sm:mt-0 w-full sm:w-auto"
-  >
+  <div *ngIf="!loading && stock"
+    class="bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-2 rounded-lg shadow flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-2 sm:mt-0 w-full sm:w-auto">
     <div class="flex flex-col sm:flex-row sm:items-center gap-1">
       <span class="font-semibold">ID:</span> <span>{{ stock.id }}</span>
     </div>
@@ -55,31 +42,186 @@
       <span class="font-semibold">Cantidad:</span>
       <span>{{ stock.itemCount }}</span>
     </div>
-    <button
-      (click)="exportToPdf()"
+    <button (click)="exportToPdf()"
       class="ml-auto bg-[#437d3f] hover:bg-[#396a35] text-white px-3 py-1 rounded-md text-xs flex items-center transition-colors"
-      title="Exportar a PDF"
-    >
+      title="Exportar a PDF">
       <i class="fas fa-file-pdf mr-1"></i> PDF
     </button>
   </div>
 </div>
 
 <div id="tab-content" class="w-full">
-  <!-- Contenido Análisis de Stock (original) -->
-  <div
-    [class.hidden]="activeTab !== 'Analisis de Stock'"
-    class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-  >
-    <!-- Aquí irían tus gráficos y KPIs -->
-    <p>Análisis de stock: gráficos, indicadores, tendencias…</p>
+  <!-- Contenido Análisis de Stock Simplificado -->
+  <div [class.hidden]="activeTab !== 'Analisis de Stock'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+    <!-- Encabezado -->
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold tracking-tight text-gray-800 dark:text-white">Análisis de Stock</h2>
+    </div>
+
+    <!-- Resumen de datos -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <!-- Total Bultos -->
+      <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+        <div class="flex items-center">
+          <div class="rounded-full bg-green-100 dark:bg-green-900 p-3 mr-4">
+            <i class="fas fa-box text-green-600 dark:text-green-300"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Total Bultos</p>
+            <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{ getTotalBulks() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Géneros -->
+      <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+        <div class="flex items-center">
+          <div class="rounded-full bg-blue-100 dark:bg-blue-900 p-3 mr-4">
+            <i class="fas fa-users text-blue-600 dark:text-blue-300"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Géneros</p>
+            <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{ processGeneroData() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categorías -->
+      <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+        <div class="flex items-center">
+          <div class="rounded-full bg-purple-100 dark:bg-purple-900 p-3 mr-4">
+            <i class="fas fa-tag text-purple-600 dark:text-purple-300"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Categorías</p>
+            <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{ categoriaData.length }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de datos detallada -->
+    <div class="bg-white dark:bg-gray-700 rounded-lg shadow">
+      <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+          Detalle de Escaneos
+        </h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Información detallada de cada código escaneado</p>
+      </div>
+      <div class="p-4">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200 dark:border-gray-600">
+                <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Código</th>
+                <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Género</th>
+                <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Categoría</th>
+                <th class="text-right py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Bultos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of stockDetails; let i = index" [class.bg-gray-50]="i % 2 === 0"
+                [class.dark:bg-gray-800]="i % 2 === 0">
+                <td class="py-2 px-4 text-gray-800 dark:text-gray-200">{{ item.codigoPartida }}</td>
+                @if(generos[i].nombreGenero){
+                <td class="py-2 px-4 text-gray-800 dark:text-gray-200">{{ generos[i].nombreGenero }}</td>
+                }
+
+                <td class="py-2 px-4 text-gray-800 dark:text-gray-200">{{ item.categoria || 'Sin categoría' }}</td>
+                <td class="py-2 px-4 text-right text-gray-800 dark:text-gray-200">{{ item.numBultos }}</td>
+              </tr>
+              <tr *ngIf="stockDetails.length === 0">
+                <td colspan="4" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">
+                  No hay datos disponibles
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen por Género -->
+    <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white dark:bg-gray-700 rounded-lg shadow">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+            Resumen por Género
+          </h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Distribución de bultos por género</p>
+        </div>
+        <div class="p-4">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-200 dark:border-gray-600">
+                  <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Género</th>
+                  <th class="text-right py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Cantidad</th>
+                  <th class="text-right py-3 px-4 font-medium text-gray-700 dark:text-gray-300">% del Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of generos; let i = index" [class.bg-gray-50]="i % 2 === 0"
+                  [class.dark:bg-gray-800]="i % 2 === 0">
+                  <td class="py-2 px-4 text-gray-800 dark:text-gray-200">{{ item.idGenero }}</td>
+                  <td class="py-2 px-4 text-right text-gray-800 dark:text-gray-200">{{ item.idGenero}}</td>
+                  <td class="py-2 px-4 text-right text-gray-800 dark:text-gray-200">
+                    {{ calculatePercentage('genero', item) }}%
+                  </td>
+                </tr>
+                <tr *ngIf="generoData.length === 0">
+                  <td colspan="3" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">
+                    No hay datos disponibles
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen por Categoría -->
+      <div class="bg-white dark:bg-gray-700 rounded-lg shadow">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+            Resumen por Categoría
+          </h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Distribución de bultos por categoría</p>
+        </div>
+        <div class="p-4">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-200 dark:border-gray-600">
+                  <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Categoría</th>
+                  <th class="text-right py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Cantidad</th>
+                  <th class="text-right py-3 px-4 font-medium text-gray-700 dark:text-gray-300">% del Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of generos; let i = index" [class.bg-gray-50]="i % 2 === 0"
+                  [class.dark:bg-gray-800]="i % 2 === 0">
+                  <td class="py-2 px-4 text-gray-800 dark:text-gray-200">{{ item.nombreFamilia }}</td>
+                  <td class="py-2 px-4 text-right text-gray-800 dark:text-gray-200">{{ item.idFamilia }}</td>
+                  <td class="py-2 px-4 text-right text-gray-800 dark:text-gray-200">
+                    {{ calculatePercentage('categoria', item) }}%
+                  </td>
+                </tr>
+                <tr *ngIf="categoriaData.length === 0">
+                  <td colspan="3" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">
+                    No hay datos disponibles
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Contenido Lectura de Stock (con las modificaciones) -->
-  <div
-    *ngIf="activeTab === 'Lectura de Stock'"
-    class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 w-full"
-  >
+  <div *ngIf="activeTab === 'Lectura de Stock'" class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 w-full">
     <!-- Resumen de datos -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <!-- Total de códigos escaneados -->
@@ -94,7 +236,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Total de bultos registrados -->
       <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
         <div class="flex items-center">
@@ -107,7 +249,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Fecha -->
       <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
         <div class="flex items-center">
@@ -122,7 +264,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- ID de Stock -->
       <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
         <div class="flex items-center">
@@ -138,24 +280,21 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Solo barra de búsqueda (eliminado botón de escanear) -->
     <div class="mb-4 flex justify-end">
       <div class="relative">
-        <input type="text" 
-               [(ngModel)]="searchTerm" 
-               placeholder="Buscar código..." 
-               class="pl-8 pr-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar código..." class="pl-8 pr-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 
                       bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white text-sm">
         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
       </div>
     </div>
-    
+
     <!-- Contenedor de tarjetas de datos QR -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <!-- Tarjeta para escanear código QR -->
-      <div (click)="toggleScanner()" 
-          class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border-l-4 border-blue-500 dark:border-blue-400 cursor-pointer hover:shadow-lg transition-shadow">
+      <div (click)="toggleScanner()"
+        class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border-l-4 border-blue-500 dark:border-blue-400 cursor-pointer hover:shadow-lg transition-shadow">
         <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-600 bg-blue-50 dark:bg-blue-900/20">
           <h4 class="font-medium text-gray-800 dark:text-white flex items-center">
             <div class="rounded-full bg-blue-100 dark:bg-blue-800 p-2 mr-2">
@@ -164,7 +303,7 @@
             Escanear código QR
           </h4>
         </div>
-        
+
         <div class="p-4 flex flex-col items-center justify-center text-center h-48">
           <div class="rounded-full bg-blue-100 dark:bg-blue-800 w-16 h-16 flex items-center justify-center mb-4">
             <i class="fas fa-plus text-2xl text-blue-600 dark:text-blue-300"></i>
@@ -172,47 +311,48 @@
           <p class="text-gray-600 dark:text-gray-300">Pulsa para escanear un nuevo código QR</p>
         </div>
       </div>
-      
+
       <!-- Estado vacío (ahora aparece al lado de la tarjeta de escanear cuando no hay resultados) -->
-      <div *ngIf="filteredResults.length === 0" class="sm:col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3 bg-white dark:bg-gray-700 rounded-lg shadow p-8 flex flex-col items-center justify-center text-center">
+      <div *ngIf="filteredResults.length === 0"
+        class="sm:col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3 bg-white dark:bg-gray-700 rounded-lg shadow p-8 flex flex-col items-center justify-center text-center">
         <i class="fas fa-inbox text-5xl mb-4 text-gray-300 dark:text-gray-500"></i>
         <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-2">No hay datos para mostrar</h3>
         <p class="text-gray-500 dark:text-gray-400">Pulsa la tarjeta de "Escanear Código QR" para comenzar</p>
       </div>
-      
+
       <!-- Tarjetas de código QR (se generan dinámicamente) -->
-      <div *ngFor="let scan of filteredResults; let i = index" 
-           class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border-l-4"
-           [ngClass]="{'border-green-500 dark:border-green-400': scan.saved, 
+      <div *ngFor="let scan of filteredResults; let i = index"
+        class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border-l-4" [ngClass]="{'border-green-500 dark:border-green-400': scan.saved, 
                       'border-yellow-500 dark:border-yellow-400': !scan.saved}">
         <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-600 flex justify-between items-center"
-             [ngClass]="{'bg-green-50 dark:bg-green-900/20': scan.saved}">
+          [ngClass]="{'bg-green-50 dark:bg-green-900/20': scan.saved}">
           <div class="flex items-center">
-            <div class="rounded-full p-2 mr-2"
-                 [ngClass]="{'bg-green-100 dark:bg-green-800': scan.saved, 
+            <div class="rounded-full p-2 mr-2" [ngClass]="{'bg-green-100 dark:bg-green-800': scan.saved, 
                             'bg-yellow-100 dark:bg-yellow-800': !scan.saved}">
-              <i class="fas text-xs"
-                 [ngClass]="{'fa-check text-green-600 dark:text-green-300': scan.saved, 
+              <i class="fas text-xs" [ngClass]="{'fa-check text-green-600 dark:text-green-300': scan.saved, 
                             'fa-clock text-yellow-600 dark:text-yellow-300': !scan.saved}"></i>
             </div>
             <h4 class="font-medium text-gray-800 dark:text-white">Código #{{ i + 1 }}</h4>
           </div>
           <div class="flex items-center">
-            <button (click)="editBulkQuantity(scan, i)" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-2">
+            <button (click)="editBulkQuantity(scan, i)"
+              class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-2">
               <i class="fas fa-edit"></i>
             </button>
-            <button (click)="removeResult(i, $event)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+            <button (click)="removeResult(i, $event)"
+              class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
               <i class="fas fa-trash"></i>
             </button>
           </div>
         </div>
-        
+
         <div class="p-4">
           <div class="mb-3">
             <p class="text-sm text-gray-500 dark:text-gray-400">Código QR</p>
-            <p class="font-mono text-gray-800 dark:text-white text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded">{{ scan.value }}</p>
+            <p class="font-mono text-gray-800 dark:text-white text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded">{{
+              scan.value }}</p>
           </div>
-          
+
           <div class="grid grid-cols-2 gap-3 mb-3">
             <div>
               <p class="text-sm text-gray-500 dark:text-gray-400">Fecha</p>
@@ -223,19 +363,17 @@
               <p class="text-gray-800 dark:text-white">{{ scan.timestamp | date:'HH:mm' }}</p>
             </div>
           </div>
-          
+
           <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 flex justify-between items-center">
             <div>
               <p class="text-sm text-gray-500 dark:text-gray-400">Cantidad de bultos</p>
               <div class="flex items-center">
-                <i class="fas fa-box mr-2"
-                   [ngClass]="{'text-green-600 dark:text-green-400': scan.saved, 
+                <i class="fas fa-box mr-2" [ngClass]="{'text-green-600 dark:text-green-400': scan.saved, 
                               'text-gray-600 dark:text-gray-400': !scan.saved}"></i>
                 <span class="text-lg font-semibold text-gray-800 dark:text-white">{{ scan.bulksQuantity || 1 }}</span>
               </div>
             </div>
-            <div class="text-xs px-2 py-1 rounded-full"
-                 [ngClass]="{'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200': scan.saved, 
+            <div class="text-xs px-2 py-1 rounded-full" [ngClass]="{'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200': scan.saved, 
                             'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200': !scan.saved}">
               {{ scan.saved ? 'Guardado' : 'Pendiente' }}
             </div>
@@ -245,11 +383,15 @@
     </div>
 
     <!-- Scanner QR (Modal separado con backdrop-blur-sm) -->
-    <div *ngIf="scannerEnabled" class="modal-overlay fixed inset-0 z-50 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center">
-      <div class="modal-container bg-white dark:bg-gray-800 w-full max-w-md mx-auto rounded-lg shadow-lg overflow-hidden">
-        <div class="modal-header bg-gray-100 dark:bg-gray-700 px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
+    <div *ngIf="scannerEnabled"
+      class="modal-overlay fixed inset-0 z-50 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center">
+      <div
+        class="modal-container bg-white dark:bg-gray-800 w-full max-w-md mx-auto rounded-lg shadow-lg overflow-hidden">
+        <div
+          class="modal-header bg-gray-100 dark:bg-gray-700 px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
           <h3 class="font-medium text-gray-800 dark:text-white">Escanear código QR</h3>
-          <button (click)="closeScanner()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <button (click)="closeScanner()"
+            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -258,11 +400,8 @@
           <!-- Selector de dispositivo -->
           <div *ngIf="availableDevices.length > 0" class="device-selector mb-4">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selecciona cámara:</label>
-            <select
-              [(ngModel)]="selectedDevice"
-              (change)="onDeviceSelectChange()"
-              class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            >
+            <select [(ngModel)]="selectedDevice" (change)="onDeviceSelectChange()"
+              class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
               <option *ngFor="let d of availableDevices" [ngValue]="d">
                 {{ d.label || "Cámara " + (availableDevices.indexOf(d) + 1) }}
               </option>
@@ -272,25 +411,23 @@
           <!-- Contenedor de la cámara -->
           <div class="camera-container relative w-full h-64 mb-4 bg-black rounded-lg overflow-hidden">
             <!-- Componente del escáner -->
-            <zxing-scanner
-              #scanner
-              [autostart]="true"
-              [device]="selectedDevice"
-              [torch]="torchEnabled"
-              (camerasFound)="onCamerasFound($event)"
-              (camerasNotFound)="onCamerasNotFound()"
-              (permissionResponse)="onPermissionResponse($event)"
-              (scanError)="onScanError($event)"
-              (scanSuccess)="onCodeResult($event)"
-              class="w-full h-full"
-            >
+            <zxing-scanner #scanner [autostart]="true" [device]="selectedDevice" [torch]="torchEnabled"
+              (camerasFound)="onCamerasFound($event)" (camerasNotFound)="onCamerasNotFound()"
+              (permissionResponse)="onPermissionResponse($event)" (scanError)="onScanError($event)"
+              (scanSuccess)="onCodeResult($event)" class="w-full h-full">
             </zxing-scanner>
 
             <!-- Esquinas del marco -->
-            <div class="scanner-corner top-left absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-blue-500"></div>
-            <div class="scanner-corner top-right absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-blue-500"></div>
-            <div class="scanner-corner bottom-left absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-blue-500"></div>
-            <div class="scanner-corner bottom-right absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-blue-500"></div>
+            <div class="scanner-corner top-left absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-blue-500">
+            </div>
+            <div class="scanner-corner top-right absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-blue-500">
+            </div>
+            <div
+              class="scanner-corner bottom-left absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-blue-500">
+            </div>
+            <div
+              class="scanner-corner bottom-right absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-blue-500">
+            </div>
           </div>
 
           <!-- Mensaje de error -->
@@ -299,21 +436,22 @@
               <i class="fas fa-exclamation-circle mr-2"></i>
               <span>{{ error }}</span>
             </div>
-            <button (click)="retryScanner()" class="mt-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm">
+            <button (click)="retryScanner()"
+              class="mt-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm">
               Reintentar
             </button>
           </div>
-          
+
           <!-- Botones de acción -->
           <div class="flex justify-between">
-            <button *ngIf="torchAvailable" 
-                    (click)="toggleTorch()" 
-                    class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-md text-sm flex items-center">
-              <i class="fas" [ngClass]="{'fa-lightbulb': !torchEnabled, 'fa-lightbulb text-yellow-500': torchEnabled}"></i>
+            <button *ngIf="torchAvailable" (click)="toggleTorch()"
+              class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-md text-sm flex items-center">
+              <i class="fas"
+                [ngClass]="{'fa-lightbulb': !torchEnabled, 'fa-lightbulb text-yellow-500': torchEnabled}"></i>
               <span class="ml-2">{{ torchEnabled ? 'Apagar flash' : 'Encender flash' }}</span>
             </button>
-            <button (click)="closeScanner()" 
-                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">
+            <button (click)="closeScanner()"
+              class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">
               Cancelar
             </button>
           </div>
@@ -324,11 +462,14 @@
 </div>
 
 <!-- Modal para ingresar cantidad de bultos (con backdrop-blur-sm) -->
-<div *ngIf="showBulkQuantityModal" class="fixed inset-0 z-50 overflow-y-auto  bg-opacity-50 backdrop-blur-md flex items-center justify-center">
+<div *ngIf="showBulkQuantityModal"
+  class="fixed inset-0 z-50 overflow-y-auto  bg-opacity-50 backdrop-blur-md flex items-center justify-center">
   <div class="backdrop-blur-sm bg-white dark:bg-gray-800 w-full max-w-md mx-auto rounded-lg shadow-lg overflow-hidden">
-    <div class="backdrop-blur-sm bg-gray-100 dark:bg-gray-700 px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
+    <div
+      class="backdrop-blur-sm bg-gray-100 dark:bg-gray-700 px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
       <h3 class="font-medium text-gray-800 dark:text-white">Añadir bultos</h3>
-      <button (click)="cancelBulkEntry()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+      <button (click)="cancelBulkEntry()"
+        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
         <i class="fas fa-times"></i>
       </button>
     </div>
@@ -348,36 +489,30 @@
           Cantidad de bultos:
         </label>
         <div class="flex rounded-md shadow-sm">
-          <button (click)="decrementBulks()" 
-                  [disabled]="bulksQuantity <= 1"
-                  class="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm rounded-l-md"
-                  [ngClass]="{'opacity-50 cursor-not-allowed': bulksQuantity <= 1}">
+          <button (click)="decrementBulks()" [disabled]="bulksQuantity <= 1"
+            class="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm rounded-l-md"
+            [ngClass]="{'opacity-50 cursor-not-allowed': bulksQuantity <= 1}">
             <i class="fas fa-minus"></i>
           </button>
-          <input type="number" 
-                 id="bulksQuantity" 
-                 [(ngModel)]="bulksQuantity" 
-                 min="1" 
-                 class="flex-1 min-w-0 block w-full px-3 py-2 
+          <input type="number" id="bulksQuantity" [(ngModel)]="bulksQuantity" min="1" class="flex-1 min-w-0 block w-full px-3 py-2 
                         border border-gray-300 dark:border-gray-600 
                         text-gray-800 dark:text-white 
                         bg-white dark:bg-gray-800
-                        text-center"
-                 (keyup.enter)="saveBulkQuantity()">
-          <button (click)="incrementBulks()" 
-                  class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm rounded-r-md">
+                        text-center" (keyup.enter)="saveBulkQuantity()">
+          <button (click)="incrementBulks()"
+            class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm rounded-r-md">
             <i class="fas fa-plus"></i>
           </button>
         </div>
       </div>
-      
+
       <div class="flex justify-end gap-3">
-        <button (click)="cancelBulkEntry()" 
-                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-md">
+        <button (click)="cancelBulkEntry()"
+          class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-md">
           Cancelar
         </button>
-        <button (click)="saveBulkQuantity()" 
-                class="bg-[#437d3f] hover:bg-[#396a35] text-white px-4 py-2 rounded-md flex items-center">
+        <button (click)="saveBulkQuantity()"
+          class="bg-[#437d3f] hover:bg-[#396a35] text-white px-4 py-2 rounded-md flex items-center">
           <i class="fas fa-save mr-2"></i> Guardar
         </button>
       </div>
@@ -386,64 +521,60 @@
 </div>
 
 <!-- Modal para editar cantidad de bultos (con backdrop-blur-sm) -->
-<div *ngIf="showEditBulkModal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
+<div *ngIf="showEditBulkModal"
+  class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
   <div class="bg-white dark:bg-gray-800 w-full max-w-md mx-auto rounded-lg shadow-lg overflow-hidden">
-    <div class="bg-gray-100 dark:bg-gray-700 px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
+    <div
+      class="bg-gray-100 dark:bg-gray-700 px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
       <h3 class="font-medium text-gray-800 dark:text-white flex items-center">
         <i class="fas fa-edit text-blue-500 mr-2"></i>
         Editar cantidad de bultos
       </h3>
-      <button (click)="cancelEditBulk()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+      <button (click)="cancelEditBulk()"
+        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <div class="p-4">
       <div class="mb-4">
         <label for="bulkCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Código QR
         </label>
         <div class="mt-1 relative rounded-md shadow-sm">
-          <input type="text" id="bulkCode" [value]="currentEditScan?.value || ''" readonly
-                 class="block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md 
+          <input type="text" id="bulkCode" [value]="currentEditScan?.value || ''" readonly class="block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md 
                         bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white py-2 px-3">
         </div>
       </div>
-      
+
       <div class="mb-4">
         <label for="editBulksQuantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Cantidad de bultos
         </label>
         <div class="flex rounded-md shadow-sm">
-          <button (click)="decrementEditBulks()" 
-                  [disabled]="editBulksQuantity <= 1"
-                  class="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm rounded-l-md"
-                  [ngClass]="{'opacity-50 cursor-not-allowed': editBulksQuantity <= 1}">
+          <button (click)="decrementEditBulks()" [disabled]="editBulksQuantity <= 1"
+            class="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm rounded-l-md"
+            [ngClass]="{'opacity-50 cursor-not-allowed': editBulksQuantity <= 1}">
             <i class="fas fa-minus"></i>
           </button>
-          <input type="number" 
-                 id="editBulksQuantity" 
-                 [(ngModel)]="editBulksQuantity" 
-                 min="1" 
-                 class="flex-1 min-w-0 block w-full px-3 py-2 
+          <input type="number" id="editBulksQuantity" [(ngModel)]="editBulksQuantity" min="1" class="flex-1 min-w-0 block w-full px-3 py-2 
                         border border-gray-300 dark:border-gray-600 
                         text-gray-800 dark:text-white 
                         bg-white dark:bg-gray-800
                         text-center">
-          <button (click)="incrementEditBulks()" 
-                  class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm rounded-r-md">
+          <button (click)="incrementEditBulks()"
+            class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm rounded-r-md">
             <i class="fas fa-plus"></i>
           </button>
         </div>
       </div>
-      
+
       <div class="flex justify-end gap-3">
-        <button (click)="cancelEditBulk()" 
-                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-md">
+        <button (click)="cancelEditBulk()"
+          class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-md">
           Cancelar
         </button>
-        <button (click)="updateBulkQuantity()" 
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+        <button (click)="updateBulkQuantity()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
           Guardar cambios
         </button>
       </div>
@@ -452,7 +583,8 @@
 </div>
 
 <!-- Mensaje de guardado exitoso (notificación toast) -->
-<div *ngIf="showSaveSuccess" class="fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md transition-all duration-300 transform">
+<div *ngIf="showSaveSuccess"
+  class="fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md transition-all duration-300 transform">
   <div class="flex items-center">
     <div class="py-1">
       <i class="fas fa-check-circle text-green-500 mr-3"></i>
