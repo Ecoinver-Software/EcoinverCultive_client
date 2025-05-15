@@ -268,77 +268,61 @@ export class StockDetailsComponent implements OnInit, AfterViewInit {
   }
 
   // Procesar datos para géneros
-processGeneroData(): number {
-  // Inicializar arrays
-  this.generos = [];
-  this.generosUnicos = [];
-  
-  if (!this.stockDetails || this.stockDetails.length === 0) {
-    return 0;
-  }
-  
-  // Agrupar los datos de género
-  const generosMap = new Map<number, GeneroAgrupado>();
-  
-  // Primero, procesar cada detalle del stock
-  for (let i = 0; i < this.stockDetails.length; i++) {
-    const idGenero = this.stockDetails[i].idGenero;
+  processGeneroData(): number {
+    // Inicializar arrays
+    this.generos = [];
+    this.generosUnicos = [];
     
-    // Buscar el género en los datos cargados
-    const genero = this.generoData.find(g => g.idGenero === idGenero);
+    if (!this.stockDetails || this.stockDetails.length === 0) {
+      return 0;
+    }
     
-    if (genero) {
-      // Añadir a la lista de géneros para mostrar
-      this.generos.push(genero);
+    // Agrupar los datos de género
+    const generosMap = new Map<number, GeneroAgrupado>();
+    
+    // Primero, procesar cada detalle del stock
+    for (let i = 0; i < this.stockDetails.length; i++) {
+      const idGenero = this.stockDetails[i].idGenero;
       
-      // Agregar o actualizar en el mapa de géneros agrupados
-      if (generosMap.has(idGenero)) {
-        const existente = generosMap.get(idGenero);
-        if (existente) {
-          existente.count += this.stockDetails[i].numBultos;
+      // Buscar el género en los datos cargados
+      const genero = this.generoData.find(g => g.idGenero === idGenero);
+      
+      if (genero) {
+        // Añadir a la lista de géneros para mostrar
+        this.generos.push(genero);
+        
+        // Agregar o actualizar en el mapa de géneros agrupados
+        if (generosMap.has(idGenero)) {
+          const existente = generosMap.get(idGenero);
+          if (existente) {
+            existente.count += this.stockDetails[i].numBultos;
+          }
+        } else {
+          generosMap.set(idGenero, {
+            idGenero: idGenero,
+            nombreGenero: genero.nombreGenero || 'Desconocido',
+            count: this.stockDetails[i].numBultos
+          });
         }
       } else {
-        generosMap.set(idGenero, {
-          idGenero: idGenero,
-          nombreGenero: genero.nombreGenero || 'Desconocido',
-          count: this.stockDetails[i].numBultos
-        });
-      }
-    } else {
-      // Si no encontramos el género, lo añadimos como desconocido
-      // Convertimos idFamilia a string para que coincida con el tipo de Gender
-      const generoDesconocido: Gender = {
-        idGenero: idGenero,
-        nombreGenero: 'Desconocido',
-        nombreFamilia: 'Desconocido',
-        idFamilia: '0' // Convertimos a string para que coincida con la interfaz Gender
-      };
-      this.generos.push(generoDesconocido);
-      
-      // También lo agregamos al mapa de géneros únicos
-      if (generosMap.has(idGenero)) {
-        const existente = generosMap.get(idGenero);
-        if (existente) {
-          existente.count += this.stockDetails[i].numBultos;
-        }
-      } else {
-        generosMap.set(idGenero, {
+        // Si no encontramos el género, lo añadimos como desconocido
+        this.generos.push({
           idGenero: idGenero,
           nombreGenero: 'Desconocido',
-          count: this.stockDetails[i].numBultos
+          nombreFamilia: 'Desconocido',
+          idFamilia: '0'
         });
       }
     }
+    
+    // Convertir el mapa a array para mostrar en la UI
+    this.generosUnicos = Array.from(generosMap.values());
+    
+    console.log('Géneros procesados:', this.generosUnicos);
+    
+    return this.generos.length;
   }
-  
-  // Convertir el mapa a array para mostrar en la UI
-  this.generosUnicos = Array.from(generosMap.values());
-  
-  console.log('Géneros procesados:', this.generosUnicos);
-  console.log('Número de géneros únicos:', this.generosUnicos.length);
-  
-  return this.generosUnicos.length;
-}
+
   // Procesar datos para categorías
   processCategoriaData(): void {
     // Agrupar por categoría y contar
@@ -971,23 +955,28 @@ processGeneroData(): number {
       this.processDataFromScannedResults();
     }
   }
- // Calcular el porcentaje del total para la tabla
-calculatePercentage(type: string, item: any): string {
-  const totalBultos = this.getTotalBulks();
-  if (totalBultos === 0) return '0';
-  
-  let itemCount = 0;
-  
-  if (type === 'genero') {
-    // Para géneros, usar el count que ya calculamos
-    itemCount = item.count || 0;
-  } 
-  else if (type === 'categoria') {
-    // Para categorías, usar el count que ya calculamos
-    itemCount = item.count || 0;
+  // Calcular el porcentaje del total para la tabla
+  calculatePercentage(type: string, item: any): string {
+    const totalBultos = this.getTotalBulks();
+    if (totalBultos === 0) return '0';
+    
+    let itemCount = 0;
+    
+    if (type === 'genero') {
+      // Para géneros, buscar todos los items que tengan ese idGenero
+      itemCount = this.stockDetails
+        .filter(d => d.idGenero === item.idGenero)
+        .reduce((total, d) => total + (d.numBultos || 0), 0);
+    } 
+    else if (type === 'categoria') {
+      // Para categorías, buscar todos los items que tengan esa categoría
+      const categoria = item.categoria || 'Sin categoría';
+      itemCount = this.stockDetails
+        .filter(d => (d.categoria || 'Sin categoría') === categoria)
+        .reduce((total, d) => total + (d.numBultos || 0), 0);
+    }
+    
+    const percentage = (itemCount / totalBultos) * 100;
+    return percentage.toFixed(1); // Redondear a 1 decimal
   }
-  
-  const percentage = (itemCount / totalBultos) * 100;
-  return percentage.toFixed(1); // Redondear a 1 decimal
-}
 }

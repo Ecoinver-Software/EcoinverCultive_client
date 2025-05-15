@@ -81,7 +81,9 @@
           </div>
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Géneros</p>
+
             <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{ generosUnicos.length }}</p>
+
           </div>
         </div>
       </div>
@@ -123,7 +125,9 @@
               <tr *ngFor="let item of stockDetails; let i = index" [class.bg-gray-50]="i % 2 === 0"
                 [class.dark:bg-gray-800]="i % 2 === 0">
                 <td class="py-2 px-4 text-gray-800 dark:text-gray-200">{{ item.codigoPartida }}</td>
+
                 <td class="py-2 px-4 text-gray-800 dark:text-gray-200">{{ getGeneroName(item.idGenero) }}</td>
+
                 <td class="py-2 px-4 text-gray-800 dark:text-gray-200">{{ item.categoria || 'Sin categoría' }}</td>
                 <td class="py-2 px-4 text-right text-gray-800 dark:text-gray-200">{{ item.numBultos }}</td>
               </tr>
@@ -158,15 +162,20 @@
                 </tr>
               </thead>
               <tbody>
+
                 <tr *ngFor="let item of generosUnicos; let i = index" [class.bg-gray-50]="i % 2 === 0"
                   [class.dark:bg-gray-800]="i % 2 === 0">
                   <td class="py-2 px-4 text-gray-800 dark:text-gray-200">{{ item.nombreGenero }}</td>
                   <td class="py-2 px-4 text-right text-gray-800 dark:text-gray-200">{{ item.count }}</td>
+
+
                   <td class="py-2 px-4 text-right text-gray-800 dark:text-gray-200">
                     {{ calculatePercentage('genero', item) }}%
                   </td>
                 </tr>
+
                 <tr *ngIf="generosUnicos.length === 0">
+
                   <td colspan="3" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">
                     No hay datos disponibles
                   </td>
@@ -196,6 +205,7 @@
                 </tr>
               </thead>
               <tbody>
+
                 <tr *ngFor="let item of categoriasAgrupadas; let i = index" [class.bg-gray-50]="i % 2 === 0"
                   [class.dark:bg-gray-800]="i % 2 === 0">
                   <td class="py-2 px-4 text-gray-800 dark:text-gray-200">{{ item.categoria }}</td>
