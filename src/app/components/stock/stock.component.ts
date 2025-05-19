@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { StockService } from '../../services/stock.service';
 import { StockDto } from '../../types/StockDto';
 import { Router } from '@angular/router';
+import { ControlStockDetailsService } from '../../services/stock-details.service';
+import { ControlStockDetailsDto } from '../../types/ControlStockDetailsTypes';
 
 export interface StockRecord {
   fecha: Date;
@@ -23,7 +25,7 @@ export interface StockRecord {
 export class StockComponent implements OnInit, AfterViewInit {
   // Datos de ejemplo
   stockRecords: StockDto[] = [];
-
+  stockDetails:ControlStockDetailsDto[]=[];
   // Variables para el modal de eliminación
   showDeleteModal: boolean = false;
   recordToDeleteId: number | null = null;
@@ -44,7 +46,7 @@ export class StockComponent implements OnInit, AfterViewInit {
   touchStartX: number = 0;
   lastTouchY: number = 0;
 
-  constructor(private stockService: StockService, private router:Router) { }
+  constructor(private stockService: StockService, private router:Router, private stockDetailsService:ControlStockDetailsService ) { }
 
   ngOnInit(): void {
     // Detectar scroll para mostrar/ocultar el botón flotante
@@ -56,13 +58,29 @@ export class StockComponent implements OnInit, AfterViewInit {
     this.stockService.getStock().subscribe(
       (data) => {
         this.stockRecords = data;
-        console.log(this.stockRecords)
+        console.log(this.stockRecords);
       },
       (error) => {
         console.log(error);
       }
-    )
-
+    );
+    //Traerse los datos de los detalles del stock 
+    this.stockDetailsService.getAll().subscribe(
+      (data)=>{
+        this.stockDetails=data;
+       for(let i=0;i<this.stockRecords.length;i++){
+    const encontrado=this.stockDetails.filter(item=>item.idControl==this.stockRecords[i].id)
+      if(encontrado!==undefined){
+        this.stockRecords[i].itemCount=encontrado.length;
+      }
+   }
+      },
+      (error)=>{
+        console.log(error);
+      }
+    );
+   
+   console.log(this.stockRecords);
   }
 
   ngAfterViewInit(): void {
