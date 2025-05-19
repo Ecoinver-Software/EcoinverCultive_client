@@ -127,6 +127,10 @@ export class StockDetailsComponent implements OnInit {
   selectedGenero: number | null = null; // Género seleccionado
   categoriasPorGenero: CategoriaAgrupada[] = []; // Categorías filtradas por género
 
+
+
+  private audioCtx?: AudioContext;
+
   constructor(
     private stockService: StockService,
     private stockDetailsService: ControlStockDetailsService,
@@ -168,6 +172,12 @@ export class StockDetailsComponent implements OnInit {
     // Request camera permission explicitly when starting
     this.requestCameraPermission();
   }
+
+  private initAudioContext(): void {
+  if (!this.audioCtx) {
+    this.audioCtx = new AudioContext();
+  }
+}
   
   // Método para cargar géneros con callback
   private loadGeneros(onComplete?: () => void): void {
@@ -581,6 +591,7 @@ export class StockDetailsComponent implements OnInit {
 
   // Método mejorado para activar/desactivar el escáner
   toggleScanner(): void {
+    this.initAudioContext();
     this.scannerEnabled = !this.scannerEnabled;
 
     if (this.scannerEnabled) {
@@ -766,13 +777,29 @@ export class StockDetailsComponent implements OnInit {
 
   // Método para reproducir un sonido de éxito (opcional)
   playSuccessSound(): void {
-    try {
-      const audio = new Audio('assets/sounds/beep-success.mp3');
-      audio.play();
-    } catch (e) {
-      console.log('No se pudo reproducir el sonido');
-    }
+  if (!this.audioCtx) {
+    // tiene que existir porque lo inicializas en el primer click
+    return;
   }
+  const duration = 0.2;           // segundos
+  const frequency = 840;          // hertz (A4)
+  const oscillator = this.audioCtx.createOscillator();
+  const gainNode   = this.audioCtx.createGain();
+
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(frequency, this.audioCtx.currentTime);
+
+  // envolvente rápida para evitar clicks fuertes
+  gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
+  gainNode.gain.linearRampToValueAtTime(1, this.audioCtx.currentTime + 0.01);
+  gainNode.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + duration);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(this.audioCtx.destination);
+
+  oscillator.start(this.audioCtx.currentTime);
+  oscillator.stop(this.audioCtx.currentTime + duration + 0.02);
+}
   // Eliminar un resultado del historial
   removeResult(index: number, event?: Event): void {
     // Stop propagation to avoid triggering the scanner

@@ -340,6 +340,7 @@
 
 /* ===== 3. MODAL DEL ESCÁNER ===== */
 
+/* Modal adaptativo que se ajusta al tamaño de la cámara */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -359,13 +360,13 @@
   to { opacity: 1; }
 }
 
+/* Contenedor que se adapta al tamaño de la cámara */
 .modal-container {
   background-color: #fff;
   border-radius: 8px;
-  width: 95vw;
-  height: 95vh;
-  max-width: 1200px;
-  max-height: 95vh;
+  width: auto; /* Auto en lugar de fijo para adaptarse al contenido */
+  max-width: 90vw; /* Limitamos el ancho máximo */
+  max-height: 90vh; /* Limitamos la altura máxima */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -377,110 +378,142 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
-/* Cabecera del modal */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  background-color: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
+/* Contenedor de la cámara adaptable */
+.camera-container-responsive {
+  position: relative;
+  width: 100%;
+  min-width: 280px; /* Mínimo ancho para dispositivos móviles pequeños */
+  max-width: 600px; /* Máximo ancho para evitar que se expanda demasiado */
+  aspect-ratio: 4/3; /* Mantiene la proporción de aspecto */
+  overflow: hidden;
+  background-color: #0f172a;
 }
 
-.dark .modal-header {
-  background-color: #1e293b;
-  border-bottom-color: #334155;
+/* Ajustes para que el componente zxing-scanner se adapte */
+zxing-scanner {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 
-.modal-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 500;
-  color: #334155;
-}
-
-.dark .modal-header h3 {
-  color: #e2e8f0;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #64748b;
-  transition: all 0.2s;
-}
-
-.close-button:hover {
-  background-color: #f1f5f9;
-  color: #0f172a;
-}
-
-.dark .close-button {
-  color: #94a3b8;
-}
-
-.dark .close-button:hover {
-  background-color: #334155;
-  color: #f8fafc;
+zxing-scanner video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover; /* Asegura que la imagen de la cámara cubra todo el espacio */
 }
 
 /* Cuerpo del modal */
 .modal-body {
-  padding: 20px;
-  overflow-y: auto;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  flex-grow: 1;
 }
 
-/* Selector de dispositivo */
-.device-selector {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+/* Línea de escaneo animada */
+.camera-container-responsive::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #10b981, transparent);
+  animation: scanAnimation 2s linear infinite;
+  z-index: 5;
 }
 
-.device-selector label {
-  font-size: 14px;
-  color: #475569;
+@keyframes scanAnimation {
+  0% {
+    top: 10%;
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 90%;
+    opacity: 0.6;
+  }
 }
 
-.dark .device-selector label {
-  color: #cbd5e1;
+/* Media queries para diferentes tamaños de pantalla */
+@media (max-width: 640px) {
+  .modal-container {
+    width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .camera-container-responsive {
+    max-width: 100%;
+    aspect-ratio: 3/4; /* Mejor proporción para móviles en vertical */
+  }
+  
+  .modal-body {
+    padding: 12px;
+  }
+  
+  .scanner-corner {
+    width: 20px;
+    height: 20px;
+  }
 }
 
-.device-selector select {
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid #cbd5e1;
-  background-color: #f8fafc;
-  font-size: 14px;
-  width: 100%;
+@media (max-width: 480px) {
+  .modal-container {
+    width: 98vw;
+    border-radius: 4px;
+  }
+  
+  .modal-body {
+    padding: 8px;
+  }
+  
+  .camera-container-responsive {
+    min-width: unset;
+  }
 }
 
-.dark .device-selector select {
-  background-color: #1e293b;
-  border-color: #475569;
-  color: #e2e8f0;
+/* Ajustes para pantallas más grandes */
+@media (min-width: 1024px) {
+  .camera-container-responsive {
+    max-width: 800px; /* Mayor tamaño en pantallas grandes */
+  }
 }
 
-/* Contenedor de la cámara */
-.camera-container {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4/3;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #0f172a;
-  flex-grow: 1;
+/* Para dispositivos con orientación horizontal (landscape) */
+@media (orientation: landscape) and (max-height: 600px) {
+  .modal-container {
+    flex-direction: row;
+    max-height: 85vh;
+    max-width: 95vw;
+  }
+  
+  .modal-header {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+    padding: 10px;
+    height: auto;
+    width: auto;
+  }
+  
+  .camera-container-responsive {
+    aspect-ratio: 16/9; /* Mejor para landscape */
+    height: 85vh;
+    width: auto;
+  }
+  
+  .modal-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    padding: 8px;
+  }
+  
+  .device-selector, .error-message {
+    margin-bottom: 8px;
+  }
 }
 
 /* Componente del escáner */

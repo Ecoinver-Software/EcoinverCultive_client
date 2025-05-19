@@ -124,10 +124,10 @@
               : 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-[#e9ede9] hover:text-[#2f572c] dark:hover:bg-[#1c4a46] dark:hover:text-[#5abe1f] transition-all duration-300 ease-in-out group'
           ">
           <svg [class]="
-              isActive(['/cultive-ranking'])
-                ? 'w-5 h-5 text-[#2f572c] transition-all duration-300 dark:text-[#5abe1f]'
-                : 'w-5 h-5 text-gray-500 transition-all duration-300 dark:text-gray-400 group-hover:text-[#2f572c] dark:group-hover:text-[#5abe1f]'
-            " width="800px" height="800px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    isActive(['/cultive-ranking'])
+      ? 'w-5 h-5 text-[#2f572c] transition-colors duration-300 dark:text-[#5abe1f]'
+      : 'w-5 h-5 text-gray-500 transition-colors duration-300 dark:text-gray-400 group-hover:text-[#2f572c] dark:group-hover:text-[#5abe1f]'
+  " viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: scale(1) !important;">
             <path fill-rule="evenodd" clip-rule="evenodd"
               d="M4 0H12V2H16V4C16 6.45641 14.2286 8.49909 11.8936 8.92038C11.5537 10.3637 10.432 11.5054 9 11.874V14H12V16H4V14H7V11.874C5.56796 11.5054 4.44628 10.3637 4.1064 8.92038C1.77136 8.49909 0 6.45641 0 4V2H4V0ZM12 6.82929V4H14C14 5.30622 13.1652 6.41746 12 6.82929ZM4 4H2C2 5.30622 2.83481 6.41746 4 6.82929V4Z"
               fill="currentColor" />
@@ -145,8 +145,8 @@
       <li>
         <button type="button" (click)="toggleComercial()" [class]="
             isActive(['/comercial', '/comercial-planning'])
-              ? 'flex items-center w-full p-2 text-base text-[#2f572c] bg-[#e9ede9] dark:text-[#5abe1f] dark:bg-[#1c4a46] rounded-lg shadow-sm transition-all duration-300 ease-in-out'
-              : 'flex items-center w-full p-2 text-base text-gray-900 transition-all duration-300 rounded-lg group hover:bg-[#e9ede9] hover:text-[#2f572c] dark:text-white dark:hover:bg-[#1c4a46] dark:hover:text-[#5abe1f]'
+              ? 'cursor-pointer flex items-center w-full p-2 text-base text-[#2f572c] bg-[#e9ede9] dark:text-[#5abe1f] dark:bg-[#1c4a46] rounded-lg shadow-sm transition-all duration-300 ease-in-out'
+              : 'cursor-pointer flex items-center w-full p-2 text-base text-gray-900 transition-all duration-300 rounded-lg group hover:bg-[#e9ede9] hover:text-[#2f572c] dark:text-white dark:hover:bg-[#1c4a46] dark:hover:text-[#5abe1f]'
           " aria-controls="dropdown-comercial">
           <svg [class]="
               isActive(['/comercial', '/comercial-planning'])
@@ -232,28 +232,28 @@
       <!-- Producción Campo Dropdown -->
       <li>
         <button type="button" (click)="toggleCampo()" [class]="
-            isActive(['/cultive', '/cultive-planning'])
-              ? 'flex items-center w-full p-2 text-base text-[#2f572c] bg-[#e9ede9] dark:text-[#5abe1f] dark:bg-[#1c4a46] rounded-lg shadow-sm transition-all duration-300 ease-in-out'
-              : 'flex items-center w-full p-2 text-base text-gray-900 transition-all duration-300 rounded-lg group hover:bg-[#e9ede9] hover:text-[#2f572c] dark:text-white dark:hover:bg-[#1c4a46] dark:hover:text-[#5abe1f]'
-          " aria-controls="dropdown-campo">
-          <svg [class]="
-              isActive(['/cultive', '/cultive-planning'])
-                ? 'shrink-0 w-5 h-5 text-[#2f572c] transition-all duration-300 dark:text-[#5abe1f]'
-                : 'shrink-0 w-5 h-5 text-gray-500 transition-all duration-300 dark:text-gray-400 group-hover:text-[#2f572c] dark:group-hover:text-[#5abe1f]'
-            " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
-            <path
-              d="M12 1C6.47715 1 2 5.02944 2 10V16H4L4 10.5858L8.29289 6.29288L9.70711 7.70709L6 11.4142V13.9556C11.0533 13.504 15 9.66681 15 5L15 1H12Z" />
-          </svg>
-          <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap font-medium transition-all duration-300">Entrada Campo</span>
-          <svg [ngClass]="{
-              'transform rotate-180': campoOpen,
-              'transform rotate-0': !campoOpen
-            }" class="w-3 h-3 transition-transform duration-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-            fill="none" viewBox="0 0 10 6">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="m1 1 4 4 4-4" />
-          </svg>
-        </button>
+      isActive(['/cultive', '/cultive-planning', '/stock'])
+        ? 'cursor-pointer flex items-center w-full p-2 text-base text-[#2f572c] bg-[#e9ede9] dark:text-[#5abe1f] dark:bg-[#1c4a46] rounded-lg shadow-sm transition-all duration-300 ease-in-out'
+        : 'cursor-pointer flex items-center w-full p-2 text-base text-gray-900 transition-all duration-300 rounded-lg group hover:bg-[#e9ede9] hover:text-[#2f572c] dark:text-white dark:hover:bg-[#1c4a46] dark:hover:text-[#5abe1f]'
+    " aria-controls="dropdown-campo">
+    <svg [class]="
+        isActive(['/cultive', '/cultive-planning', '/stock'])
+          ? 'shrink-0 w-5 h-5 text-[#2f572c] transition-all duration-300 dark:text-[#5abe1f]'
+          : 'shrink-0 w-5 h-5 text-gray-500 transition-all duration-300 dark:text-gray-400 group-hover:text-[#2f572c] dark:group-hover:text-[#5abe1f]'
+      " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+      <path
+        d="M12 1C6.47715 1 2 5.02944 2 10V16H4L4 10.5858L8.29289 6.29288L9.70711 7.70709L6 11.4142V13.9556C11.0533 13.504 15 9.66681 15 5L15 1H12Z" />
+    </svg>
+    <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap font-medium transition-all duration-300">Entrada Campo</span>
+    <svg [ngClass]="{
+        'transform rotate-180': campoOpen,
+        'transform rotate-0': !campoOpen
+      }" class="w-3 h-3 transition-transform duration-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+      fill="none" viewBox="0 0 10 6">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="m1 1 4 4 4-4" />
+    </svg>
+  </button>
         <ul id="dropdown-campo" [ngClass]="{ 
           'max-h-0 opacity-0': !campoOpen,
           'max-h-96 opacity-100': campoOpen 
@@ -311,6 +311,7 @@
               <span class="flex-1 ms-3 whitespace-nowrap transition-all duration-300">Producción</span>
             </a>
           </li>
+          
 
           <!-- Control STOCK -->
           <li class="transform transition-all duration-500 hover:translate-x-1">
@@ -337,8 +338,8 @@
       <li>
         <button type="button" (click)="toggleAdministracion()" [class]="
             isActive(['/users', '/roles'])
-              ? 'flex items-center w-full p-2 text-base text-[#2f572c] bg-[#e9ede9] dark:text-[#5abe1f] dark:bg-[#1c4a46] rounded-lg shadow-sm transition-all duration-300 ease-in-out'
-              : 'flex items-center w-full p-2 text-base text-gray-900 transition-all duration-300 rounded-lg group hover:bg-[#e9ede9] hover:text-[#2f572c] dark:text-white dark:hover:bg-[#1c4a46] dark:hover:text-[#5abe1f]'
+              ? 'cursor-pointer flex items-center w-full p-2 text-base text-[#2f572c] bg-[#e9ede9] dark:text-[#5abe1f] dark:bg-[#1c4a46] rounded-lg shadow-sm transition-all duration-300 ease-in-out'
+              : 'cursor-pointer flex items-center w-full p-2 text-base text-gray-900 transition-all duration-300 rounded-lg group hover:bg-[#e9ede9] hover:text-[#2f572c] dark:text-white dark:hover:bg-[#1c4a46] dark:hover:text-[#5abe1f]'
           " aria-controls="dropdown-administracion">
           <svg [class]="
               isActive(['/users', '/roles'])

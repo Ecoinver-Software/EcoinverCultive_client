@@ -560,80 +560,78 @@
       </div>
     </div>
 
-    <!-- Scanner QR (Modal separado con backdrop-blur-sm) -->
-    <div *ngIf="scannerEnabled" class="modal-overlay fixed inset-0 z-50 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center">
-      <div class="modal-container bg-white dark:bg-gray-800 w-full max-w-md mx-auto rounded-lg shadow-lg overflow-hidden">
-        <div class="modal-header bg-gray-100 dark:bg-gray-700 px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
-          <h3 class="font-medium text-gray-800 dark:text-white">Escanear código QR</h3>
-          <button (click)="closeScanner()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-            <i class="fas fa-times"></i>
-          </button>
+    <!-- Scanner QR (Modal responsivo que se ajusta a la cámara) -->
+<div *ngIf="scannerEnabled" class="modal-overlay fixed inset-0 z-50 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center">
+  <div class="modal-container bg-white dark:bg-gray-800 w-auto mx-auto rounded-lg shadow-lg overflow-hidden">
+    <div class="modal-header bg-gray-100 dark:bg-gray-700 px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
+      <h3 class="font-medium text-gray-800 dark:text-white">Escanear código QR</h3>
+      <button (click)="closeScanner()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body p-4">
+      <!-- Selector de dispositivo -->
+      <div *ngIf="availableDevices.length > 0" class="device-selector mb-4">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selecciona cámara:</label>
+        <select
+          [(ngModel)]="selectedDevice"
+          (change)="onDeviceSelectChange()"
+          class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+        >
+          <option *ngFor="let d of availableDevices" [ngValue]="d">
+            {{ d.label || "Cámara " + (availableDevices.indexOf(d) + 1) }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Contenedor de la cámara adaptable -->
+      <div class="camera-container-responsive bg-black rounded-lg overflow-hidden">
+        <!-- Componente del escáner -->
+        <zxing-scanner
+          #scanner
+          [autostart]="true"
+          [device]="selectedDevice"
+          [torch]="torchEnabled"
+          (camerasFound)="onCamerasFound($event)"
+          (camerasNotFound)="onCamerasNotFound()"
+          (permissionResponse)="onPermissionResponse($event)"
+          (scanError)="onScanError($event)"
+          (scanSuccess)="onCodeResult($event)"
+          class="w-full h-full"
+        >
+        </zxing-scanner>
+
+        <!-- Esquinas del marco -->
+        <div class="scanner-corner top-left absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-blue-500"></div>
+        <div class="scanner-corner top-right absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-blue-500"></div>
+        <div class="scanner-corner bottom-left absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-blue-500"></div>
+        <div class="scanner-corner bottom-right absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-blue-500"></div>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="error" class="error-message bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+        <div class="flex items-center">
+          <i class="fas fa-exclamation-circle mr-2"></i>
+          <span>{{ error }}</span>
         </div>
-
-        <div class="modal-body p-4">
-          <!-- Selector de dispositivo -->
-          <div *ngIf="availableDevices.length > 0" class="device-selector mb-4">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selecciona cámara:</label>
-            <select
-              [(ngModel)]="selectedDevice"
-              (change)="onDeviceSelectChange()"
-              class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            >
-              <option *ngFor="let d of availableDevices" [ngValue]="d">
-                {{ d.label || "Cámara " + (availableDevices.indexOf(d) + 1) }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Contenedor de la cámara -->
-          <div class="camera-container relative w-full h-64 mb-4 bg-black rounded-lg overflow-hidden">
-            <!-- Componente del escáner -->
-            <zxing-scanner
-              #scanner
-              [autostart]="true"
-              [device]="selectedDevice"
-              [torch]="torchEnabled"
-              (camerasFound)="onCamerasFound($event)"
-              (camerasNotFound)="onCamerasNotFound()"
-              (permissionResponse)="onPermissionResponse($event)"
-              (scanError)="onScanError($event)"
-              (scanSuccess)="onCodeResult($event)"
-              class="w-full h-full"
-            >
-            </zxing-scanner>
-
-            <!-- Esquinas del marco -->
-            <div class="scanner-corner top-left absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-blue-500"></div>
-            <div class="scanner-corner top-right absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-blue-500"></div>
-            <div class="scanner-corner bottom-left absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-blue-500"></div>
-            <div class="scanner-corner bottom-right absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-blue-500"></div>
-          </div>
-
-          <!-- Mensaje de error -->
-          <div *ngIf="error" class="error-message bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-            <div class="flex items-center">
-              <i class="fas fa-exclamation-circle mr-2"></i>
-              <span>{{ error }}</span>
-            </div>
-            <button (click)="retryScanner()" class="mt-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm">
-              Reintentar
-            </button>
-          </div>
-          
-          <!-- Botones de acción -->
-          <div class="flex justify-between">
-            <button *ngIf="torchAvailable" 
-                    (click)="toggleTorch()" 
-                    class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-md text-sm flex items-center">
-              <i class="fas" [ngClass]="{'fa-lightbulb': !torchEnabled, 'fa-lightbulb text-yellow-500': torchEnabled}"></i>
-              <span class="ml-2">{{ torchEnabled ? 'Apagar flash' : 'Encender flash' }}</span>
-            </button>
-            <button (click)="closeScanner()" 
-                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">
-              Cancelar
-            </button>
-          </div>
-        </div>
+        <button (click)="retryScanner()" class="mt-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm">
+          Reintentar
+        </button>
+      </div>
+      
+      <!-- Botones de acción -->
+      <div class="flex justify-between mt-4">
+        <button *ngIf="torchAvailable" 
+                (click)="toggleTorch()" 
+                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-md text-sm flex items-center">
+          <i class="fas" [ngClass]="{'fa-lightbulb': !torchEnabled, 'fa-lightbulb text-yellow-500': torchEnabled}"></i>
+          <span class="ml-2">{{ torchEnabled ? 'Apagar flash' : 'Encender flash' }}</span>
+        </button>
+        <button (click)="closeScanner()" 
+                class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">
+          Cancelar
+        </button>
       </div>
     </div>
   </div>
