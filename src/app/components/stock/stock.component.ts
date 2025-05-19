@@ -59,28 +59,14 @@ export class StockComponent implements OnInit, AfterViewInit {
       (data) => {
         this.stockRecords = data;
         console.log(this.stockRecords);
+        this.rellenarItems();
       },
       (error) => {
         console.log(error);
       }
     );
-    //Traerse los datos de los detalles del stock 
-    this.stockDetailsService.getAll().subscribe(
-      (data)=>{
-        this.stockDetails=data;
-       for(let i=0;i<this.stockRecords.length;i++){
-    const encontrado=this.stockDetails.filter(item=>item.idControl==this.stockRecords[i].id)
-      if(encontrado!==undefined){
-        this.stockRecords[i].itemCount=encontrado.length;
-      }
-   }
-      },
-      (error)=>{
-        console.log(error);
-      }
-    );
+  
    
-   console.log(this.stockRecords);
   }
 
   ngAfterViewInit(): void {
@@ -416,6 +402,24 @@ export class StockComponent implements OnInit, AfterViewInit {
   isRecent(d: Date): boolean {
     const date = new Date(d);
     return (Date.now() - date.getTime()) / 36e5 < 24; // Comprueba si la fecha es menos de 24 horas atrás
+  }
+
+  rellenarItems(){
+//Traerse los datos de los detalles del stock 
+    this.stockDetailsService.getAll().subscribe(
+      (data)=>{
+        this.stockDetails=data;
+       for(let i=0;i<this.stockRecords.length;i++){
+    const encontrado=this.stockDetails.filter(item=>item.idControl==this.stockRecords[i].id)
+      if(encontrado!==undefined){
+        this.stockRecords[i].itemCount=encontrado.length;
+      }
+   }
+      },
+      (error)=>{
+        console.log(error);
+      }
+    );
   }
 }
 // FIN DEL ARCHIVO

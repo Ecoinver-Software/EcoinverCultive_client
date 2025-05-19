@@ -1,5 +1,3 @@
-
-
 <div class="container mx-auto p-4 max-w-6xl">
 
   <!-- Header con diseño mejorado -->
@@ -13,8 +11,8 @@
     <div class="flex items-center space-x-3">
       <!-- Icono decorativo con mayor contraste -->
       <div class="bg-green-100 dark:bg-green-500 rounded-full p-2 shadow-inner">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-700 dark:text-white" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-700 dark:text-white" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
@@ -30,8 +28,8 @@
           rounded-lg shadow-md transition-all duration-200
           border border-green-500 dark:border-green-400
         " aria-label="Añadir nuevo registro">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 group-hover:scale-110 transition-all duration-300" fill="none" viewBox="0 0 24 24"
-        stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 group-hover:scale-110 transition-all duration-300"
+        fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
       </svg>
       <span>Añadir</span>
@@ -75,7 +73,8 @@
     </div>
 
     <!-- Encabezado de la lista mejorado -->
-    <div class="sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700 px-4 py-3 bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-sm">
+    <div
+      class="sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700 px-4 py-3 bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-sm">
       <div class="flex justify-between items-center">
         <h2 class="text-gray-800 dark:text-gray-100 font-medium flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24"
@@ -162,12 +161,12 @@
                 flex items-center 
                 mr-4
               ">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-green-500" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-green-500" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
-            <span class="font-medium">{{ record.itemCount+' ' }}</span>  items
+            <span class="font-medium">{{ record.itemCount+' ' }}</span> items
           </div>
 
           <!-- Eliminar con mejor tooltip -->
@@ -204,11 +203,14 @@
     <div *ngIf="stockRecords.length === 0" class="p-12 text-center">
       <div class="max-w-sm mx-auto">
         <div class="mb-6 bg-gray-100 dark:bg-gray-700 p-6 rounded-xl">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4"
+            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
           </svg>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">No hay registros disponibles</h3>
-          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Crea tu primer registro de inventario para comenzar a gestionar tu stock.</p>
+          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Crea tu primer registro de inventario para comenzar a
+            gestionar tu stock.</p>
         </div>
         <button (click)="addQuickRecord()" class="
             inline-flex items-center justify-center px-4 py-2
@@ -216,7 +218,8 @@
             text-white font-medium
             rounded-lg shadow-sm transition-all duration-200
           ">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           Crear primer registro
@@ -225,10 +228,12 @@
     </div>
 
     <!-- Contador total redeseñado -->
-    <div *ngIf="stockRecords.length > 0" class="sticky bottom-0 p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-sm">
+    <div *ngIf="stockRecords.length > 0"
+      class="sticky bottom-0 p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-sm">
       <div class="flex justify-between items-center">
         <div class="text-sm text-gray-500 dark:text-gray-400">
-          <span class="font-medium text-green-600 dark:text-green-400 animate-countUp" [attr.data-count]="stockRecords.length">
+          <span class="font-medium text-green-600 dark:text-green-400 animate-countUp"
+            [attr.data-count]="stockRecords.length">
             {{ stockRecords.length }}
           </span> registros en total
         </div>
@@ -238,7 +243,8 @@
             text-white text-sm
             rounded-lg shadow-sm transition-all duration-200
           ">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           Añadir
@@ -299,8 +305,8 @@
     <!-- Cabecera del modal -->
     <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
       <h3 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 mr-2" fill="none"
-          viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 mr-2" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
@@ -341,7 +347,9 @@
         (click)="toggleConfirmDelete()">
         <div class="relative h-5 w-5 mr-3">
           <input type="checkbox" [checked]="isDeleteConfirmed" class="sr-only" id="confirmCheckbox">
-          <div class="border-2 rounded border-gray-400 dark:border-gray-500 h-5 w-5 [&:has(+div.opacity-100)]:border-green-500 [&:has(+div.opacity-100)]:bg-green-50 dark:[&:has(+div.opacity-100)]:bg-green-900/20 transition-colors"></div>
+          <div
+            class="border-2 rounded border-gray-400 dark:border-gray-500 h-5 w-5 [&:has(+div.opacity-100)]:border-green-500 [&:has(+div.opacity-100)]:bg-green-50 dark:[&:has(+div.opacity-100)]:bg-green-900/20 transition-colors">
+          </div>
           <div class="absolute inset-0 flex items-center justify-center transition-all duration-200"
             [class.opacity-100]="isDeleteConfirmed" [class.scale-100]="isDeleteConfirmed"
             [class.opacity-0]="!isDeleteConfirmed" [class.scale-0]="!isDeleteConfirmed">
@@ -353,7 +361,8 @@
             </svg>
           </div>
         </div>
-        <label for="confirmCheckbox" class="text-gray-700 dark:text-gray-300 text-sm select-none">Comprendo que esta acción no se puede
+        <label for="confirmCheckbox" class="text-gray-700 dark:text-gray-300 text-sm select-none">Comprendo que esta
+          acción no se puede
           deshacer</label>
       </div>
 
@@ -576,29 +585,30 @@
   .animate-toastSlideIn {
     animation: toastSlideIn 3.5s ease-in-out forwards;
   }
-  
+
   /* Animación de conteo */
   @keyframes countUp {
     from {
       opacity: 0.2;
       transform: translateY(8px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
-  
+
   .animate-countUp {
     animation: countUp 0.5s ease-out forwards;
   }
-  
+
   /* Estilos adicionales para modo oscuro */
   @media (prefers-color-scheme: dark) {
     .dark\:bg-gray-750 {
       background-color: rgb(38, 43, 54);
     }
-    
+
     .dark\:hover\:bg-gray-750:hover {
       background-color: rgb(38, 43, 54);
     }

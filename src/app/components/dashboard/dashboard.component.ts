@@ -14,11 +14,9 @@ import { CultiveProductionService } from '../../services/CultiveProduction.servi
 import { Cultive } from '../../types/Cultive';
 import { CultivoService } from '../../services/Cultivo.service';
 import { ComercialPlanningDetailsWithId } from '../../types/ComercialPlanningDetailsWithId';
-
-
 import { ProducRealService } from '../../services/ProducReal.service';
-
 import { ProducReal } from '../../types/ProducReal';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -577,22 +575,28 @@ export class DashboardComponent implements OnInit {
           }
         };
 
-        const totalProduccion2 = kgsProduction.reduce((a, b) => a + b, 0);
-        const totalNecesidad2 = kgs.reduce((a, b) => a + b, 0);
+        const totalProduccion = kgsProduction.reduce((a, b) => a + b, 0);
+        const totalNecesidad = kgs.reduce((a, b) => a + b, 0);
 
 
 
-        if (totalNecesidad2 === 0) {
-          this.porcentajeReal = 0; // O mostrar un error si es necesario
-        } else if (totalNecesidad2 > totalProduccion2) {
+        if (totalNecesidad === 0 ) {
+          this.porcentajeReal = 0// O mostrar un error si es necesario
+          
+        } else if (totalNecesidad > totalProduccion) {
           // Pérdida
-          this.porcentajeReal = ((totalProduccion2 - totalNecesidad2) * 100) / totalNecesidad2;
-
-        } else {
+          this.porcentajeReal = ((totalProduccion - totalNecesidad) * 100) / totalNecesidad;
+        
+        } 
+      
+        else {
           // Ganancia o producción igual
-          this.porcentajeReal = ((totalNecesidad2 - totalProduccion2) * 100) / totalNecesidad2;
+          this.porcentajeReal = ((totalNecesidad - totalProduccion) * 100) / totalNecesidad;
+           this.porcentajeReal = parseFloat(this.porcentajeReal.toFixed(2));
+          
         }
-        this.porcentajeReal = parseFloat(this.porcentajeReal.toFixed(2));
+        
+       
         // Gráficos teórica y real
         this.teoricaData = {
           labels: ['Q1', 'Q2', 'Q3', 'Q4'],
@@ -690,13 +694,7 @@ export class DashboardComponent implements OnInit {
             }
           }
         };
-        if (kgs.reduce((a, b) => a + b) > kgsProduction.reduce((a, b) => a + b)) {
-          this.porcentajeReal = (kgsProduction.reduce((a, b) => a + b) - kgs.reduce((a, b) => a + b)) * 100 / kgs.reduce((a, b) => a + b);
-
-        }
-        else {
-          this.porcentajeReal = (kgs.reduce((a, b) => a + b) - kgsProduction.reduce((a, b) => a + b)) * 100 / kgs.reduce((a, b) => a + b);
-        }
+       
 
         // Forzar actualizaciones iniciales
         this.updateChartOptions();
@@ -1636,6 +1634,7 @@ export class DashboardComponent implements OnInit {
         let kgsProduction2: number[] = new Array(meses2.length).fill(0);
 
         let kgs3: number[] = new Array(meses2.length).fill(0);
+        let kgsProductionReal2=new Array(meses2.length).fill(0);
         let clientes3: string[] = new Array(meses2.length);
         let repetidos3: { mes: number, cliente: string }[] = [];
         console.log(this.selectedProductions)
@@ -1648,6 +1647,16 @@ export class DashboardComponent implements OnInit {
               kgsProduction2[j] = (kgsProduction2[j] || 0) + parseFloat(this.selectedProductions[i].kilosAjustados);//Si los kilos estan vacios lo ponemos a 0.
             }
           }
+        }
+        for(let i=0;i<this.producReal.length;i++){
+          const mes = new Date(this.producReal[i].fechaInicio);
+          for(let j=0;j<meses2.length;j++){
+            if(mes.getMonth()+1==meses2[j]){
+              kgsProductionReal2[j]=(kgsProductionReal2[j] || 0) + this.producReal[i].kilosNetos;
+            }
+          }
+
+
         }
 
         for (let i = 0; i < planningDetails.length; i++) {//para ir sumando los kg de cada semana
@@ -1771,6 +1780,19 @@ export class DashboardComponent implements OnInit {
               tension: 0.4,
               spanGaps: true,
               yAxisID: 'y'
+            }
+          ]
+        };
+        this.realData = {
+          labels: label3,
+          datasets: [
+            {
+              label: 'Real',
+              data: kgsProductionReal2,
+              backgroundColor: '#10b981',
+              borderColor: '#10b981',
+              tension: 0.4,
+              fill: false
             }
           ]
         };

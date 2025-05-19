@@ -516,6 +516,7 @@ zxing-scanner video {
   }
 }
 
+
 /* Componente del escáner */
 zxing-scanner {
   width: 100% !important;
