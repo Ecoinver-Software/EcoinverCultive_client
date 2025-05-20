@@ -202,7 +202,10 @@ export class StockComponent implements OnInit, AfterViewInit {
     this.stockService.deleteStock(this.recordToDeleteId).subscribe(
       
       (data) => {
-        
+        console.log(data);
+      },
+      (error)=>{
+        console.log(error);
       }
     )
     // Iniciar animación de carga

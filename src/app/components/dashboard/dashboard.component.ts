@@ -238,7 +238,7 @@ export class DashboardComponent implements OnInit {
     const fechaFormateada = `${year}-${month}-${day}`;
 
     //Para coger las fecha del dia de los dos meses anteriores
-    this.producRealService.get(fechaFormateada, generoProduccion[0].idGenero).subscribe(
+    this.producRealService.get(fechaFormateada, generoProduccion[0]?.idGenero).subscribe(
       (data) => {
         this.producReal = data;
         if (this.producReal) {
