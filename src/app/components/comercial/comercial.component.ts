@@ -30,7 +30,7 @@ export interface Comercial {
   imports: [CommonModule, FormsModule, ReactiveFormsModule, NgSelectModule],
   templateUrl: './comercial.component.html',
   styleUrls: ['./comercial.component.css']
-  
+
 })
 export class ComercialComponent implements OnInit {
   // Propiedad para acceder a Math desde el template
@@ -154,17 +154,18 @@ export class ComercialComponent implements OnInit {
       // Si hay texto en la búsqueda, filtrar los datos
       this.filteredData = this.paginatedData.filter(item => {
         // Asegúrate de que las fechas estén formateadas de manera consistente
-        const startDate = new Date(item.startDate).toISOString().slice(0, 10); // 'YYYY-MM-DD'
-        const endDate = new Date(item.endDate).toISOString().slice(0, 10); // 'YYYY-MM-DD'
-
+        item.startDate = new Date(item.startDate);
+        item.endDate = new Date(item.endDate);
+        const startDate = `${String(item.startDate.getDate()).padStart(2, '0')}-${String(item.startDate.getMonth() + 1).padStart(2, '0')}-${item.startDate.getFullYear()}`;
+        const endDate = `${String(item.endDate.getDate()).padStart(2, '0')}-${String(item.endDate.getMonth() + 1).padStart(2, '0')}-${item.endDate.getFullYear()}`;
         return (
 
           // Verifica si la propiedad es una cadena y realiza la búsqueda de manera insensible a mayúsculas
           (item.clientCode.toString().toLowerCase().includes(query)) ||
           (item.clientName.toLowerCase().includes(query)) ||
-          (startDate.includes(query)) ||
+          (startDate.includes(query)) || item.nombreGenero.toLowerCase().includes(query) ||
           (endDate.includes(query)) ||
-          (item.kgs?.toString().includes(query))
+          (item.kgs?.toString().includes(query))|| item.idGenero.toString().includes(query)
 
         );
 
@@ -231,11 +232,11 @@ export class ComercialComponent implements OnInit {
     if (this.clientData.startDate && this.clientData.endDate) {
       let startDate = new Date(this.clientData.startDate);
       let endDate = new Date(this.clientData.endDate);
-      startDate=new Date(startDate.setHours(12,0,0,0));
-      endDate=new Date(endDate.setHours(12,0,0,0));
+      startDate = new Date(startDate.setHours(12, 0, 0, 0));
+      endDate = new Date(endDate.setHours(12, 0, 0, 0));
 
-      this.clientData.startDate=startDate;
-      this.clientData.endDate=endDate;
+      this.clientData.startDate = startDate;
+      this.clientData.endDate = endDate;
       if (startDate.getTime() > endDate.getTime()) {
         this.validarFechas = true;
       }
@@ -344,12 +345,12 @@ export class ComercialComponent implements OnInit {
     this.miFormulario.get('generoNombre')?.setValue(this.selectedComercial.nombreGenero);
 
     let dateObj = new Date(this.selectedComercial.startDate);
-    dateObj=new Date(dateObj.setHours(12,0,0,0))
+    dateObj = new Date(dateObj.setHours(12, 0, 0, 0))
     let formattedDate = dateObj.toISOString().slice(0, 10); // "YYYY-MM-DD"
     this.miFormulario.get('startDate')?.setValue(formattedDate);
 
     dateObj = new Date(this.selectedComercial.endDate);
-    dateObj=new Date(dateObj.setHours(12,0,0,0))
+    dateObj = new Date(dateObj.setHours(12, 0, 0, 0))
     formattedDate = dateObj.toISOString().slice(0, 10); // "YYYY-MM-DD"
     this.miFormulario.get('endDate')?.setValue(formattedDate);
     this.miFormulario.get('kgs')?.setValue(this.selectedComercial.kgs);

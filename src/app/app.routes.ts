@@ -11,8 +11,9 @@ import { ComercialPlanningComponent } from './components/comercial-planning/come
 import { CultiveDetailsComponent } from './components/cultive-details/cultive-details.component';
 import { CultiveMapComponent } from './components/cultive-map/cultive-map.component';
 import { RankingComponent } from './components/ranking/ranking.component';
- import { StockComponent } from './components/stock/stock.component';
- import { StockDetailsComponent } from './components/stock-details/stock-details.component';
+import { StockComponent } from './components/stock/stock.component';
+import { StockDetailsComponent } from './components/stock-details/stock-details.component';
+
 
 export const routes: Routes = [
   // Redirige la raíz al login
@@ -37,12 +38,7 @@ export const routes: Routes = [
       {path:'cultive-map', component:CultiveMapComponent},
       {path:'cultive-ranking', component:RankingComponent},
       {path:'stock', component:StockComponent},
-      {path:'stock-details', component:StockDetailsComponent},
-
-
-
-
-
+      {path:'stock-details/:id', component:StockDetailsComponent},
       // Otras rutas dentro del layout, si las hay
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     

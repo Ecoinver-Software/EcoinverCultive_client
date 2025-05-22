@@ -63,8 +63,8 @@
 
     <!-- Modal para crear -->
     <div *ngIf="showCreateModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-xs">
-      <div class="relative p-4 w-full max-w-md max-h-full">
+    class="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-xs">
+  <div class="relative p-4 w-full max-w-md max-h-[90vh] sm:max-h-[95vh] overflow-y-auto">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
           <!-- Modal header -->
@@ -125,7 +125,8 @@
                 <ng-select
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                   [items]="genderArray" bindLabel="nombreGenero" bindValue="idGenero" placeholder="Selecciona un género"
-                  [searchable]="true" [searchFn]="searchGenero" formControlName="genero2" (change)="buscarGenero2($event)">
+                  [searchable]="true" [searchFn]="searchGenero" formControlName="genero2"
+                  (change)="buscarGenero2($event)">
 
                   <ng-template ng-option-tmp let-item="item">
                     {{ item.idGenero }} - {{ item.nombreGenero || 'Sin Nombre' }}
@@ -198,7 +199,8 @@
     <!--Modal para editar-->
     <div *ngIf="showEditModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-xs">
-      <div class="relative p-4 w-full max-w-md max-h-full">
+     <div class="relative p-4 w-full max-w-md max-h-[90vh] sm:max-h-[95vh] overflow-y-auto">
+
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
           <!-- Modal header -->
@@ -258,7 +260,8 @@
                 <ng-select
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                   [items]="genderArray" bindLabel="nombreGenero" bindValue="idGenero" placeholder="Selecciona un género"
-                  [searchable]="true" [searchFn]="searchGenero" (change)="buscarGenero($event)" formControlName="genero">
+                  [searchable]="true" [searchFn]="searchGenero" (change)="buscarGenero($event)"
+                  formControlName="genero">
 
                   <ng-template ng-option-tmp let-item="item">
                     {{ item.idGenero }} - {{ item.nombreGenero || 'Sin Nombre' }}

@@ -2,21 +2,17 @@
 import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { StockService } from '../../services/stock.service';
+import { StockDto } from '../../types/StockDto';
+import { Router } from '@angular/router';
+import { ControlStockDetailsService } from '../../services/stock-details.service';
+import { ControlStockDetailsDto } from '../../types/ControlStockDetailsTypes';
 
-interface StockRecord {
-  id: number;
-  date: Date;
+export interface StockRecord {
+  fecha: Date;
+  time: Date;
   itemCount: number;
-  isBeingDragged?: boolean;
-  lastUpdated?: Date;
-  notes?: string;
-}
-
-interface NewStockRecord {
-  date: string;
-  time: string;
-  itemCount: number;
-  notes?: string;
+  notes: string;
 }
 
 @Component({
@@ -28,30 +24,8 @@ interface NewStockRecord {
 })
 export class StockComponent implements OnInit, AfterViewInit {
   // Datos de ejemplo
-  stockRecords: StockRecord[] = [
-    {
-      id: 1,
-      date: new Date('2025-05-11T14:30:00'),
-      itemCount: 12,
-      lastUpdated: new Date('2025-05-11T16:45:00'),
-    },
-    {
-      id: 2,
-      date: new Date('2025-05-09T09:15:00'),
-      itemCount: 8,
-    },
-    {
-      id: 3,
-      date: new Date('2025-05-05T11:20:00'),
-      itemCount: 15,
-    },
-    {
-      id: 4,
-      date: new Date('2025-04-30T16:45:00'),
-      itemCount: 6,
-    },
-  ];
-
+  stockRecords: StockDto[] = [];
+  stockDetails:ControlStockDetailsDto[]=[];
   // Variables para el modal de eliminación
   showDeleteModal: boolean = false;
   recordToDeleteId: number | null = null;
@@ -62,12 +36,7 @@ export class StockComponent implements OnInit, AfterViewInit {
 
   // Variables para el modal de añadir
   showAddModal: boolean = false;
-  newRecord: NewStockRecord = {
-    date: this.getTodayISOString(),
-    time: this.getCurrentTimeString(),
-    itemCount: 1,
-    notes: '',
-  };
+
   isSaving: boolean = false;
   showAddedToast: boolean = false;
 
@@ -77,13 +46,27 @@ export class StockComponent implements OnInit, AfterViewInit {
   touchStartX: number = 0;
   lastTouchY: number = 0;
 
-  constructor() {}
+  constructor(private stockService: StockService, private router:Router, private stockDetailsService:ControlStockDetailsService ) { }
 
   ngOnInit(): void {
     // Detectar scroll para mostrar/ocultar el botón flotante
     window.addEventListener('scroll', () => {
       this.isScrolled = window.scrollY > 300;
     });
+
+    //Traerse los datos del stock de la Base de datos
+    this.stockService.getStock().subscribe(
+      (data) => {
+        this.stockRecords = data;
+        console.log(this.stockRecords);
+        this.rellenarItems();
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  
+   
   }
 
   ngAfterViewInit(): void {
@@ -95,28 +78,49 @@ export class StockComponent implements OnInit, AfterViewInit {
   addQuickRecord(): void {
     const now = new Date();
     const newId = Math.max(...this.stockRecords.map((r) => r.id), 0) + 1;
-    this.stockRecords = [
-      { id: newId, date: now, itemCount: 0, lastUpdated: now },
-      ...this.stockRecords,
-    ];
+    this.stockRecords.push({
+      id: newId,
+      fecha: now,
+
+      itemCount: 0
+
+    });
+    const adjusted = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    const postStock = {
+      fecha: adjusted,
+
+    };
+    this.stockService.postStock(postStock).subscribe(
+      (data) => {
+        console.log(data);
+
+      },
+      (error) => {
+        console.log(error);
+      }
+    )
     setTimeout(() => this.initCountUpAnimation(), 300);
   }
   // Métodos de formato de fecha para reemplazar el pipe date
   formatDay(d: Date) {
+    d = new Date(d);
     return d.getDate().toString().padStart(2, '0');
   }
   formatDate(d: Date) {
+    d = new Date(d);
     return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1)
       .toString()
       .padStart(2, '0')}/${d.getFullYear()}`;
   }
   formatTime(d: Date) {
+    d = new Date(d);
     return `${d.getHours().toString().padStart(2, '0')}:${d
       .getMinutes()
       .toString()
       .padStart(2, '0')}`;
   }
   formatWeekday(d: Date) {
+    d = new Date(d);
     const days = [
       'domingo',
       'lunes',
@@ -154,7 +158,7 @@ export class StockComponent implements OnInit, AfterViewInit {
   // Método para ver detalles del registro
   viewRecordDetails(recordId: number): void {
     console.log(`Viendo detalles del registro ${recordId}`);
-    // Aquí iría la lógica para ver los detalles
+    this.router.navigate(['/stock-details',recordId]);
   }
 
   // Método para abrir el modal de confirmación de eliminación
@@ -167,7 +171,7 @@ export class StockComponent implements OnInit, AfterViewInit {
       (record) => record.id === recordId
     );
     if (recordToDelete) {
-      this.recordToDeleteDate = recordToDelete.date;
+      this.recordToDeleteDate = recordToDelete.fecha;
     }
 
     this.isDeleteConfirmed = false;
@@ -194,7 +198,16 @@ export class StockComponent implements OnInit, AfterViewInit {
     if (!this.isDeleteConfirmed || this.recordToDeleteId === null) {
       return;
     }
-
+    
+    this.stockService.deleteStock(this.recordToDeleteId).subscribe(
+      
+      (data) => {
+        console.log(data);
+      },
+      (error)=>{
+        console.log(error);
+      }
+    )
     // Iniciar animación de carga
     this.isDeleting = true;
 
@@ -230,14 +243,14 @@ export class StockComponent implements OnInit, AfterViewInit {
   }
 
   // Verificar si un registro es reciente (menos de 24 horas)
-  isRecent(d: Date): boolean {
-    return (Date.now() - d.getTime()) / 36e5 < 24;
-  }
+  // isRecent(d: Date): boolean {
+  // return (Date.now() - d.getTime()) / 36e5 < 24;
+  //}
 
   // Verificar si un registro tiene actividad reciente
   hasRecentActivity(record: StockRecord): boolean {
     // Si tiene lastUpdated, usar esa fecha, si no, usar la fecha del registro
-    const dateToCheck = record.lastUpdated || record.date;
+    const dateToCheck = new Date(record.fecha);
 
     const now = new Date();
     const diffMs = now.getTime() - dateToCheck.getTime();
@@ -249,26 +262,86 @@ export class StockComponent implements OnInit, AfterViewInit {
   startDragging(record: StockRecord, event: TouchEvent): void {
     event.stopPropagation();
     this.touchStartX = event.touches[0].clientX;
-    record.isBeingDragged = false;
+
   }
 
-  // Método para continuar el arrastre
-  continueDragging(record: StockRecord, event: TouchEvent): void {
+  // Variables adicionales que deberías añadir a la clase
+  swipeThreshold: number = 100; // Umbral en píxeles para considerar un swipe
+  swipedRecordId: number | null = null; // ID del registro actualmente abierto por swipe
+
+  // Método para finalizar el arrastre
+  endDragging(record: StockDto, event?: TouchEvent): void {
+    if (!event) return;
+
+    const currentX = event.changedTouches[0].clientX;
+    const diffX = this.touchStartX - currentX;
+
+    // Si el deslizamiento supera el umbral, mostrar opciones
+    if (Math.abs(diffX) > this.swipeThreshold) {
+      // Si se desliza hacia la izquierda (diffX positivo), mostrar opciones
+      if (diffX > 0) {
+        // Si hay un registro previamente abierto que no es este, cerrarlo primero
+        if (this.swipedRecordId !== null && this.swipedRecordId !== record.id) {
+          this.closeSwipedOptions();
+        }
+
+        // Establecer este registro como el actualmente abierto
+        this.swipedRecordId = record.id;
+
+        // Aquí puedes manipular el DOM para mostrar las opciones
+        // O usar una propiedad en el objeto record para marcarlo como "abierto"
+
+        // Ejemplo con manipulación de DOM:
+        const element = document.getElementById(`record-${record.id}`);
+        if (element) {
+          element.classList.add('swiped-open');
+        }
+      } else {
+        // Si se desliza hacia la derecha, cerrar las opciones
+        this.closeSwipedOptions();
+      }
+    } else {
+      // Si no supera el umbral, mantener el estado actual
+    }
+  }
+
+  // Método para cerrar cualquier opción abierta
+  closeSwipedOptions(): void {
+    if (this.swipedRecordId !== null) {
+      const element = document.getElementById(`record-${this.swipedRecordId}`);
+      if (element) {
+        element.classList.remove('swiped-open');
+      }
+      this.swipedRecordId = null;
+    }
+  }
+
+  // También deberás actualizar el método continueDragging para que muestre
+  // visualmente el arrastre mientras ocurre:
+  continueDragging(record: StockDto, event: TouchEvent): void {
     event.stopPropagation();
     const currentX = event.touches[0].clientX;
     const diffX = this.touchStartX - currentX;
 
-    // Si se arrastra más de 50px a la izquierda, mostrar el botón de eliminar
-    if (diffX > 50) {
-      record.isBeingDragged = true;
-    } else {
-      record.isBeingDragged = false;
-    }
-  }
+    // Si es un deslizamiento significativo, aplicar la transformación
+    if (Math.abs(diffX) > 10) {
+      const element = document.getElementById(`record-${record.id}`);
+      if (element) {
+        // Limitar el deslizamiento a un máximo (por ejemplo, 150px)
+        const maxSwipe = 150;
+        const swipeAmount = Math.min(Math.abs(diffX), maxSwipe);
 
-  // Método para finalizar el arrastre
-  endDragging(record: StockRecord): void {
-    // Mantener el estado actual (abierto o cerrado)
+        // Si es hacia la izquierda (diffX positivo)
+        if (diffX > 0) {
+          element.style.transform = `translateX(-${swipeAmount}px)`;
+        } else {
+          // Si es hacia la derecha y ya está abierto, permitir cerrar
+          if (this.swipedRecordId === record.id) {
+            element.style.transform = `translateX(${maxSwipe - swipeAmount}px)`;
+          }
+        }
+      }
+    }
   }
 
   // Método para hacer scroll al inicio
@@ -327,6 +400,29 @@ export class StockComponent implements OnInit, AfterViewInit {
     if (this.isPulling) {
       event.preventDefault();
     }
+  }
+
+  isRecent(d: Date): boolean {
+    const date = new Date(d);
+    return (Date.now() - date.getTime()) / 36e5 < 24; // Comprueba si la fecha es menos de 24 horas atrás
+  }
+
+  rellenarItems(){
+//Traerse los datos de los detalles del stock 
+    this.stockDetailsService.getAll().subscribe(
+      (data)=>{
+        this.stockDetails=data;
+       for(let i=0;i<this.stockRecords.length;i++){
+    const encontrado=this.stockDetails.filter(item=>item.idControl==this.stockRecords[i].id)
+      if(encontrado!==undefined){
+        this.stockRecords[i].itemCount=encontrado.length;
+      }
+   }
+      },
+      (error)=>{
+        console.log(error);
+      }
+    );
   }
 }
 // FIN DEL ARCHIVO
