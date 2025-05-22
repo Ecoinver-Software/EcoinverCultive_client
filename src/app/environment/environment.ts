@@ -2,7 +2,7 @@
 
 export const environment = {
   production: true,
-  baseUrl: 'http://172.16.60.254:8080/api'
+  baseUrl: 'https://172.16.60.254:5001/api'
 };
 
 

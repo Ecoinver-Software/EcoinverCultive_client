@@ -10,7 +10,7 @@ import { StockService } from '../../services/stock.service';
 import { switchMap } from 'rxjs/operators';
 import { PutIdPartidaDto } from '../../types/ControlStockDetailsTypes';
 import { GenderService } from '../../services/Gender.service';
-import { Gender } from '../../types/gender';
+import { Gender } from '../../types/Gender';
 
 // Interface para almacenar los resultados del escaneo
 interface ScannedResult {
