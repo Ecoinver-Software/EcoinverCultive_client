@@ -57,6 +57,8 @@ interface Planificacion {
   fechaFin?: Date;
 }
 
+
+
 @Component({
   selector: 'app-cultive-planning',
   standalone: true,
@@ -353,28 +355,31 @@ decrementTramos(): void {
  * Filtra los cultivos cuya fecha de siembra cae entre la quincena,
  * comparando únicamente día y mes para evitar desfases de hora.
  */
+/**
+ * Filtra los cultivos cuya fecha de siembra cae en la misma quincena del año,
+ * independientemente del año (solo compara mes y día)
+ */
 buscarCultivosEnQuincena(quincena: Quincena): void {
-  const inicio = quincena.fechaInicio;
-  const fin    = quincena.fechaFin;
+  // Obtenemos solo el mes y los días de la quincena
+  const mesQuincena = quincena.fechaInicio.getMonth();
+  const diaInicioQuincena = quincena.fechaInicio.getDate();
+  const diaFinQuincena = quincena.fechaFin.getDate();
 
   const cultivosEnQuincena = this.cultivo.filter(c => {
     if (!c.fechaSiembra) return false;
-    const fs = new Date(c.fechaSiembra);
-    const diaFs   = fs.getDate();
-    const mesFs   = fs.getMonth();
-    const diaIni  = inicio.getDate();
-    const mesIni  = inicio.getMonth();
-    const diaFin  = fin.getDate();
-    const mesFin  = fin.getMonth();
-
-    // Sólo incluimos si mes y día están dentro del rango [inicio, fin]
-    // (Esto funciona porque tus quincenas nunca abarcan más de un mes.)
-    const mismaQuincena = mesFs === mesIni
-      && diaFs >= diaIni
-      && diaFs <= diaFin;
-
+    
+    const fechaSiembra = new Date(c.fechaSiembra);
+    const mesSiembra = fechaSiembra.getMonth();
+    const diaSiembra = fechaSiembra.getDate();
+    
+    // Solo verificamos que el mes sea el mismo y el día esté en el rango
+    // independientemente del año
+    const mismaQuincena = mesSiembra === mesQuincena 
+                        && diaSiembra >= diaInicioQuincena 
+                        && diaSiembra <= diaFinQuincena;
+    
     if (mismaQuincena) {
-      console.log(`✅ ${c.nombreGenero} - ${c.nombreVariedad} (siembra ${fs.toLocaleDateString()})`);
+      console.log(`✅ ${c.nombreGenero} - ${c.nombreVariedad} (siembra ${fechaSiembra.toLocaleDateString()})`);
     }
     return mismaQuincena;
   });
@@ -388,7 +393,7 @@ buscarCultivosEnQuincena(quincena: Quincena): void {
 
   // Actualiza UI
   this.selectedCultivosIds = cultivosFiltrados.map(c => c.id);
-  this.selectedCultivos    = cultivosFiltrados.map(c =>
+  this.selectedCultivos = cultivosFiltrados.map(c =>
     `${c.nombreAgricultor} - ${c.nombreGenero} - ${c.nombreVariedad}`
   );
 
@@ -1751,11 +1756,22 @@ mostrarSeleccionados(): void {
   }
 }
 
+// Método mejorado
 limpiarFiltros(): void {
-  // Limpiar filtros
+  // 1. Limpiar el término de búsqueda
   this.searchGeneroTerm = '';
+  
+  // 2. Resetear la selección de familia
   this.selectedFamilia = 'todas';
+  
+  // 3. Resetear la selección de género 
+  this.selectedGeneroId = undefined;
+  
+  // 4. Aplicar los filtros para actualizar la vista
   this.filterGeneros();
+  
+  // 5. Mostrar mensaje de confirmación
+  //this.mostrarMensajeExito('Filtros limpiados correctamente');
 }
 
 
