@@ -13,35 +13,36 @@ import { CultiveMapComponent } from './components/cultive-map/cultive-map.compon
 import { RankingComponent } from './components/ranking/ranking.component';
 import { StockComponent } from './components/stock/stock.component';
 import { StockDetailsComponent } from './components/stock-details/stock-details.component';
+import { ChangelogComponent } from './components/changelog/changelog.component';
 
 
 export const routes: Routes = [
   // Redirige la raíz al login
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  
+
   // Ruta para el login (sin layout)
   { path: 'login', component: LoginComponent },
-  
+
   // Rutas protegidas que usan un layout común
-  { 
-    path: '', 
+  {
+    path: '',
     component: LayoutComponent,
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'cultive', component: CultiveComponent },
       { path: 'comercial', component: ComercialComponent },
-      { path: 'users', component: UsersComponent},
-      { path: 'cultive-planning', component: CultivePlanningComponent},
-      { path: 'roles', component: RolesComponent},
-      {path: 'cultive/:id', component: CultiveDetailsComponent},
-      {path:'comercial-planning', component:ComercialPlanningComponent},
-      {path:'cultive-map', component:CultiveMapComponent},
-      {path:'cultive-ranking', component:RankingComponent},
-      {path:'stock', component:StockComponent},
-      {path:'stock-details/:id', component:StockDetailsComponent},
-      // Otras rutas dentro del layout, si las hay
+      { path: 'users', component: UsersComponent },
+      { path: 'cultive-planning', component: CultivePlanningComponent },
+      { path: 'roles', component: RolesComponent },
+      { path: 'cultive/:id', component: CultiveDetailsComponent },
+      { path: 'comercial-planning', component: ComercialPlanningComponent },
+      { path: 'cultive-map', component: CultiveMapComponent },
+      { path: 'cultive-ranking', component: RankingComponent },
+      { path: 'stock', component: StockComponent },
+      { path: 'stock-details/:id', component: StockDetailsComponent },
+      { path: 'changelog', component: ChangelogComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-    
+
     ]
   },
 
