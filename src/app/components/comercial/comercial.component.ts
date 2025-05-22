@@ -8,7 +8,7 @@ import { CreateComercial } from '../../types/createComercial';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Client } from '../../types/Client';
 import { GenderService } from '../../services/Gender.service';
-import { Gender } from '../../types/gender';
+import { Gender } from '../../types/Gender';
 import { animate, style, transition, trigger } from '@angular/animations';
 
 

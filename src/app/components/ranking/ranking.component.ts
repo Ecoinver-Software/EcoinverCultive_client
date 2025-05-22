@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Agricult } from '../../types/Agricult';
 import { Cultive } from '../../types/Cultive';
-import { Gender } from '../../types/gender';
+import { Gender } from '../../types/Gender';
 import { GenderService } from '../../services/Gender.service';
 import { CultivoService } from '../../services/Cultivo.service';
 import { RealProduction } from '../../types/RealProduction';

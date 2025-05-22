@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../environment/environment';
 import { Observable } from 'rxjs';
-import { Gender } from '../types/gender';
+import { Gender } from '../types/Gender';
 import { GenderTypes } from '../types/GenderTypes';
 //gender.service.ts
 @Injectable({
