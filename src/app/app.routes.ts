@@ -14,6 +14,7 @@ import { RankingComponent } from './components/ranking/ranking.component';
 import { StockComponent } from './components/stock/stock.component';
 import { StockDetailsComponent } from './components/stock-details/stock-details.component';
 import { ChangelogComponent } from './components/changelog/changelog.component';
+import { VariablesGlobalesComponent } from './variables-globales/variables-globales.component';
 
 
 export const routes: Routes = [
@@ -41,6 +42,7 @@ export const routes: Routes = [
       { path: 'stock', component: StockComponent },
       { path: 'stock-details/:id', component: StockDetailsComponent },
       { path: 'changelog', component: ChangelogComponent },
+      {path:'variables',component:VariablesGlobalesComponent},
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
     ]

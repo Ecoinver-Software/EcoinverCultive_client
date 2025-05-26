@@ -1,22 +1,17 @@
 import { Component, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import localeEs from '@angular/common/locales/es';
 import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 import { DatePipe } from '@angular/common';
 import { WeatherIconsService } from '../../services/WeatherIcons.service';
-
-
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environment/environment';
-
 import { ChartModule } from 'primeng/chart';
-import { CultivoService } from '../../services/Cultivo.service';
+
 import { CultiveProductionService } from '../../services/CultiveProduction.service';
 import { CultiveProductionDto } from '../../types/CultiveProductionTypes';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { Variables } from '../../types/variables';
 import { VariablesService } from '../../services/variables.service';
 
@@ -70,7 +65,7 @@ export class CultiveDetailsComponent
   activeTab: 'Datos de cultivo' | 'Mapping' | 'Insights' | 'nerfs' = 'Datos de cultivo';
   private map: L.Map | null = null;
   private shape: L.Layer | null = null; // Puede ser un círculo, rectángulo o polígono
-
+  editarConfirm: boolean = false;
   // Datos del cultivo
   cultivo: Cultivo | null = null;
   loading: boolean = true;
@@ -111,16 +106,12 @@ export class CultiveDetailsComponent
   }
 
 
-
-
-
   //mapping y tiempo
   weatherForecast: WeatherForecast[] = [];
   constructor(
     public weatherIcons: WeatherIconsService,
     private route: ActivatedRoute,
     private http: HttpClient,
-    private cultive: CultivoService,
     private productionService: CultiveProductionService,
     private variableService: VariablesService
   ) { }
@@ -1486,7 +1477,7 @@ export class CultiveDetailsComponent
   porcentaje(i: number) {
 
     let sliders = document.getElementsByClassName('slider')[i] as HTMLInputElement;
-    this.variables[i].valor = (Number(sliders.value) * 100) / 10000;
+
     this.value[i] = (Number(sliders.value) * 100) / 10000;
 
     console.log(this.value);
@@ -1536,7 +1527,7 @@ export class CultiveDetailsComponent
     this.errorMessage = null;
     const nombreVariable = document.getElementById('nombre') as HTMLInputElement;
     const fechaHoy = new Date();
-
+    console.log(this.productions);
     if (nombreVariable.value == '') {
       console.log('Nombre vacío, saliendo de la función');
       this.errorMessage = 'El campo Nombre de la Variable no debe de estar vacío';
@@ -1554,11 +1545,18 @@ export class CultiveDetailsComponent
     if (encontrado) {
       this.showErrorAlert = true;
       this.errorMessage = 'Esta variable ya está asignada a este cultivo';
+
+      return;
+    }
+    if (this.productions.length <= 0) {//Pra cuando no haya producciones asociadas al cultivo.
+      this.showErrorAlert = true;
+
+      this.errorMessage = 'Esta variable no afectará a ningun cultivo';
       return;
     }
     //Comprobamos que la variable que se crea afectará minímo a uan de las producciones.
     if (new Date(this.productions[this.productions.length - 1].fechaFin).getTime() < fechaHoy.getTime()) {
-       this.showErrorAlert = true;
+      this.showErrorAlert = true;
       this.errorMessage = 'Esta variable no afectará a ningun cultivo';
       return;
     }
@@ -1586,7 +1584,7 @@ export class CultiveDetailsComponent
           valor: data.valor
         });
         this.cambiarKilosAjustados();
-
+        this.porcentaje(this.variables.length - 1);
 
       },
       (error) => {
@@ -1610,7 +1608,8 @@ export class CultiveDetailsComponent
       if (this.productions[i] && new Date(this.productions[i].fechaFin).getTime() >= fechaHoy.getTime()) {
         console.log('=== PROCESANDO PRODUCCIÓN ===', i);
 
-        const kilos = parseFloat(this.productions[i].kilosAjustados) * valor;
+
+        let kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) * valor;
 
         this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
           (data) => {
@@ -1633,6 +1632,7 @@ export class CultiveDetailsComponent
 
         console.log(data);
         this.arreglarKilosAjustados(valor);
+
         this.variables.splice(i, 1);
 
         this.showDeleteModal = false;
@@ -1645,6 +1645,7 @@ export class CultiveDetailsComponent
   }
   cerrarModal() {
     this.showSuccessAlert = false;
+    window.location.reload();
   }
   abrirDeleteModal(i: number) {
     this.variableToDelete = this.variables[i].name;
@@ -1669,12 +1670,14 @@ export class CultiveDetailsComponent
       if (this.productions[i] && new Date(this.productions[i].fechaFin).getTime() >= fechaHoy.getTime()) {
         console.log('=== PROCESANDO PRODUCCIÓN ===', i);
 
-        const kilos = parseFloat(this.productions[i].kilosAjustados) / valor;
+        const kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) / valor;
 
         this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
           (data) => {
+            this.productions[i].kilosAjustados = kilos.toString();
             console.log('Respuesta del servidor:', data);
-            this.showSuccessAlert = true;
+
+
           },
           (error) => {
             console.log('Error:', error);
@@ -1683,4 +1686,82 @@ export class CultiveDetailsComponent
       }
     }
   }
+  abrirModalEditar(i: number) {
+
+    this.editarConfirm = true;
+    this.indice = i;
+  }
+
+  cancelarModal() {
+    this.editarConfirm = false;
+  }
+  editarVariable() {
+
+    this.variableService.put(this.variables[this.indice].id, this.variables[this.indice]).subscribe(
+      (data) => {
+        console.log(data);
+
+        this.arreglarKilosAjustados(this.variables[this.indice].valor / this.value[this.indice]);
+
+        this.variables[this.indice].valor = this.value[this.indice];
+        this.editarConfirm = false;
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  }
+
+  arreglarKilosEditar(valor: number) {
+    //Se ajustan solo aquellas en las que las fechas entran en el rango 
+    const fechaHoy = new Date();
+
+    for (let i = 0; i < this.productions.length; i++) {
+      //Pasamos la fecha string a una fecha correcta.
+
+      if (this.productions[i] && new Date(this.productions[i].fechaFin).getTime() >= fechaHoy.getTime()) {
+        console.log('=== PROCESANDO PRODUCCIÓN ===', i);
+
+        const kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) * valor;
+
+        this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
+          (data) => {
+            this.productions[i].kilosAjustados = kilos.toString();
+            console.log('Respuesta del servidor:', data);
+
+          },
+          (error) => {
+            console.log('Error:', error);
+          }
+        );
+      }
+    }
+  }
+  calcularPorcentaje(){
+    let suma=0;
+  for(let i=0;i<this.variables.length;i++){
+    if(this.variables[i].valor<1){
+      suma-=(1-this.variables[i].valor);
+    }
+    else{
+      suma+=(this.variables[i].valor-1);
+    }
+  }
+  return suma.toFixed(2);
+  }
+
+  produccionRelativa(){
+     let multiplicacion=1;
+    for(let i=0;i<this.variables.length;i++){
+     
+      multiplicacion*=this.variables[i].valor;
+      
+    
+     
+    }
+    let resultado=(multiplicacion*100).toFixed(0);
+  
+  return resultado +'%';
+  }
+
 }

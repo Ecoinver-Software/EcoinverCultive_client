@@ -24,6 +24,15 @@ export class VariablesService {
     }
     return this.http.post<Variables>(this.url,body);
   }
+  put(id:number,variable:Variables){
+    const body={
+      name:variable.name,
+      idCultivo:variable.idCultivo,
+      fechaRegistro:variable.fechaRegistro,
+      valor:variable.valor
+    }
+    return this.http.put(this.url+'/'+id,body);
+  }
 
   delete(id:number){
     return this.http.delete(this.url+'/'+id);

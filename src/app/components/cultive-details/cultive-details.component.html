@@ -4,11 +4,12 @@
   crossorigin="anonymous" referrerpolicy="no-referrer" />
 <div class="mb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
   <!-- Alertas -->
-   <!-- Modal de Error - Agregar después del modal de eliminación y antes de las pestañas -->
-@if(showErrorAlert){
+  <!-- Modal de Error - Agregar después del modal de eliminación y antes de las pestañas -->
+  @if(showErrorAlert){
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fadeIn">
     <div class="relative p-4 w-full max-w-md max-h-full transform transition-transform duration-500 animate-zoomIn">
-      <div class="relative bg-white rounded-lg shadow-lg border border-red-100 dark:border-red-900/30 dark:bg-gray-700 overflow-hidden">
+      <div
+        class="relative bg-white rounded-lg shadow-lg border border-red-100 dark:border-red-900/30 dark:bg-gray-700 overflow-hidden">
         <button type="button" (click)="cerrarErrorModal()"
           class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-300">
           <svg class="w-3 h-3 transform transition-transform duration-300 hover:rotate-90" aria-hidden="true"
@@ -20,23 +21,24 @@
         </button>
         <div class="p-4 md:p-5 text-center">
           <!-- SVG de error con animación -->
-          <div class="mx-auto mb-4 w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center transform transition-all duration-700 animate-scaleUp">
-            <svg class="text-red-500 w-10 h-10 animate-pulse" aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <div
+            class="mx-auto mb-4 w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center transform transition-all duration-700 animate-scaleUp">
+            <svg class="text-red-500 w-10 h-10 animate-pulse" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+              fill="none" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 8v4m0 4h.01" />
             </svg>
           </div>
-          
+
           <h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white animate-fadeInUp">
             ¡Error!
           </h3>
-          
+
           <p class="mb-5 text-sm text-gray-600 dark:text-gray-300 animate-fadeInUp">
             {{ errorMessage || 'Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo.' }}
           </p>
-          
+
           <div class="flex justify-center gap-3">
             <!-- Botón Cerrar -->
             <button (click)="cerrarErrorModal()" type="button"
@@ -49,7 +51,7 @@
       </div>
     </div>
   </div>
-}
+  }
   @if(showSuccessAlert){
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fadeIn">
     <div class="relative p-4 w-full max-w-md max-h-full transform transition-transform duration-500 animate-zoomIn">
@@ -88,13 +90,14 @@
   </div>
   }
   <!-- Modal de confirmación de eliminación -->
-@if(showDeleteModal){
+  @if(showDeleteModal){
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fadeIn">
     <div class="relative p-4 w-full max-w-md max-h-full transform transition-transform duration-500 animate-zoomIn">
       <div class="relative bg-white rounded-lg shadow-lg dark:bg-gray-700 overflow-hidden">
         <button type="button" (click)="cerrarDeleteModal()"
           class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-300">
-          <svg class="w-3 h-3 transform transition-transform duration-300 hover:rotate-90" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+          <svg class="w-3 h-3 transform transition-transform duration-300 hover:rotate-90" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
           </svg>
@@ -102,18 +105,19 @@
         </button>
         <div class="p-4 md:p-5 text-center">
           <!-- Icono de advertencia -->
-          <div class="mx-auto mb-4 w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center transform transition-all duration-700 animate-scaleUp">
+          <div
+            class="mx-auto mb-4 w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center transform transition-all duration-700 animate-scaleUp">
             <svg class="text-red-500 w-10 h-10 animate-pulse" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
               fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
             </svg>
           </div>
-          
+
           <h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white animate-fadeInUp">
             ¿Confirmar eliminación?
           </h3>
-          
+
           <p class="mb-5 text-sm text-gray-600 dark:text-gray-300 animate-fadeInUp">
             ¿Estás seguro de que deseas eliminar la variable "<strong>{{ variableToDelete }}</strong>"?
             <br>
@@ -121,7 +125,7 @@
               Esta acción no se puede deshacer.
             </span>
           </p>
-          
+
           <div class="flex justify-center gap-3">
             <!-- Botón Cancelar -->
             <button (click)="cerrarDeleteModal()" type="button"
@@ -129,7 +133,7 @@
               <i class="fas fa-times mr-2"></i>
               Cancelar
             </button>
-            
+
             <!-- Botón Eliminar -->
             <button (click)="borrarVariable(indice)" type="button"
               class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center transition-all duration-300 transform hover:scale-105 animate-pulseLight">
@@ -141,7 +145,7 @@
       </div>
     </div>
   </div>
-}
+  }
   <!-- Lista de pestañas -->
   <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
     <li class="me-2" role="presentation">
@@ -635,7 +639,7 @@
               <div>
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Coeficiente β</h2>
                 <p class="text-gray-500 dark:text-gray-400 text-sm mb-2">Suma de todos los valores</p>
-                <div class="text-3xl font-bold text-[#437d3f] dark:text-[#65b15f]" id="coeficiente-total">-0.05</div>
+                <div class="text-3xl font-bold text-[#437d3f] dark:text-[#65b15f]" id="coeficiente-total">{{calcularPorcentaje()}}</div>
               </div>
             </div>
           </div>
@@ -649,7 +653,7 @@
               <div>
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Producción Relativa</h2>
                 <p class="text-gray-500 dark:text-gray-400 text-sm mb-2">Basada en el coeficiente β</p>
-                <div class="text-3xl font-bold text-[#437d3f] dark:text-[#65b15f]" id="produccion-relativa">95%</div>
+                <div class="text-3xl font-bold text-[#437d3f] dark:text-[#65b15f]" id="produccion-relativa">{{produccionRelativa()}}</div>
               </div>
             </div>
           </div>
@@ -706,14 +710,29 @@
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{produccion(i)}}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button (click)="abrirDeleteModal(i)"
-                      class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors duration-200 transform hover:scale-110"
-                      title="Eliminar variable">
-                      <i class="fas fa-trash-alt"></i>
-                    </button>
+                    <div class="flex items-center justify-center space-x-2">
+                      <button
+                        class="text-orange-500 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors duration-200 transform hover:scale-110 p-1"
+                        title="Editar variable" (click)="abrirModalEditar(i)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                          <path
+                            d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </button>
+
+                      <button (click)="abrirDeleteModal(i)"
+                        class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors duration-200 transform hover:scale-110 p-1"
+                        title="Eliminar variable">
+                        <i class="fas fa-trash-alt text-base"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
-                
+
                 }
 
               </tbody>
@@ -783,3 +802,46 @@
       </div>
     </div>
   </div>
+  
+
+<!-- Modal de confirmación para editar -->
+<div class="fixed inset-0  bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 " 
+     *ngIf="editarConfirm">
+  <div class="relative p-6 w-96 shadow-2xl rounded-lg bg-white dark:bg-gray-800 mx-4">
+    <!-- Icono de advertencia -->
+    <div class="text-center">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-900">
+        <svg class="h-6 w-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z">
+          </path>
+        </svg>
+      </div>
+      
+      <!-- Título -->
+      <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mt-4">
+        ¿Estás seguro de editar la variable?
+      </h3>
+      
+      <!-- Mensaje -->
+      <div class="mt-2 px-7 py-3">
+        <p class="text-sm text-gray-500 dark:text-gray-300">
+          Esta acción afectará a la producción del cultivo. Los cambios realizados tendrán impacto directo en los resultados de crecimiento y rendimiento.
+        </p>
+      </div>
+      
+      <!-- Botones -->
+      <div class="flex justify-center space-x-4 px-4 py-3">
+        <button (click)="cancelarModal()"
+                class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors duration-200">
+          Cancelar
+        </button>
+        
+        <button (click)="editarVariable()"
+                class="px-4 py-2 bg-orange-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors duration-200">
+          Sí, editar variable
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
