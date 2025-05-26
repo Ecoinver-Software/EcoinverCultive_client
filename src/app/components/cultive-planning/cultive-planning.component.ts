@@ -161,21 +161,20 @@ numTramos: number = this.numTramosInput;
 
     // Cargar géneros
     this.genderService.getWithId().subscribe(
-      (data) => {
-        this.genderList = data;
+    (data) => {
+      this.genderList = data;
 
-        this.familias = Array.from(
-          new Set(this.genderList.map(g => g.nombreFamilia))
-        ).sort();
-        
-        this.updateGenderOptions();
-        //console.log('primer género:', this.genderList[0]);
-        //console.log('Generos get:', this.genderList);
-      },
-      (error) => {
-        console.error('Error cargando géneros', error);
-      }
-    );
+      // Ordenar familias alfabéticamente
+      this.familias = Array.from(
+        new Set(this.genderList.map(g => g.nombreFamilia))
+      ).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+      
+      this.updateGenderOptions();
+    },
+    (error) => {
+      console.error('Error cargando géneros', error);
+    }
+  );
 
 
     this.filteredGenderOptions = [...this.genderOptions];
@@ -820,7 +819,9 @@ private adjustTramos(newCount: number): void {
     });
 
     // Convertir el conjunto a un array ordenado y asignarlo a géneros
-    this.generos = Array.from(genresSet).sort();
+    this.generos = Array.from(genresSet).sort((a, b) => 
+    a.localeCompare(b, 'es', { sensitivity: 'base' })
+  );
     console.log(this.generos);
     
     // Inicializar cultivos filtrados con todos los cultivos
@@ -1113,25 +1114,30 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
    * Actualiza las opciones de géneros
    */
   private updateGenderOptions(): void {
-    this.genderOptions = this.genderList.map(g => ({
+  this.genderOptions = this.genderList
+    .map(g => ({
       ...g,
       disabled: false,
       nombreFamilia: g.nombreFamilia
-    }));
-    
-    // Aplica el filtro inicial sin criterios
-    this.filteredGenderOptions = [...this.genderOptions];
-  }
+    }))
+    .sort((a, b) => a.nombreGenero.localeCompare(b.nombreGenero, 'es', { 
+      sensitivity: 'base' 
+    })); // Ordenar alfabéticamente en español
+  
+  // Aplica el filtro inicial sin criterios
+  this.filteredGenderOptions = [...this.genderOptions];
+}
 
   
   /**
    * Aplica ambos criterios (texto y familia) para poblar filteredGenderOptions.
    */
   private filterGeneros(): void {
-    // Aplicar filtros de búsqueda y familia
-    const term = this.searchGeneroTerm.trim().toLowerCase();
-    
-    this.filteredGenderOptions = this.genderOptions.filter(g => {
+  // Aplicar filtros de búsqueda y familia
+  const term = this.searchGeneroTerm.trim().toLowerCase();
+  
+  this.filteredGenderOptions = this.genderOptions
+    .filter(g => {
       // Filtrar por término de búsqueda
       const matchesSearch = !term || g.nombreGenero.toLowerCase().includes(term);
       
@@ -1139,8 +1145,11 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
       const matchesFamily = this.selectedFamilia === 'todas' || g.nombreFamilia === this.selectedFamilia;
       
       return matchesSearch && matchesFamily;
-    });
-  }
+    })
+    .sort((a, b) => a.nombreGenero.localeCompare(b.nombreGenero, 'es', { 
+      sensitivity: 'base' 
+    })); // Mantener orden alfabético después del filtrado
+}
 
   // Método para abrir el modal con los cultivos filtrados
   openCultivoModal(): void {

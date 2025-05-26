@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
   <div class="container mx-auto space-y-4">
 
-    <!-- Selector de Género (Rediseñado) -->
+    <!-- Selector de Género (Rediseñado SIN animaciones iniciales) -->
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px] backdrop-blur-sm backdrop-filter mb-6">
       <!-- Header con título y selector -->
       <div class="px-5 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/80">
@@ -16,10 +16,10 @@
               <line x1="3" y1="18" x2="3.01" y2="18" />
             </svg>
           </div>
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white animate-fade-in">Cultivos</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Cultivos</h2>
         </div>
         <div class="flex items-center gap-2 w-full sm:w-auto">
-          <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 flex text-xs w-full sm:w-auto shadow-sm animate-slide-in-right">
+          <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 flex text-xs w-full sm:w-auto shadow-sm">
             <button class="py-1.5 px-4 rounded-md bg-indigo-600 text-white font-medium shadow-sm transition-all duration-200 hover:scale-105">
               Todos
             </button>
@@ -30,11 +30,11 @@
         </div>
       </div>
 
-      <!-- Filtros mejorados -->
+      <!-- Filtros mejorados (SIN animaciones iniciales) -->
       <div class="px-5 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <!-- Búsqueda mejorada -->
-          <div class="relative group lg:col-span-5 animate-fade-in" style="animation-delay: 100ms;">
+          <div class="relative group lg:col-span-5">
             <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 transition-colors transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -47,9 +47,8 @@
             />
           </div>
 
-
         <!-- Select de familia -->
-          <div class="relative group lg:col-span-5 animate-fade-in" style="animation-delay: 200ms;">
+          <div class="relative group lg:col-span-5">
             <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 transition-colors transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
             </svg>
@@ -65,9 +64,8 @@
             </svg>
           </div>
 
-
         <!-- Botón limpiar -->
-          <div class="lg:col-span-2 animate-fade-in" style="animation-delay: 300ms;">
+          <div class="lg:col-span-2">
             <button 
               (click)="texto=''; familiaSeleccionada='todas'" 
               class="h-10 px-4 w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium transition-all duration-300 hover:scale-[1.03] hover:shadow-md flex items-center justify-center gap-1.5 hover:border-red-200 dark:hover:border-red-800"
@@ -82,15 +80,20 @@
         </div>
       </div>
 
-      <!-- Listado de Géneros -->
+      <!-- Listado de Géneros (SIN animaciones iniciales) -->
       <div class="p-5 sm:px-6 py-5">
         <div class="max-h-64 overflow-y-auto pr-1 custom-scrollbar">
           <ng-container *ngFor="let fam of busquedaFamilia; let i = index">
-            <div [style]="{'animation-delay': (i * 100) + 'ms'}" class="mb-5 animate-slide-up">
+            <div class="mb-5">
               <h3 class="text-xs font-medium text-gray-500 dark:text-gray-300 mb-3">{{ fam.familia }}</h3>
               <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <ng-container *ngFor="let gen of fam.nombreGenero; let j = index">
-                  <div [style]="{'animation-delay': ((i * 100) + (j * 50)) + 'ms'}" class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-md animate-slide-up" [class.border-indigo-200]="selectedGeneroId === gen.id" [class.dark:border-indigo-700]="selectedGeneroId === gen.id" [class.bg-indigo-50]="selectedGeneroId === gen.id" [class.dark:bg-indigo-900]="selectedGeneroId === gen.id" (click)="onGeneroSelect(gen.id)">
+                  <div class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-md" 
+                       [class.border-indigo-200]="selectedGeneroId === gen.id" 
+                       [class.dark:border-indigo-700]="selectedGeneroId === gen.id" 
+                       [class.bg-indigo-50]="selectedGeneroId === gen.id" 
+                       [class.dark:bg-indigo-900]="selectedGeneroId === gen.id" 
+                       (click)="onGeneroSelect(gen.id)">
                     <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110">
                       <span class="text-indigo-700 dark:text-indigo-400 font-medium text-sm">{{gen.nombre.charAt(0).toUpperCase()}}</span>
                     </div>
@@ -98,7 +101,12 @@
                       <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">{{gen.nombre}}</h3>
                     </div>
                     <!-- Indicador de selección -->
-                    <div class="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300" [class.border-gray-300]="selectedGeneroId !== gen.id" [class.dark:border-gray-600]="selectedGeneroId !== gen.id" [class.border-indigo-500]="selectedGeneroId === gen.id" [class.dark:border-indigo-400]="selectedGeneroId === gen.id" [class.scale-110]="selectedGeneroId === gen.id">
+                    <div class="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300" 
+                         [class.border-gray-300]="selectedGeneroId !== gen.id" 
+                         [class.dark:border-gray-600]="selectedGeneroId !== gen.id" 
+                         [class.border-indigo-500]="selectedGeneroId === gen.id" 
+                         [class.dark:border-indigo-400]="selectedGeneroId === gen.id" 
+                         [class.scale-110]="selectedGeneroId === gen.id">
                       <div *ngIf="selectedGeneroId === gen.id" class="w-3 h-3 bg-indigo-500 dark:bg-indigo-400 rounded-full animate-scale-in"></div>
                     </div>
                   </div>
@@ -110,7 +118,7 @@
       </div>
 
       <!-- Footer -->
-      <div class="px-5 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 text-xs text-gray-500 dark:text-gray-400 animate-slide-up" style="animation-delay: 400ms;">
+      <div class="px-5 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 text-xs text-gray-500 dark:text-gray-400">
         Filtrando por:
         <span class="text-indigo-600 dark:text-indigo-400 font-medium ml-1">
           {{ familiaSeleccionada === 'todas' ? 'Todas las familias' : familiaSeleccionada }}
@@ -119,7 +127,7 @@
     </div>
 
     <!-- Panel de Gráficos -->
-    <div *ngIf="superficieTotal > 0" class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px] backdrop-blur-sm backdrop-filter animate-slide-up" style="animation-delay: 500ms;">
+    <div *ngIf="superficieTotal > 0" class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px] backdrop-blur-sm backdrop-filter">
       
       <!-- Controles de Vista y Agrupación -->
       <div class="flex flex-col sm:flex-row justify-between mb-4 gap-4">
@@ -188,7 +196,7 @@
       <div echarts [options]="optionsTree" class="w-full h-64 sm:h-80" *ngIf="view==='tree'"></div>
       
       <!-- Info -->
-      <div *ngIf="superficieTotal > 0" class="px-5 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 text-xs text-gray-500 dark:text-gray-400 animate-slide-up" style="animation-delay: 800ms;">
+      <div *ngIf="superficieTotal > 0" class="px-5 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 text-xs text-gray-500 dark:text-gray-400">
         Superficie total: <span class="text-indigo-600 dark:text-indigo-400 font-medium">{{superficieTotal}} m²</span> | 
         Modo de agrupación: <span class="text-indigo-600 dark:text-indigo-400 font-medium">{{groupBy === 'variedad' ? 'Variedad' : groupBy === 'agricultor' ? 'Agricultor' : groupBy === 'individual' ? 'Cultivo' : groupBy === 'tecnico' ? 'Técnico' : 'Provincia'}}</span>
       </div>

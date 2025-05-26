@@ -108,7 +108,9 @@ export class DashboardComponent implements OnInit {
 
     this.generoServicio.get().subscribe(
       (data) => {
-        this.genders = data;
+        this.genders = data.sort((a, b) => 
+        a.nombreGenero.localeCompare(b.nombreGenero, 'es', { sensitivity: 'base' })
+      );
         this.extractGenders();
       },
       (error) => {
