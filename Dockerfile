@@ -1,3 +1,6 @@
+
+# Etapa 1: Build de la app Angular sobre Debian (glibc)
+
 FROM node:18-slim AS build
 WORKDIR /app
 
@@ -22,4 +25,7 @@ COPY nginx/default.conf      /etc/nginx/conf.d/default.conf
 
 COPY --from=build /app/dist/browser/  /usr/share/nginx/html/
 
+
 EXPOSE 80 443
+CMD ["nginx", "-g", "daemon off;"]
+
