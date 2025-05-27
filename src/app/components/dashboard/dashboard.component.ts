@@ -108,7 +108,9 @@ export class DashboardComponent implements OnInit {
 
     this.generoServicio.get().subscribe(
       (data) => {
-        this.genders = data;
+        this.genders = data.sort((a, b) => 
+        a.nombreGenero.localeCompare(b.nombreGenero, 'es', { sensitivity: 'base' })
+      );
         this.extractGenders();
       },
       (error) => {
@@ -2069,20 +2071,28 @@ export class DashboardComponent implements OnInit {
         var logoY = 4;
 
         // Placeholder para el logo (simplificado)
-        const logoData = 'PLACEHOLDER_LOGO';
+        const logoData = this.logoUrl;
 
-        // Primero dibujamos un círculo/rectángulo blanco como fondo del logo
-        var padding = 3; // Tamaño del borde blanco alrededor del logo
-        doc.setFillColor(255, 255, 255); // Color blanco
-        doc.roundedRect(logoX - padding, logoY - padding,
-          logoWidth + (padding * 2), logoHeight + (padding * 2),
-          2, 2, 'F');
+       
 
-        // Ahora agregamos el logo como texto (placeholder)
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(67, 160, 34);
-        doc.setFontSize(10);
-        doc.text("LOGO", logoX + 5, logoY + 12);
+        if (this.logoUrl) {
+  // Insertar imagen sin fondo blanco
+  // Asegúrate de que this.logoUrl sea algo como "data:image/png;base64,...."
+  doc.addImage(
+    this.logoUrl,
+    'PNG',       // o 'JPEG' si tu imagen lo requiere
+    logoX,
+    logoY,
+    logoWidth,
+    logoHeight
+  );
+} else {
+  // Fallback: si no hay logo, dibujamos el texto
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(67, 160, 34);
+  doc.setFontSize(10);
+  doc.text("LOGO", logoX + 5, logoY + 12);
+}
 
         // Texto - Nota que hemos aumentado la posición X para dejar espacio después del logo
         doc.setFont('helvetica', 'bold');

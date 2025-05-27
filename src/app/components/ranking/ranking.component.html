@@ -1,6 +1,6 @@
 <div class=" mt-6 bg-gray-50 dark:bg-gray-900 theme-transition">
 
-  <!-- Panel de Filtros Mejorado -->
+  <!-- Panel de Filtros Mejorado (SIN animaciones iniciales) -->
   <div class="w-full max-w-full mx-auto px-4 sm:px-6 lg:px-8 mb-6">
     <div
       class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px] backdrop-blur-sm backdrop-filter">
@@ -18,11 +18,11 @@
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
             </svg>
           </div>
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white animate-fade-in">Géneros de Cultivos</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Géneros de Cultivos</h2>
         </div>
         <div class="flex items-center gap-2 w-full sm:w-auto">
           <div
-            class="bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 flex text-xs w-full sm:w-auto shadow-sm animate-slide-in-right">
+            class="bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 flex text-xs w-full sm:w-auto shadow-sm">
             <button (click)="mostrarTodos()" class="py-1.5 px-4 rounded-md transition-all duration-200 hover:scale-105"
               [ngClass]="{'bg-white dark:bg-gray-600 shadow-sm font-medium dark:text-white': filteredGenderOptions.length === genero.length || filteredGenderOptions.length > selectedCultivosIds.length, 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/70': filteredGenderOptions.length !== genero.length && filteredGenderOptions.length <= selectedCultivosIds.length}">
               Todos
@@ -37,11 +37,11 @@
         </div>
       </div>
 
-      <!-- Controles de filtro mejorados -->
+      <!-- Controles de filtro mejorados (SIN animaciones iniciales) -->
       <div class="px-5 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <!-- Búsqueda (ampliada) -->
-          <div class="relative group lg:col-span-5 animate-fade-in" style="animation-delay: 100ms;">
+          <div class="relative group lg:col-span-5">
             <svg xmlns="http://www.w3.org/2000/svg"
               class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 group-focus-within:text-green-500 dark:group-focus-within:text-green-400 transition-colors transition-transform duration-300 group-hover:scale-110"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -55,7 +55,7 @@
           </div>
 
           <!-- Filtro de familia (ampliado) -->
-          <div class="relative group lg:col-span-5 animate-fade-in" style="animation-delay: 200ms;">
+          <div class="relative group lg:col-span-5">
             <svg xmlns="http://www.w3.org/2000/svg"
               class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 group-focus-within:text-green-500 dark:group-focus-within:text-green-400 transition-colors transition-transform duration-300 group-hover:scale-110"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -76,7 +76,7 @@
           </div>
 
           <!-- Botón limpiar -->
-          <div class="lg:col-span-2 animate-fade-in" style="animation-delay: 300ms;">
+          <div class="lg:col-span-2">
             <button (click)="limpiarFiltros()"
               class="h-10 px-4 w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium transition-all duration-300 hover:scale-[1.03] hover:shadow-md flex items-center justify-center gap-1.5 hover:border-red-200 dark:hover:border-red-800">
               <svg xmlns="http://www.w3.org/2000/svg"
@@ -91,15 +91,14 @@
         </div>
       </div>
 
-      <!-- Lista de cultivos mejorada -->
+      <!-- Lista de cultivos mejorada (SIN animaciones iniciales) -->
       <div class="p-5 sm:px-6 py-5">
         <!-- Contenedor desplazable para géneros de cultivos -->
         <div class="max-h-64 overflow-y-auto pr-1 custom-scrollbar">
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-            <!-- Elementos de género de cultivo con animaciones -->
+            <!-- Elementos de género de cultivo SIN animaciones iniciales -->
             <div *ngFor="let genero of filteredGenderOptions; let i = index"
-              class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-md animate-slide-up"
-              [style]="{'animation-delay': i * 50 + 'ms'}"
+              class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-md"
               [class.border-green-200]="selectedGeneroId === genero.idGenero"
               [class.dark:border-green-700]="selectedGeneroId === genero.idGenero"
               [class.bg-green-50]="selectedGeneroId === genero.idGenero"
@@ -136,14 +135,14 @@
   <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Panel de tabla con encabezado mejorado -->
     <div
-      class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200/50 dark:border-gray-700/50 overflow-hidden mb-6 transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px] animate-slide-up">
+      class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200/50 dark:border-gray-700/50 overflow-hidden mb-6 transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px]">
       <!-- Encabezado de la tabla -->
       <div
         class="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 class="text-xl font-semibold text-green-800 dark:text-green-400 animate-fade-in">Ranking de Productividad
+        <h1 class="text-xl font-semibold text-green-800 dark:text-green-400">Ranking de Productividad
           Agrícola</h1>
 
-        <div class="flex items-center gap-3 w-full sm:w-auto animate-slide-in-right">
+        <div class="flex items-center gap-3 w-full sm:w-auto">
           <div class="relative group flex-1 sm:flex-none">
             <select
               class="h-10 pl-4 pr-10 py-2 w-full sm:w-auto bg-gray-50 dark:bg-gray-700/70 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent appearance-none transition-all duration-300 hover:border-green-300 dark:hover:border-green-500 focus:scale-[1.01]"
@@ -192,8 +191,7 @@
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
             @for(agricultor of agricultores; track agricultor; let i = $index) {
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-300 animate-fade-in"
-              [style]="{'animation-delay': i * 100 + 'ms'}">
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-300">
               <td class="py-3.5 px-4 text-gray-800 dark:text-gray-200">{{agricultor.pos}}</td>
               <td
                 class="py-3.5 px-4 text-gray-800 dark:text-gray-200 font-medium transition-all duration-300 hover:text-green-600 dark:hover:text-green-400 hover:translate-x-1">
@@ -225,12 +223,11 @@
       </div>
     </div>
 
-    <!-- Tarjetas de resumen mejoradas -->
+    <!-- Tarjetas de resumen mejoradas (SIN animaciones iniciales) -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
       <!-- Producción Total -->
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50 p-5 transition-all duration-300 hover:shadow-lg hover:translate-y-[-3px] hover:bg-green-50/50 dark:hover:bg-green-900/20 animate-slide-up"
-        style="animation-delay: 100ms;">
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50 p-5 transition-all duration-300 hover:shadow-lg hover:translate-y-[-3px] hover:bg-green-50/50 dark:hover:bg-green-900/20">
         <div class="flex items-start gap-4">
           <div
             class="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg transition-all duration-300 hover:scale-110 hover:rotate-6 group">
@@ -245,7 +242,7 @@
           </div>
           <div>
             <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Producción Total</h2>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white mb-1 animate-count-up">{{produccionTotal}} kg</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white mb-1">{{produccionTotal}} kg</p>
             <p class="text-xs text-gray-500 dark:text-gray-400">Total de todos los agricultores</p>
           </div>
         </div>
@@ -253,8 +250,7 @@
 
       <!-- Área Cultivada -->
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50 p-5 transition-all duration-300 hover:shadow-lg hover:translate-y-[-3px] hover:bg-green-50/50 dark:hover:bg-green-900/20 animate-slide-up"
-        style="animation-delay: 200ms;">
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50 p-5 transition-all duration-300 hover:shadow-lg hover:translate-y-[-3px] hover:bg-green-50/50 dark:hover:bg-green-900/20">
         <div class="flex items-start gap-4">
           <div
             class="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg transition-all duration-300 hover:scale-110 hover:rotate-6 group">
@@ -269,7 +265,7 @@
           </div>
           <div>
             <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Área Cultivada</h2>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white mb-1 animate-count-up">{{sumaArea}} m<sup>2</sup>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white mb-1">{{sumaArea}} m<sup>2</sup>
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">Total de área cultivada</p>
           </div>
@@ -278,8 +274,7 @@
 
       <!-- Promedio de Rendimiento -->
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50 p-5 transition-all duration-300 hover:shadow-lg hover:translate-y-[-3px] hover:bg-green-50/50 dark:hover:bg-green-900/20 animate-slide-up"
-        style="animation-delay: 300ms;">
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50 p-5 transition-all duration-300 hover:shadow-lg hover:translate-y-[-3px] hover:bg-green-50/50 dark:hover:bg-green-900/20">
         <div class="flex items-start gap-4">
           <div
             class="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg transition-all duration-300 hover:scale-110 hover:rotate-6 group">
@@ -294,7 +289,7 @@
           </div>
           <div>
             <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Promedio de Rendimiento</h2>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white mb-1 animate-count-up">{{media}} kg/m<sup>2</sup>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white mb-1">{{media}} kg/m<sup>2</sup>
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">Rendimiento promedio</p>
           </div>
