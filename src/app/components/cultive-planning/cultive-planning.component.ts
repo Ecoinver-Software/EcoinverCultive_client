@@ -270,7 +270,7 @@ decrementTramos(): void {
       
       const quincena1: Quincena = {
         id: `Q${month * 2 + 1}-${year}`,
-        nombre: `${this.getNombreMes(month)} (1-15) ${year}`,
+        nombre: `${this.getNombreMes(month)} (1-15)`,
         fechaInicio: fechaInicio1,
         fechaFin: fechaFin1
       };
@@ -290,7 +290,7 @@ decrementTramos(): void {
       
       const quincena2: Quincena = {
         id: `Q${month * 2 + 2}-${year}`,
-        nombre: `${this.getNombreMes(month)} (16-${fechaFin2.getDate()}) ${year}`,
+        nombre: `${this.getNombreMes(month)} (16-${fechaFin2.getDate()})`,
         fechaInicio: fechaInicio2,
         fechaFin: fechaFin2
       };
@@ -1027,36 +1027,39 @@ private adjustTramos(newCount: number): void {
    * para mostrarla en el input
    */
   getFechaInicioDisplay(): string {
-    if (!this.selectedQuincena || this.selectedQuincena === 'nueva') {
-      return '';
-    }
-    
-    const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
-    if (!quincena || !quincena.fechaInicio) {
-      return '';
-    }
-    
-    // Formatear la fecha: DD/MM/YYYY
-    return this.formatDisplayDate(this.formatDate(quincena.fechaInicio));
+  if (!this.selectedQuincena || this.selectedQuincena === 'nueva') {
+    return '';
   }
+  
+  const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
+  if (!quincena?.fechaInicio) {
+    return '';
+  }
+  
+  // formatea "DD/MM/YYYY" y luego recorta a "DD/MM"
+  const fullDate = this.formatDisplayDate(this.formatDate(quincena.fechaInicio));
+  return fullDate.substring(0, 5);
+}
+
 
   /**
    * Obtiene la fecha de fin de la quincena seleccionada formateada
    * para mostrarla en el input
    */
   getFechaFinDisplay(): string {
-    if (!this.selectedQuincena || this.selectedQuincena === 'nueva') {
-      return '';
-    }
-    
-    const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
-    if (!quincena || !quincena.fechaFin) {
-      return '';
-    }
-    
-    // Formatear la fecha: DD/MM/YYYY
-    return this.formatDisplayDate(this.formatDate(quincena.fechaFin));
+  if (!this.selectedQuincena || this.selectedQuincena === 'nueva') {
+    return '';
   }
+  
+  const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
+  if (!quincena?.fechaFin) {
+    return '';
+  }
+  
+  const fullDate = this.formatDisplayDate(this.formatDate(quincena.fechaFin));  // "DD/MM/YYYY"
+  return fullDate.substring(0, 5);  // "DD/MM"
+}
+
 
   /**
    * Obtiene el nombre de la quincena seleccionada
@@ -1073,7 +1076,7 @@ private adjustTramos(newCount: number): void {
 
   // 1. Improved loadProductionsForDetails - Make it return an Observable
 private loadProductionsForDetails(details: CultivePlanningDetails[]) {
-  alert("ssa");
+  //alert("ssa");
   // Extract detail IDs as numbers for proper comparison
   const detailIds = new Set(details.map((d) => d.id));
   
