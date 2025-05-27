@@ -1,22 +1,20 @@
-import { Component, AfterViewInit, OnDestroy, OnInit,NgModule, LOCALE_ID } from '@angular/core';
-import { CommonModule, registerLocaleData } from '@angular/common';
-import localeEs from '@angular/common/locales/es';
+import { Component, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 import { DatePipe } from '@angular/common';
 import { WeatherIconsService } from '../../services/WeatherIcons.service';
-import { trigger, transition, style, query, group, animate } from '@angular/animations';
-
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environment/environment';
-
 import { ChartModule } from 'primeng/chart';
-import { CultivoService } from '../../services/Cultivo.service';
+
 import { CultiveProductionService } from '../../services/CultiveProduction.service';
 import { CultiveProductionDto } from '../../types/CultiveProductionTypes';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { Variables } from '../../types/variables';
+import { VariablesService } from '../../services/variables.service';
+
 
 interface Cultivo {
   id: number;
@@ -67,12 +65,12 @@ export class CultiveDetailsComponent
   activeTab: 'Datos de cultivo' | 'Mapping' | 'Insights' | 'nerfs' = 'Datos de cultivo';
   private map: L.Map | null = null;
   private shape: L.Layer | null = null; // Puede ser un círculo, rectángulo o polígono
-
+  editarConfirm: boolean = false;
   // Datos del cultivo
   cultivo: Cultivo | null = null;
   loading: boolean = true;
   error: string | null = null;
-
+  indice: number = 0;
   // Datos de producción
   productions: CultiveProductionDto[] = [];
   productionsLoaded: boolean = false;
@@ -87,20 +85,25 @@ export class CultiveDetailsComponent
 
   // Nueva propiedad para el tramo seleccionado
   selectedTramoIndex: number = 0;
-  
+
   // Propiedad para alternar entre vistas de estadísticas
   statsView: 'tramos' | 'resumen' = 'tramos';
 
   //barra progresiva
   progressPercentage: number = 0;
   private progressInterval: any;
-
+  //Variables de producción
+  variables: Variables[] = [];
+  value: number[] = [];
+  valor: number = 100;
+  showErrorAlert: boolean = false;
+  showSuccessAlert: boolean = false;
+  variableToDelete: string = '';
+  showDeleteModal: boolean = false;
+  errorMessage: string | null = null;
   actualizarProgreso(): void {
     this.progressPercentage = this.getProgressPercentage();
   }
-
-
-  
 
 
   //mapping y tiempo
@@ -109,8 +112,8 @@ export class CultiveDetailsComponent
     public weatherIcons: WeatherIconsService,
     private route: ActivatedRoute,
     private http: HttpClient,
-    private cultive: CultivoService,
-    private productionService: CultiveProductionService
+    private productionService: CultiveProductionService,
+    private variableService: VariablesService
   ) { }
 
   setActiveTab(tab: 'Datos de cultivo' | 'Mapping' | 'Insights' | 'nerfs'): void {
@@ -119,47 +122,47 @@ export class CultiveDetailsComponent
       setTimeout(() => this.initMap(), 0); // Pequeño delay
     }
   }
-  
+
   // Método para cambiar la vista de estadísticas
   setStatsView(view: 'tramos' | 'resumen'): void {
     this.statsView = view;
   }
-  
+
   // Método para calcular la producción total estimada
   getTotalProduccionEstimada(): number {
     if (!this.productions || this.productions.length === 0) {
       return 0;
     }
-    
+
     return this.productions.reduce((total, prod) => {
       return total + this.parseNumericValue(prod.kilosAjustados);
     }, 0);
   }
-  
+
   // Método para formatear números con separadores de miles (puntos)
   formatNumber(value: number): string {
     return value.toLocaleString('es-ES'); // Formato español que usa punto como separador de miles
   }
-  
+
   // Método para calcular la duración total en días
   getTotalDuracion(): number {
     if (!this.productions || this.productions.length === 0) {
       return 0;
     }
-    
+
     // Podríamos simplemente sumar las duraciones de cada tramo
     // Pero es más preciso calcular la diferencia entre la fecha de inicio del primer tramo
     // y la fecha de fin del último tramo
-    const sortedProductions = [...this.productions].sort((a, b) => 
+    const sortedProductions = [...this.productions].sort((a, b) =>
       new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime()
     );
-    
+
     const firstDate = new Date(sortedProductions[0].fechaInicio);
     const lastDate = new Date(sortedProductions[sortedProductions.length - 1].fechaFin);
-    
+
     const diffTime = Math.abs(lastDate.getTime() - firstDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays;
   }
 
@@ -191,16 +194,16 @@ export class CultiveDetailsComponent
   private parseNumericValue(value: string | number): number {
     if (typeof value === 'number') return value;
     if (!value) return 0;
-    
+
     // Convertir a string y eliminar espacios
     let str = String(value).trim();
-    
+
     // Reemplazar coma con punto (para formato decimal español)
     str = str.replace(',', '.');
-    
+
     // Eliminar cualquier carácter no numérico excepto el punto decimal
     str = str.replace(/[^\d.]/g, '');
-    
+
     const result = parseFloat(str);
     return isNaN(result) ? 0 : result;
   }
@@ -211,27 +214,27 @@ export class CultiveDetailsComponent
     // Obtener ID del cultivo de la URL
     const id = this.route.snapshot.paramMap.get('id');
     console.log('ID del cultivo obtenido de la URL:', id);
-    
+    let idNumero = Number(id);
     this.actualizarProgreso(); // Calcular el valor inicial
-    
+
     // actualizar el progreso cada minuto:
     this.progressInterval = setInterval(() => {
       this.actualizarProgreso();
     }, 1000); // 60000 milisegundos = 1 minuto
-    
+
     if (id) {
       try {
         console.log('Cargando datos del cultivo...');
         await this.loadCultivo(id);
         console.log('Datos del cultivo cargados:', this.cultivo);
-        
+
         console.log('Cargando datos de producción...');
         await this.loadProductions(id);
         console.log('Datos de producción cargados, total:', this.productions.length);
-        
+
         // Inicializar gráfico después de cargar todos los datos
         this.initializeChart();
-        
+
         // Obtener datos meteorológicos usando las coordenadas del cultivo
         this.weatherData = await this.getWeather(
           this.getLatitud(),
@@ -246,6 +249,21 @@ export class CultiveDetailsComponent
       this.error = 'ID de cultivo no especificado';
       this.loading = false;
     }
+
+    //Nos treamos las variables de la DB
+    this.variableService.get().subscribe(
+      (data) => {
+        this.variables = data;
+        console.log(data);
+        this.variables = this.variables.filter(item => item.idCultivo == idNumero);
+        for (let i = 0; i < this.variables.length; i++) {
+          this.value.push(this.variables[i].valor);
+        }
+      },
+      (error) => {
+        console.log(error);
+      }
+    )
   }
 
   private loadCultivo(id: string): Promise<void> {
@@ -282,14 +300,14 @@ export class CultiveDetailsComponent
           this.productions = allProductions.filter(
             prod => prod.cultiveId === parseInt(cultivoId)
           );
-          
+
           // Ordenar las producciones por fecha
-          this.productions = this.productions.sort((a, b) => 
+          this.productions = this.productions.sort((a, b) =>
             new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime()
           );
-          
+
           console.log('Producciones sin procesar:', this.productions);
-          
+
           // NO MODIFICAR LOS DATOS - usar tal como vienen de la API
           // Solo registrar para depuración
           if (this.productions.length > 1) {
@@ -299,9 +317,9 @@ export class CultiveDetailsComponent
               console.warn('Todas las producciones tienen el mismo valor de kilosAjustados');
             }
           }
-          
+
           this.productionsLoaded = true;
-          
+
           // Actualizar estadísticas del tramo inicial
           if (this.productions.length > 0) {
             // Intentar seleccionar un tramo actual si existe
@@ -311,12 +329,12 @@ export class CultiveDetailsComponent
               const now = new Date();
               return fechaInicio <= now && now <= fechaFin;
             });
-            
+
             // Si hay un tramo actual, seleccionarlo; de lo contrario usar el primero (0)
             this.selectedTramoIndex = tramoActualIndex >= 0 ? tramoActualIndex : 0;
             this.updateSelectedTramoStats();
           }
-          
+
           resolve();
         },
         error: (error) => {
@@ -335,39 +353,39 @@ export class CultiveDetailsComponent
     this.selectedTramoIndex = parseInt(selectElement.value);
     this.updateSelectedTramoStats();
   }
-  
+
   // Método para actualizar las estadísticas del tramo seleccionado
   updateSelectedTramoStats(): void {
-    if (this.productions.length === 0 || this.selectedTramoIndex < 0 || 
-        this.selectedTramoIndex >= this.productions.length) {
+    if (this.productions.length === 0 || this.selectedTramoIndex < 0 ||
+      this.selectedTramoIndex >= this.productions.length) {
       return;
     }
-    
+
     // Aquí puedes actualizar las estadísticas basadas en el tramo seleccionado
     const selectedTramo = this.productions[this.selectedTramoIndex];
     console.log('Tramo seleccionado:', selectedTramo);
-    
+
     // Las estadísticas se actualizarán automáticamente en la vista mediante los métodos de acceso
   }
-  
+
   // Método para obtener la duración de un tramo en días
   getDuracionTramo(tramoIndex: number): number {
-    if (this.productions.length === 0 || tramoIndex < 0 || 
-        tramoIndex >= this.productions.length) {
+    if (this.productions.length === 0 || tramoIndex < 0 ||
+      tramoIndex >= this.productions.length) {
       return 0;
     }
-    
+
     const tramo = this.productions[tramoIndex];
     const fechaInicio = new Date(tramo.fechaInicio);
     const fechaFin = new Date(tramo.fechaFin);
-    
+
     // Calcular la diferencia en días
     const diffTime = Math.abs(fechaFin.getTime() - fechaInicio.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays;
   }
-  
+
   // Método para obtener el valor de kilosAjustados del tramo seleccionado
   getValorKilosAjustados(tramoIndex: number): number {
     const prod = this.productions?.[tramoIndex];
@@ -375,58 +393,58 @@ export class CultiveDetailsComponent
       console.warn(`Tramo ${tramoIndex} no encontrado (productions.length=${this.productions?.length})`);
       return 0;
     }
-  
+
     //console.log(`⏩ getValorKilosAjustados: tramo ${tramoIndex}, raw kilosAjustados =`, prod.kilosAjustados);
     const parsed = this.parseNumericValue(prod.kilosAjustados);
     //console.log(`⏩ getValorKilosAjustados: tramo ${tramoIndex}, parsed =`, parsed);
-  
+
     return parsed;
   }
-  
-  
+
+
   // Método para determinar si un tramo está pendiente (fecha inicio en el futuro)
   isPendingTramo(tramoIndex: number): boolean {
-    if (this.productions.length === 0 || tramoIndex < 0 || 
-        tramoIndex >= this.productions.length) {
+    if (this.productions.length === 0 || tramoIndex < 0 ||
+      tramoIndex >= this.productions.length) {
       return false;
     }
-    
+
     const tramo = this.productions[tramoIndex];
     const fechaInicio = new Date(tramo.fechaInicio);
     const now = new Date();
-    
+
     return fechaInicio > now;
   }
-  
+
   // Método para determinar si un tramo está en curso
   isCurrentTramo(tramoIndex: number): boolean {
-    if (this.productions.length === 0 || tramoIndex < 0 || 
-        tramoIndex >= this.productions.length) {
+    if (this.productions.length === 0 || tramoIndex < 0 ||
+      tramoIndex >= this.productions.length) {
       return false;
     }
-    
+
     const tramo = this.productions[tramoIndex];
     const fechaInicio = new Date(tramo.fechaInicio);
     const fechaFin = new Date(tramo.fechaFin);
     const now = new Date();
-    
+
     return fechaInicio <= now && now <= fechaFin;
   }
-  
+
   // Método para determinar si un tramo está completado
   isCompletedTramo(tramoIndex: number): boolean {
-    if (this.productions.length === 0 || tramoIndex < 0 || 
-        tramoIndex >= this.productions.length) {
+    if (this.productions.length === 0 || tramoIndex < 0 ||
+      tramoIndex >= this.productions.length) {
       return false;
     }
-    
+
     const tramo = this.productions[tramoIndex];
     const fechaFin = new Date(tramo.fechaFin);
     const now = new Date();
-    
+
     return fechaFin < now;
   }
-  
+
   // Método para obtener el estado del tramo como texto
   getEstadoTramo(tramoIndex: number): string {
     if (this.isPendingTramo(tramoIndex)) {
@@ -448,7 +466,7 @@ export class CultiveDetailsComponent
     }
 
     // Ordenar producciones por fecha
-    const sortedProductions = [...this.productions].sort((a, b) => 
+    const sortedProductions = [...this.productions].sort((a, b) =>
       new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime()
     );
 
@@ -458,18 +476,18 @@ export class CultiveDetailsComponent
     const chartData = sortedProductions.map((prod, index) => {
       // Usar el método robusto para parsear kilosAjustados para la producción estimada
       const kilosAjustados = this.parseNumericValue(prod.kilosAjustados);
-      console.log(`Producción ${index+1}: kilosAjustados=${prod.kilosAjustados}, parseado=${kilosAjustados}`);
-      
+      console.log(`Producción ${index + 1}: kilosAjustados=${prod.kilosAjustados}, parseado=${kilosAjustados}`);
+
       // Para la producción real, de momento ponemos 0 (se rellenará en el futuro)
       const realProduction = 0;
-      
+
       return {
         label: `T ${index + 1}`, // T1, T2, etc.
         realProduction: realProduction, // Producción real (a rellenar en el futuro)
         estimatedProduction: kilosAjustados // Usar kilosAjustados como la producción estimada
       };
     });
-    
+
     console.log('Datos procesados para el gráfico:', chartData);
     return chartData;
   }
@@ -783,12 +801,12 @@ export class CultiveDetailsComponent
   //grafico:
   private initializeChart(): void {
     console.log('Inicializando gráfico...');
-    
+
     // Procesar datos de producción para el gráfico
     const chartData = this.processProductionData();
-    
+
     console.log('Datos para el gráfico después de procesar:', chartData);
-    
+
     // Si no hay datos, usar valores por defecto
     if (chartData.length === 0) {
       console.log('No hay datos para el gráfico, usando valores por defecto');
@@ -814,7 +832,7 @@ export class CultiveDetailsComponent
     } else {
       // Usar datos reales sin modificación
       console.log('Usando datos reales para el gráfico');
-      
+
       this.data = {
         labels: chartData.map(item => item.label),
         datasets: [
@@ -874,7 +892,7 @@ export class CultiveDetailsComponent
       this.map.remove();
       this.map = null;
     }
-    
+
     if (this.progressInterval) {
       clearInterval(this.progressInterval);
     }
@@ -889,32 +907,32 @@ export class CultiveDetailsComponent
     // Elegir formato y orientación
     const orientation: 'p' | 'l' = isMobile ? 'p' : 'l';
     const format: 'a4' | 'a5' = isMobile ? 'a5' : 'a4';
-  
+
     // Crear documento
     const doc = new jsPDF({ orientation, unit: 'mm', format });
     const pw = doc.internal.pageSize.getWidth();
     const ph = doc.internal.pageSize.getHeight();
     const margin = isMobile ? 5 : 15;
     const cw = pw - margin * 2;
-  
+
     // Función de encabezado con alineación exacta a Analytics Dashboard
     const drawHeader = () => {
       try {
         const headerH = isMobile ? 20 : 30;
-        
+
         // Dibujar el fondo del encabezado
         doc.setFillColor(67, 160, 34)
-           .rect(0, 0, pw, headerH, 'F');
-        
+          .rect(0, 0, pw, headerH, 'F');
+
         // Dimensiones y posiciones exactas, medidas de la imagen de Analytics Dashboard
         const logoSize = isMobile ? 15 : 20;
-        
+
         // Posición X exacta del logo - misma posición que en Analytics Dashboard
         const logoX = margin + 5; // Ajustado para coincidir exactamente con la imagen de referencia
-        
+
         // Posición Y para centrar el logo verticalmente
         const logoY = (headerH - logoSize) / 2;
-        
+
         try {
           // Añadir la imagen del logo en la misma posición que Analytics Dashboard
           doc.addImage(
@@ -925,93 +943,93 @@ export class CultiveDetailsComponent
             logoSize,
             logoSize
           );
-          
+
           // Posición exacta del título como en Analytics Dashboard
           const titleX = logoX + logoSize + 10; // Mismo espaciado que en la imagen de referencia
-          
+
           // Posición Y del título alineada con el centro del logo
           const titleY = logoY + (logoSize / 2);
-          
+
           // Añadir el título con la misma posición que en Analytics Dashboard
           doc.setFont('helvetica', 'bold')
-             .setTextColor(255, 255, 255)
-             .setFontSize(isMobile ? 14 : 22)
-             .text('Detalles del Cultivo', titleX, titleY);
-          
+            .setTextColor(255, 255, 255)
+            .setFontSize(isMobile ? 14 : 22)
+            .text('Detalles del Cultivo', titleX, titleY);
+
           // Añadir la fecha debajo del título con posición exacta
           doc.setFont('helvetica', 'normal')
-             .setFontSize(isMobile ? 7 : 11)
-             .text(
-               `Generado: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
-               titleX,
-               titleY + (isMobile ? 5 : 8) // Ajustado para coincidir con Analytics Dashboard
-             );
+            .setFontSize(isMobile ? 7 : 11)
+            .text(
+              `Generado: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
+              titleX,
+              titleY + (isMobile ? 5 : 8) // Ajustado para coincidir con Analytics Dashboard
+            );
         } catch (error) {
           // Si falla al agregar la imagen, mostrar solo el título
           console.warn('Error al agregar logo al PDF:', error);
-          
+
           doc.setFont('helvetica', 'bold')
-             .setTextColor(255, 255, 255)
-             .setFontSize(isMobile ? 14 : 22)
-             .text('Detalles del Cultivo', margin + 5, headerH / 2)
-             .setFont('helvetica', 'normal')
-             .setFontSize(isMobile ? 7 : 11)
-             .text(
-               `Generado: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
-               margin + 5,
-               headerH / 2 + (isMobile ? 5 : 8)
-             );
+            .setTextColor(255, 255, 255)
+            .setFontSize(isMobile ? 14 : 22)
+            .text('Detalles del Cultivo', margin + 5, headerH / 2)
+            .setFont('helvetica', 'normal')
+            .setFontSize(isMobile ? 7 : 11)
+            .text(
+              `Generado: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
+              margin + 5,
+              headerH / 2 + (isMobile ? 5 : 8)
+            );
         }
       } catch (error) {
         console.error('Error en drawHeader:', error);
       }
     };
-  
+
     // Función de pie de página actualizada para coincidir con las imágenes
     const drawFooter = (pg: number, total: number) => {
       try {
         const footerY = ph - (isMobile ? 8 : 10);
-        
+
         // Añadir línea horizontal
         doc.setDrawColor(200, 200, 200)
-           .setLineWidth(0.5)
-           .line(margin, footerY, pw - margin, footerY);
-        
+          .setLineWidth(0.5)
+          .line(margin, footerY, pw - margin, footerY);
+
         // Configuración para texto de pie de página
         doc.setFont('helvetica', 'normal')
-           .setFontSize(isMobile ? 6 : 8)
-           .setTextColor(150, 150, 150);
-        
+          .setFontSize(isMobile ? 6 : 8)
+          .setTextColor(150, 150, 150);
+
         // Posición Y para el texto del pie de página
         const textY = ph - (isMobile ? 4 : 5);
-        
+
         // Información de la empresa o producto (izquierda)
         const currentYear = new Date().getFullYear();
         doc.text(`© ${currentYear} · Ecoinver`, margin, textY);
-        
+
         // Número de página (centro)
         doc.text(`Página ${pg}/${total}`, pw / 2, textY, { align: 'center' });
-        
+
         // Hora de generación (derecha)
         // Formato HH:MM:SS
         const now = new Date();
-        const timeFormat = now.getHours().toString().padStart(2, '0') + ':' + 
-                          now.getMinutes().toString().padStart(2, '0') + ':' + 
-                          now.getSeconds().toString().padStart(2, '0');
-        
+        const timeFormat = now.getHours().toString().padStart(2, '0') + ':' +
+          now.getMinutes().toString().padStart(2, '0') + ':' +
+          now.getSeconds().toString().padStart(2, '0');
+
         doc.text(`Generado: ${timeFormat}`, pw - margin, textY, { align: 'right' });
       } catch (error) {
         console.error('Error en drawFooter:', error);
       }
     };
-  
+
     // Helper de fechas
     const fmt = (d: Date | null | undefined): string => (d ? d.toLocaleDateString() : 'No especificada');
-  
+
     // === Página 1: DATOS DEL CULTIVO ===
     drawHeader();
     let y = isMobile ? 25 : 40;
-  
+
     // Título de sección
     doc
       .setFillColor(67, 125, 63)
@@ -1020,18 +1038,18 @@ export class CultiveDetailsComponent
       .setTextColor(255, 255, 255)
       .setFontSize(isMobile ? 10 : 12)
       .text('DATOS DEL CULTIVO', margin + 2, y + (isMobile ? 4 : 6));
-  
+
     // Bloque de datos
     y += isMobile ? 8 : 12;
     doc
       .setFillColor(245, 247, 250)
       .setDrawColor(220, 220, 220)
       .roundedRect(margin, y, cw, isMobile ? 45 : 65, 3, 3, 'FD');
-  
+
     const colW = cw / 2;
     const rowH = isMobile ? 12 : 15;
     let cy = y;
-  
+
     // Función para añadir filas de datos
     const addRow = (label1: string, value1: string, label2: string, value2: string) => {
       doc
@@ -1047,12 +1065,12 @@ export class CultiveDetailsComponent
         .text(value2, margin + colW + 2, cy + (isMobile ? 10 : 14));
       cy += rowH;
     };
-  
+
     addRow('Agricultor:', this.cultivo?.nombreAgricultor || '–', 'Finca:', this.cultivo?.nombreFinca || '–');
     addRow('Género:', this.cultivo?.nombreGenero || '–', 'Variedad:', this.cultivo?.nombreVariedad || '–');
     addRow('Nave:', this.cultivo?.nombreNave || '–', 'Superficie:', `${this.cultivo?.superficie || 0} ha`);
     addRow('Siembra:', fmt(this.cultivo?.fechaSiembra), 'Fin:', fmt(this.cultivo?.fechaFin));
-  
+
     // Separación extra antes de la barra de estado
     cy += isMobile ? 10 : 15;
     doc
@@ -1062,7 +1080,7 @@ export class CultiveDetailsComponent
       .setFontSize(isMobile ? 7 : 9)
       .setTextColor(100, 100, 100)
       .text('Estado del cultivo:', margin + 2, cy + (isMobile ? 6 : 8));
-  
+
     const estado = this.getCultivoState();
     if (estado === 'Activo') {
       doc.setFont('helvetica', 'bold').setTextColor(67, 160, 71).setFontSize(isMobile ? 8 : 10);
@@ -1070,7 +1088,7 @@ export class CultiveDetailsComponent
       doc.setFont('helvetica', 'bold').setTextColor(120, 120, 120).setFontSize(isMobile ? 8 : 10);
     }
     doc.text(estado, margin + (isMobile ? 50 : 45), cy + (isMobile ? 6 : 8));
-  
+
     // Barra de progreso
     const prog = this.getProgressPercentage();
     const barW = cw - 10;
@@ -1081,12 +1099,12 @@ export class CultiveDetailsComponent
       .roundedRect(margin + 5, barY, barW, isMobile ? 3 : 5, 2, 2, 'F')
       .setFillColor(67, 125, 63)
       .roundedRect(margin + 5, barY, (prog / 100) * barW, isMobile ? 3 : 5, 2, 2, 'F');
-  
+
     // === Página 2: Tabla de insights ===
     doc.addPage();
     drawHeader();
     this.addProductionTable(doc, isMobile ? 30 : 40, margin, cw);
-  
+
     // === Página 3: Gráfica sola ===
     doc.addPage();
     drawHeader();
@@ -1103,12 +1121,12 @@ export class CultiveDetailsComponent
         .setTextColor(150, 150, 150)
         .text('Gráfico no disponible', margin, isMobile ? 40 : 60);
     }
-  
+
     // Añadir pie a todas las páginas y mostrar PDF
     this.finalizePdf(doc, drawFooter);
   }
 
-  
+
   // Captura el <canvas> del gráfico y lo añade al PDF
   private captureChartForPdf(
     doc: jsPDF,
@@ -1121,21 +1139,21 @@ export class CultiveDetailsComponent
       if (!container) return reject('No encontré .insights-chart');
       const canvas = container.querySelector('canvas') as HTMLCanvasElement;
       if (!canvas) return reject('No encontré el <canvas> del gráfico');
-  
+
       const imgData = canvas.toDataURL('image/png');
       const imgHeight = 80; // mm
       doc.addImage(imgData, 'PNG', margin, yPos, contentWidth, imgHeight);
       resolve();
     });
   }
-  
-  
+
+
 
   // Método para agregar la tabla de producción al PDF
   private addProductionTable(doc: jsPDF, yPos: number, margin: number, contentWidth: number): void {
     // Crear una tabla para mostrar los datos de producción por tramos
     const headers = ["Tramo", "Fecha Inicio", "Fecha Fin", "Duración (días)", "Prod. Estimada (kg)", "Estado"];
-    
+
     // Determinar si necesitamos una nueva página
     if (yPos > doc.internal.pageSize.getHeight() - 70) {
       doc.addPage();
@@ -1145,12 +1163,12 @@ export class CultiveDetailsComponent
         const headerHeight = 30;
         doc.setFillColor(67, 160, 34);
         doc.rect(0, 0, docWidth, headerHeight, 'F');
-        
+
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(22);
         doc.text('Detalles del Cultivo', margin + 30, 15);
-        
+
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(11);
         doc.text(`Informe generado el ${new Date().toLocaleDateString()}`, margin + 30, 22);
@@ -1158,15 +1176,15 @@ export class CultiveDetailsComponent
       drawHeader();
       yPos = 40;
     }
-    
+
     // Título de la tabla
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(60, 60, 60);
     doc.text('Detalles de Producción por Tramos', margin, yPos);
-    
+
     yPos += 6;
-    
+
     // Calcular anchos de columna
     const colWidths = [
       contentWidth * 0.1,  // Tramo
@@ -1176,35 +1194,35 @@ export class CultiveDetailsComponent
       contentWidth * 0.2,  // Producción Estimada
       contentWidth * 0.15  // Estado
     ];
-    
+
     const rowHeight = 8;
-    
+
     // Dibujar encabezados
     doc.setFillColor(67, 125, 63);
     doc.rect(margin, yPos, contentWidth, rowHeight, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
-    
+
     let xPos = margin;
     headers.forEach((header, i) => {
       doc.text(header, xPos + 2, yPos + 5.5);
       xPos += colWidths[i];
     });
-    
+
     yPos += rowHeight;
-    
+
     // Dibujar filas de datos
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    
+
     // Formatear fechas
     const formatDate = (dateStr: string): string => {
       if (!dateStr) return '-';
       const date = new Date(dateStr);
       return date.toLocaleDateString();
     };
-    
+
     // Procesar y mostrar cada tramo de producción
     this.productions.forEach((prod, index) => {
       // Alternar colores de fondo
@@ -1212,11 +1230,11 @@ export class CultiveDetailsComponent
         doc.setFillColor(245, 247, 250);
         doc.rect(margin, yPos, contentWidth, rowHeight, 'F');
       }
-      
+
       // Color del texto según estado
       let estadoColor;
       const estado = this.getEstadoTramo(index);
-      
+
       if (estado === 'Pendiente') {
         estadoColor = [204, 132, 0]; // Ámbar
       } else if (estado === 'En progreso') {
@@ -1226,38 +1244,38 @@ export class CultiveDetailsComponent
       } else {
         estadoColor = [100, 100, 100]; // Gris
       }
-      
+
       // Textos de la fila
       doc.setTextColor(60, 60, 60);
-      
+
       xPos = margin;
-      
+
       // Columna: Tramo
       doc.text(`T ${index + 1}`, xPos + 2, yPos + 5.5);
       xPos += colWidths[0];
-      
+
       // Columna: Fecha Inicio
       doc.text(formatDate(prod.fechaInicio), xPos + 2, yPos + 5.5);
       xPos += colWidths[1];
-      
+
       // Columna: Fecha Fin
       doc.text(formatDate(prod.fechaFin), xPos + 2, yPos + 5.5);
       xPos += colWidths[2];
-      
+
       // Columna: Duración
       doc.text(`${this.getDuracionTramo(index)}`, xPos + 2, yPos + 5.5);
       xPos += colWidths[3];
-      
+
       // Columna: Producción Estimada
       doc.text(`${this.formatNumber(this.getValorKilosAjustados(index))}`, xPos + 2, yPos + 5.5);
       xPos += colWidths[4];
-      
+
       // Columna: Estado
       doc.setTextColor(estadoColor[0], estadoColor[1], estadoColor[2]);
       doc.text(estado, xPos + 2, yPos + 5.5);
-      
+
       yPos += rowHeight;
-      
+
       // Comprobar si necesitamos una nueva página
       if (yPos > doc.internal.pageSize.getHeight() - 25 && index < this.productions.length - 1) {
         doc.addPage();
@@ -1267,73 +1285,73 @@ export class CultiveDetailsComponent
           const headerHeight = 30;
           doc.setFillColor(67, 160, 34);
           doc.rect(0, 0, docWidth, headerHeight, 'F');
-          
+
           doc.setFont('helvetica', 'bold');
           doc.setTextColor(255, 255, 255);
           doc.setFontSize(22);
           doc.text('Detalles del Cultivo', margin + 30, 15);
-          
+
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(11);
           doc.text(`Informe generado el ${new Date().toLocaleDateString()}`, margin + 30, 22);
         };
         drawHeader();
-        
+
         // Reiniciar posición Y
         yPos = 40;
-        
+
         // Repetir encabezados en la nueva página
         doc.setFillColor(67, 125, 63);
         doc.rect(margin, yPos, contentWidth, rowHeight, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(8);
-        
+
         xPos = margin;
         headers.forEach((header, i) => {
           doc.text(header, xPos + 2, yPos + 5.5);
           xPos += colWidths[i];
         });
-        
+
         yPos += rowHeight;
         doc.setFont('helvetica', 'normal');
       }
     });
-    
+
     // Agregar resumen estadístico después de la tabla
     yPos += 5;
-    
+
     // Añadir un cuadro resumen
     doc.setFillColor(238, 247, 237);
     doc.roundedRect(margin, yPos, contentWidth, 35, 3, 3, 'F');
-    
+
     doc.setTextColor(67, 125, 63);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.text('RESUMEN DE PRODUCCIÓN', margin + 5, yPos + 7);
-    
+
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(80, 80, 80);
-    
+
     // Mostrar estadísticas generales
     const resumenY = yPos + 15;
     doc.text(`Total Tramos: ${this.productions.length}`, margin + 10, resumenY);
     doc.text(`Producción Total Estimada: ${this.formatNumber(this.getTotalProduccionEstimada())} kg`, margin + 10, resumenY + 8);
-    doc.text(`Duración Total: ${this.getTotalDuracion()} días`, margin + contentWidth/2, resumenY);
-    doc.text(`Estado General: ${this.getCultivoState()}`, margin + contentWidth/2, resumenY + 8);
+    doc.text(`Duración Total: ${this.getTotalDuracion()} días`, margin + contentWidth / 2, resumenY);
+    doc.text(`Estado General: ${this.getCultivoState()}`, margin + contentWidth / 2, resumenY + 8);
   }
 
   // Método para finalizar y mostrar el PDF
   private finalizePdf(doc: jsPDF, drawFooter: (pageNum: number, totalPages: number) => void): void {
     const totalPages = doc.internal.pages.length - 1;
-    
+
     // Añadir pie de página a todas las páginas
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
       drawFooter(i, totalPages);
     }
-    
+
     // Mostrar vista previa del PDF
     this.showPdfPreview(doc);
   }
@@ -1456,4 +1474,294 @@ export class CultiveDetailsComponent
     // Añadir el modal al body
     document.body.appendChild(modalOverlay);
   }
+  porcentaje(i: number) {
+
+    let sliders = document.getElementsByClassName('slider')[i] as HTMLInputElement;
+
+    this.value[i] = (Number(sliders.value) * 100) / 10000;
+
+    console.log(this.value);
+  }
+
+  produccion(i: number) {
+    const numero = (this.variables[i].valor * 100) - 100;
+
+    if ((this.variables[i].valor * 100) > 100) {
+
+      return 'Aumenta la producción un ' + numero + '%';
+    }
+    else if ((this.variables[i].valor * 100) < 100) {
+      return 'Disminuye la producción un ' + (-numero) + '%';
+    }
+    else {
+      return 'Mantiene la producción actual';
+    }
+  }
+  cambiaValor(i: number) {
+
+    return this.variables[i].valor + 100;
+  }
+
+  //Para obtener el valor del slider al crear
+  obtenerProduccion() {
+    let sliders = document.getElementsByClassName('slider')[this.variables.length] as HTMLInputElement;
+    this.valor = Number(sliders.value);
+
+  }
+  produccion2() {
+    const numero = this.valor - 100;
+
+    if (this.valor > 100) {
+
+      return 'Aumenta la producción un ' + numero + '%';
+    }
+    else if (this.valor < 100) {
+      return 'Disminuye la producción un ' + (-numero) + '%';
+    }
+    else {
+      return 'Mantiene la producción actual';
+    }
+  }
+
+  addVariable() {
+    this.errorMessage = null;
+    const nombreVariable = document.getElementById('nombre') as HTMLInputElement;
+    const fechaHoy = new Date();
+    console.log(this.productions);
+    if (nombreVariable.value == '') {
+      console.log('Nombre vacío, saliendo de la función');
+      this.errorMessage = 'El campo Nombre de la Variable no debe de estar vacío';
+      this.showErrorAlert = true;
+      return;
+    }
+
+    //Buscamos si esa variable ya existe en este cultivo
+
+    const id = this.route.snapshot.paramMap.get('id');
+
+    let idNumero = Number(id);
+
+    const encontrado = this.variables.find(item => item.idCultivo == idNumero && item.name == nombreVariable.value);
+    if (encontrado) {
+      this.showErrorAlert = true;
+      this.errorMessage = 'Esta variable ya está asignada a este cultivo';
+
+      return;
+    }
+    if (this.productions.length <= 0) {//Pra cuando no haya producciones asociadas al cultivo.
+      this.showErrorAlert = true;
+
+      this.errorMessage = 'Esta variable no afectará a ningun cultivo';
+      return;
+    }
+    //Comprobamos que la variable que se crea afectará minímo a uan de las producciones.
+    if (new Date(this.productions[this.productions.length - 1].fechaFin).getTime() < fechaHoy.getTime()) {
+      this.showErrorAlert = true;
+      this.errorMessage = 'Esta variable no afectará a ningun cultivo';
+      return;
+    }
+
+    const variable: Variables = {
+      id: 0,
+      name: nombreVariable.value,
+      idCultivo: idNumero,
+      fechaRegistro: new Date(),
+      valor: this.valor / 100
+    }
+
+    console.log('Variable a enviar:', variable);
+    console.log('=== ANTES DE HACER POST ===');
+
+    this.variableService.post(variable).subscribe(
+      (data) => {
+
+        console.log(data);
+        this.variables.push({
+          id: data.id,
+          name: data.name,
+          idCultivo: data.idCultivo,
+          fechaRegistro: data.fechaRegistro,
+          valor: data.valor
+        });
+        this.cambiarKilosAjustados();
+        this.porcentaje(this.variables.length - 1);
+
+      },
+      (error) => {
+
+        console.log(error);
+
+      }
+    );
+
+  }
+
+  cambiarKilosAjustados() {
+
+    const valor = this.valor / 100;
+    //Para coger la fecha de hoy
+    const fechaHoy = new Date();
+
+    for (let i = 0; i < this.productions.length; i++) {
+      //Pasamos la fecha string a una fecha correcta.
+
+      if (this.productions[i] && new Date(this.productions[i].fechaFin).getTime() >= fechaHoy.getTime()) {
+        console.log('=== PROCESANDO PRODUCCIÓN ===', i);
+
+
+        let kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) * valor;
+
+        this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
+          (data) => {
+            console.log('Respuesta del servidor:', data);
+            this.showSuccessAlert = true;
+          },
+          (error) => {
+            console.log('Error:', error);
+
+          }
+        );
+      }
+    }
+  }
+
+  borrarVariable(i: number) {
+    const valor = this.variables[i].valor;
+    this.variableService.delete(this.variables[i].id).subscribe(
+      (data) => {
+
+        console.log(data);
+        this.arreglarKilosAjustados(valor);
+
+        this.variables.splice(i, 1);
+
+        this.showDeleteModal = false;
+
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  }
+  cerrarModal() {
+    this.showSuccessAlert = false;
+    window.location.reload();
+  }
+  abrirDeleteModal(i: number) {
+    this.variableToDelete = this.variables[i].name;
+    this.showDeleteModal = true;
+    this.indice = i;
+  }
+  cerrarDeleteModal() {
+    this.showDeleteModal = false;
+  }
+  cerrarErrorModal() {
+
+    this.showErrorAlert = false;
+
+  }
+  arreglarKilosAjustados(valor: number) {
+    //Se ajustan solo aquellas en las que las fechas entran en el rango 
+    const fechaHoy = new Date();
+
+    for (let i = 0; i < this.productions.length; i++) {
+      //Pasamos la fecha string a una fecha correcta.
+
+      if (this.productions[i] && new Date(this.productions[i].fechaFin).getTime() >= fechaHoy.getTime()) {
+        console.log('=== PROCESANDO PRODUCCIÓN ===', i);
+
+        const kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) / valor;
+
+        this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
+          (data) => {
+            this.productions[i].kilosAjustados = kilos.toString();
+            console.log('Respuesta del servidor:', data);
+
+
+          },
+          (error) => {
+            console.log('Error:', error);
+          }
+        );
+      }
+    }
+  }
+  abrirModalEditar(i: number) {
+
+    this.editarConfirm = true;
+    this.indice = i;
+  }
+
+  cancelarModal() {
+    this.editarConfirm = false;
+  }
+  editarVariable() {
+
+    this.variableService.put(this.variables[this.indice].id, this.variables[this.indice]).subscribe(
+      (data) => {
+        console.log(data);
+
+        this.arreglarKilosAjustados(this.variables[this.indice].valor / this.value[this.indice]);
+
+        this.variables[this.indice].valor = this.value[this.indice];
+        this.editarConfirm = false;
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  }
+
+  arreglarKilosEditar(valor: number) {
+    //Se ajustan solo aquellas en las que las fechas entran en el rango 
+    const fechaHoy = new Date();
+
+    for (let i = 0; i < this.productions.length; i++) {
+      //Pasamos la fecha string a una fecha correcta.
+
+      if (this.productions[i] && new Date(this.productions[i].fechaFin).getTime() >= fechaHoy.getTime()) {
+        console.log('=== PROCESANDO PRODUCCIÓN ===', i);
+
+        const kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) * valor;
+
+        this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
+          (data) => {
+            this.productions[i].kilosAjustados = kilos.toString();
+            console.log('Respuesta del servidor:', data);
+
+          },
+          (error) => {
+            console.log('Error:', error);
+          }
+        );
+      }
+    }
+  }
+  calcularPorcentaje(){
+    let suma=0;
+  for(let i=0;i<this.variables.length;i++){
+    if(this.variables[i].valor<1){
+      suma-=(1-this.variables[i].valor);
+    }
+    else{
+      suma+=(this.variables[i].valor-1);
+    }
+  }
+  return suma.toFixed(2);
+  }
+
+  produccionRelativa(){
+     let multiplicacion=1;
+    for(let i=0;i<this.variables.length;i++){
+     
+      multiplicacion*=this.variables[i].valor;
+      
+    
+     
+    }
+    let resultado=(multiplicacion*100).toFixed(0);
+  
+  return resultado +'%';
+  }
+
 }

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CultiveMapComponent } from './cultive-map.component';
+import { ChangelogComponent } from './changelog.component';
 
-describe('CultiveMapComponent', () => {
-  let component: CultiveMapComponent;
-  let fixture: ComponentFixture<CultiveMapComponent>;
+describe('ChangelogComponent', () => {
+  let component: ChangelogComponent;
+  let fixture: ComponentFixture<ChangelogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CultiveMapComponent]
+      imports: [ChangelogComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CultiveMapComponent);
+    fixture = TestBed.createComponent(ChangelogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

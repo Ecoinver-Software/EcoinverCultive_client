@@ -1,0 +1,427 @@
+
+<!-- variables-globales.component.html -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Header mejorado -->
+    <header class="mb-8 transform transition-all duration-500 hover:translate-y-[-2px]">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold text-[#437d3f] dark:text-[#65b15f] flex items-center gap-3">
+            <div class="bg-[#eef7ed] dark:bg-[#1e3b1d] rounded-xl p-3">
+              <i class="fas fa-sliders-h text-2xl animate-pulse"></i>
+            </div>
+            Variables Globales del Sistema
+          </h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-3 text-lg max-w-3xl">
+            Configura las variables que afectan globalmente a todos los cultivos y cálculos de producción
+          </p>
+        </div>
+        
+        <!-- Botones de acción -->
+        <div class="flex gap-3">
+          <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+            <i class="fas fa-download"></i>
+            Exportar
+          </button>
+          <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+            <i class="fas fa-save"></i>
+            Guardar Todo
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Estadísticas principales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-[#eef7ed] dark:border-[#1e3b1d] hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div class="flex items-center gap-4">
+          <div class="bg-blue-50 dark:bg-blue-900/30 rounded-full p-3">
+            <i class="fas fa-cogs text-2xl text-blue-600 dark:text-blue-400"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Variables Activas</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">12</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-[#eef7ed] dark:border-[#1e3b1d] hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div class="flex items-center gap-4">
+          <div class="bg-green-50 dark:bg-green-900/30 rounded-full p-3">
+            <i class="fas fa-leaf text-2xl text-green-600 dark:text-green-400"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Cultivos Afectados</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">47</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-[#eef7ed] dark:border-[#1e3b1d] hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div class="flex items-center gap-4">
+          <div class="bg-purple-50 dark:bg-purple-900/30 rounded-full p-3">
+            <i class="fas fa-calculator text-2xl text-purple-600 dark:text-purple-400"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Coeficiente Promedio</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">0.95</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-[#eef7ed] dark:border-[#1e3b1d] hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div class="flex items-center gap-4">
+          <div class="bg-orange-50 dark:bg-orange-900/30 rounded-full p-3">
+            <i class="fas fa-chart-line text-2xl text-orange-600 dark:text-orange-400"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Impacto Global</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">+8.3%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div class="flex flex-col sm:flex-row gap-4 flex-1">
+          <div class="relative flex-1">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="text" placeholder="Buscar variables..." 
+                   class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#437d3f] focus:border-[#437d3f] dark:bg-gray-700 dark:text-white transition-all duration-300">
+          </div>
+          
+          <select class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#437d3f] focus:border-[#437d3f] dark:bg-gray-700 dark:text-white min-w-[150px]">
+            <option>Todas las categorías</option>
+            <option>Climáticas</option>
+            <option>Suelo</option>
+            <option>Riego</option>
+            <option>Nutrición</option>
+          </select>
+        </div>
+        
+        <button class="bg-[#437d3f] hover:bg-[#396a35] text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2 whitespace-nowrap">
+          <i class="fas fa-plus"></i>
+          Nueva Variable
+        </button>
+      </div>
+    </div>
+
+    <!-- Variables existentes - Grid mejorado -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+      
+      <!-- Variable Card 1 -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
+        <div class="p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-2">
+                <i class="fas fa-thermometer-half text-blue-600 dark:text-blue-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Temperatura Óptima</h3>
+                <span class="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full">Climática</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-2">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Ajuste (%)</label>
+                <span class="text-sm font-bold text-[#437d3f] dark:text-[#65b15f]">85%</span>
+              </div>
+              <input type="range" min="0" max="200" value="85" 
+                     class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-[#437d3f]">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Valor:</span>
+                <span class="font-medium text-gray-900 dark:text-white ml-1">-0.15</span>
+              </div>
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Impacto:</span>
+                <span class="font-medium text-gray-900 dark:text-white ml-1">Medio</span>
+              </div>
+            </div>
+            
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Afecta la producción cuando la temperatura está fuera del rango óptimo de 18-24°C
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Variable Card 2 -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
+        <div class="p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-2">
+                <i class="fas fa-seedling text-green-600 dark:text-green-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Calidad del Suelo</h3>
+                <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 px-2 py-1 rounded-full">Suelo</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-2">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Ajuste (%)</label>
+                <span class="text-sm font-bold text-[#437d3f] dark:text-[#65b15f]">120%</span>
+              </div>
+              <input type="range" min="0" max="200" value="120" 
+                     class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-[#437d3f]">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Valor:</span>
+                <span class="font-medium text-gray-900 dark:text-white ml-1">+0.20</span>
+              </div>
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Impacto:</span>
+                <span class="font-medium text-gray-900 dark:text-white ml-1">Alto</span>
+              </div>
+            </div>
+            
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Mejora la producción basada en análisis de pH, nutrientes y estructura del suelo
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Variable Card 3 -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
+        <div class="p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-2">
+                <i class="fas fa-tint text-purple-600 dark:text-purple-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Eficiencia de Riego</h3>
+                <span class="text-xs bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 px-2 py-1 rounded-full">Riego</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-2">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Ajuste (%)</label>
+                <span class="text-sm font-bold text-[#437d3f] dark:text-[#65b15f]">95%</span>
+              </div>
+              <input type="range" min="0" max="200" value="95" 
+                     class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-[#437d3f]">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Valor:</span>
+                <span class="font-medium text-gray-900 dark:text-white ml-1">-0.05</span>
+              </div>
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Impacto:</span>
+                <span class="font-medium text-gray-900 dark:text-white ml-1">Bajo</span>
+              </div>
+            </div>
+            
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Considera la uniformidad y frecuencia del sistema de riego implementado
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Variable Card 4 -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
+        <div class="p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="bg-orange-50 dark:bg-orange-900/30 rounded-lg p-2">
+                <i class="fas fa-flask text-orange-600 dark:text-orange-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Plan Nutricional</h3>
+                <span class="text-xs bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-300 px-2 py-1 rounded-full">Nutrición</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-2">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Ajuste (%)</label>
+                <span class="text-sm font-bold text-[#437d3f] dark:text-[#65b15f]">110%</span>
+              </div>
+              <input type="range" min="0" max="200" value="110" 
+                     class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-[#437d3f]">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Valor:</span>
+                <span class="font-medium text-gray-900 dark:text-white ml-1">+0.10</span>
+              </div>
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Impacto:</span>
+                <span class="font-medium text-gray-900 dark:text-white ml-1">Medio</span>
+              </div>
+            </div>
+            
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Optimización basada en análisis foliar y programa de fertilización
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario para nueva variable -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div class="bg-gradient-to-r from-[#437d3f] to-[#65b15f] p-6">
+        <div class="flex items-center gap-3">
+          <div class="bg-white/20 rounded-lg p-2">
+            <i class="fas fa-plus-circle text-white text-xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-white">Crear Nueva Variable Global</h2>
+            <p class="text-white/80 text-sm">Define una nueva variable que afectará a todos los cultivos</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Información básica -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <i class="fas fa-tag mr-2"></i>Nombre de la Variable
+              </label>
+              <input type="text" placeholder="Ej: Humedad Relativa" 
+                     class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#437d3f] focus:border-[#437d3f] dark:bg-gray-700 dark:text-white transition-all duration-300">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <i class="fas fa-layer-group mr-2"></i>Categoría
+              </label>
+              <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#437d3f] focus:border-[#437d3f] dark:bg-gray-700 dark:text-white">
+                <option>Seleccionar categoría</option>
+                <option>Climática</option>
+                <option>Suelo</option>
+                <option>Riego</option>
+                <option>Nutrición</option>
+                <option>Manejo</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <i class="fas fa-info-circle mr-2"></i>Descripción
+              </label>
+              <textarea rows="3" placeholder="Describe cómo afecta esta variable a la producción..." 
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#437d3f] focus:border-[#437d3f] dark:bg-gray-700 dark:text-white resize-none transition-all duration-300"></textarea>
+            </div>
+          </div>
+          
+          <!-- Configuración del valor -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <i class="fas fa-sliders-h mr-2"></i>Valor Inicial (100% = Neutral)
+              </label>
+              <div class="space-y-3">
+                <input type="range" min="0" max="200" value="100" 
+                       class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-[#437d3f]">
+                <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                  <span>0%</span>
+                  <span class="font-bold text-[#437d3f] dark:text-[#65b15f]">100%</span>
+                  <span>200%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+              <h4 class="font-medium text-gray-900 dark:text-white mb-2">Vista Previa del Impacto</h4>
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span class="text-gray-500 dark:text-gray-400">Valor calculado:</span>
+                  <span class="font-medium text-gray-900 dark:text-white ml-1">0.00</span>
+                </div>
+                <div>
+                  <span class="text-gray-500 dark:text-gray-400">Efecto:</span>
+                  <span class="font-medium text-gray-900 dark:text-white ml-1">Neutral</span>
+                </div>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                Esta variable no afectará la producción con el valor actual
+              </p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+              <input type="checkbox" id="active" class="w-4 h-4 text-[#437d3f] bg-gray-100 border-gray-300 rounded focus:ring-[#437d3f] dark:focus:ring-[#437d3f] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+              <label for="active" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Activar variable inmediatamente
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <button class="px-6 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300">
+            Cancelar
+          </button>
+          <button class="px-6 py-2.5 bg-[#437d3f] hover:bg-[#396a35] text-white rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            Crear Variable
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

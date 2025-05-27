@@ -16,7 +16,8 @@
         </button>
         <a href="https://ecoinver.es/" class="flex ms-2 md:me-24 items-center space-x-3 group">
           <img src="logo.png" class="h-10 me-3" alt="Ecoinver Logo" />
-          <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-[#2f572c] hover:text-[#1b331a] dark:text-white dark:hover:text-[#5abe1f]">Ecoinver</span>
+          <span
+            class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-[#2f572c] hover:text-[#1b331a] dark:text-white dark:hover:text-[#5abe1f]">Ecoinver</span>
         </a>
       </div>
       <div class="flex items-center">
@@ -31,8 +32,9 @@
                 alt="user photo" />
             </button>
           </div>
-          <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-md shadow-lg dark:bg-gray-700 dark:divide-gray-600 absolute right-0 top-full mt-1 w-48" 
-    id="dropdown-user">
+          <div
+            class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-md shadow-lg dark:bg-gray-700 dark:divide-gray-600 absolute right-0 top-full mt-1 w-48"
+            id="dropdown-user">
             <div class="px-4 py-3" role="none">
               <p class="text-sm text-gray-900 dark:text-white font-medium" role="none">
                 Administrador User
@@ -84,7 +86,9 @@
           </svg>
           <span class="ms-3 font-medium">Dashboard</span>
           <span class="ml-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-0 group-hover:opacity-100 text-[#2f572c] dark:text-[#5abe1f]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 opacity-0 group-hover:opacity-100 text-[#2f572c] dark:text-[#5abe1f]" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
           </span>
@@ -108,7 +112,9 @@
           </svg>
           <span class="ms-3 font-medium">Mapa de superficies</span>
           <span class="ml-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-0 group-hover:opacity-100 text-[#2f572c] dark:text-[#5abe1f]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 opacity-0 group-hover:opacity-100 text-[#2f572c] dark:text-[#5abe1f]" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
           </span>
@@ -132,7 +138,9 @@
           </svg>
           <span class="ms-3 font-medium">Ranking de producción</span>
           <span class="ml-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-0 group-hover:opacity-100 text-[#2f572c] dark:text-[#5abe1f]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 opacity-0 group-hover:opacity-100 text-[#2f572c] dark:text-[#5abe1f]" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
           </span>
@@ -174,8 +182,7 @@
           <svg [ngClass]="{
               'rotate-180': comercialOpen,
               'rotate-0': !comercialOpen
-            }" class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-            fill="none" viewBox="0 0 10 6">
+            }" class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="m1 1 4 4 4-4" />
           </svg>
@@ -230,28 +237,27 @@
       <!-- Producción Campo Dropdown -->
       <li>
         <button type="button" (click)="toggleCampo()" [class]="
-      isActive(['/cultive', '/cultive-planning', '/stock'])
+      isActive(['/cultive', '/cultive-planning', '/stock', '/variables-globales'])
         ? 'cursor-pointer flex items-center w-full p-2 text-base text-[#2f572c] bg-[#e9ede9] dark:text-[#5abe1f] dark:bg-[#1c4a46] rounded-lg shadow-sm'
         : 'cursor-pointer flex items-center w-full p-2 text-base text-gray-900 rounded-lg group hover:bg-[#e9ede9] hover:text-[#2f572c] dark:text-white dark:hover:bg-[#1c4a46] dark:hover:text-[#5abe1f]'
     " aria-controls="dropdown-campo">
-    <svg [class]="
-        isActive(['/cultive', '/cultive-planning', '/stock'])
+          <svg [class]="
+        isActive(['/cultive', '/cultive-planning', '/stock', '/variables-globales'])
           ? 'shrink-0 w-5 h-5 text-[#2f572c] dark:text-[#5abe1f]'
           : 'shrink-0 w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-[#2f572c] dark:group-hover:text-[#5abe1f]'
       " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
-      <path
-        d="M12 1C6.47715 1 2 5.02944 2 10V16H4L4 10.5858L8.29289 6.29288L9.70711 7.70709L6 11.4142V13.9556C11.0533 13.504 15 9.66681 15 5L15 1H12Z" />
-    </svg>
-    <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap font-medium">Entrada Campo</span>
-    <svg [ngClass]="{
+            <path
+              d="M12 1C6.47715 1 2 5.02944 2 10V16H4L4 10.5858L8.29289 6.29288L9.70711 7.70709L6 11.4142V13.9556C11.0533 13.504 15 9.66681 15 5L15 1H12Z" />
+          </svg>
+          <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap font-medium">Entrada Campo</span>
+          <svg [ngClass]="{
         'rotate-180': campoOpen,
         'rotate-0': !campoOpen
-      }" class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-      fill="none" viewBox="0 0 10 6">
-      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="m1 1 4 4 4-4" />
-    </svg>
-  </button>
+      }" class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="m1 1 4 4 4-4" />
+          </svg>
+        </button>
         <ul id="dropdown-campo" [ngClass]="{ 
           'max-h-0 opacity-0': !campoOpen,
           'max-h-96 opacity-100': campoOpen 
@@ -309,7 +315,6 @@
               <span class="flex-1 ms-3 whitespace-nowrap">Producción</span>
             </a>
           </li>
-          
 
           <!-- Control STOCK -->
           <li>
@@ -318,20 +323,38 @@
                   ? 'flex items-center p-2 text-[#2f572c] bg-[#e9ede9] dark:text-[#5abe1f] dark:bg-[#1c4a46] rounded-lg shadow-sm'
                   : 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-[#e9ede9] hover:text-[#2f572c] dark:hover:bg-[#1c4a46] dark:hover:text-[#5abe1f]'
               ">
-              <svg [class]="
-                  isActive(['/stock'])
-                    ? 'shrink-0 w-7 h-7 text-[#2f572c] dark:text-[#5abe1f]'
-                    : 'shrink-0 w-7 h-7 text-gray-500 dark:text-gray-400 group-hover:text-[#2f572c] dark:group-hover:text-[#5abe1f]'
-                " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
-                <path d="M16 2H0V5H16V2Z" fill="currentColor" />
-                <path d="M1 7H5V9H11V7H15V15H1V7Z" fill="currentColor" />
-              </svg>
+             <svg [class]="
+    isActive(['/stock'])
+      ? 'shrink-0 w-7 h-7 text-[#2f572c] dark:text-[#5abe1f]'
+      : 'shrink-0 w-7 h-7 text-gray-500 dark:text-gray-400 group-hover:text-[#2f572c] dark:group-hover:text-[#5abe1f]'
+  " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+  <path d="M16 2H0V5H16V2Z"/>
+  <path d="M1 7H5V9H11V7H15V15H1V7Z"/>
+</svg>
               <span class="flex-1 ms-3 whitespace-nowrap">Control de Stock</span>
+            </a>
+          </li>
+
+          <!-- Variables Globales - NUEVO ELEMENTO -->
+          <li>
+            <a routerLink="/variables" (click)="$event.stopPropagation()" [class]="
+                isActive(['/variables'])
+                  ? 'flex items-center p-2 text-[#2f572c] bg-[#e9ede9] dark:text-[#5abe1f] dark:bg-[#1c4a46] rounded-lg shadow-sm'
+                  : 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-[#e9ede9] hover:text-[#2f572c] dark:hover:bg-[#1c4a46] dark:hover:text-[#5abe1f]'
+              ">
+         <svg [class]="
+    isActive(['/variables'])
+      ? 'shrink-0 w-7 h-7 text-[#2f572c] dark:text-[#5abe1f]'
+      : 'shrink-0 w-7 h-7 text-gray-500 dark:text-gray-400 group-hover:text-[#2f572c] dark:group-hover:text-[#5abe1f]'
+  " xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 512 512">
+  <path d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7 0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"/>
+</svg>
+              <span class="flex-1 ms-3 whitespace-nowrap">Variables Globales</span>
             </a>
           </li>
         </ul>
       </li>
-      
+
       <!-- Dropdown Administración -->
       <li>
         <button type="button" (click)="toggleAdministracion()" [class]="
@@ -352,8 +375,7 @@
           <svg [ngClass]="{
               'rotate-180': administracionOpen,
               'rotate-0': !administracionOpen
-            }" class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-            fill="none" viewBox="0 0 10 6">
+            }" class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="m1 1 4 4 4-4" />
           </svg>
