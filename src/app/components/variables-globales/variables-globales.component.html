@@ -1,0 +1,435 @@
+<!-- variables-globales.component.html -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Header mejorado -->
+    <header class="mb-8 transform transition-all duration-500 hover:translate-y-[-2px]">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold text-[#437d3f] dark:text-[#65b15f] flex items-center gap-3">
+            <div class="bg-[#eef7ed] dark:bg-[#1e3b1d] rounded-xl p-3">
+              <i class="fas fa-sliders-h text-2xl animate-pulse"></i>
+            </div>
+            Variables Globales del Sistema
+          </h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-3 text-lg max-w-3xl">
+            Configura las variables que afectan globalmente a todos los cultivos y cálculos de producción
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Estadísticas principales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-[#eef7ed] dark:border-[#1e3b1d] hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div class="flex items-center gap-4">
+          <div class="bg-blue-50 dark:bg-blue-900/30 rounded-full p-3">
+            <i class="fas fa-cogs text-2xl text-blue-600 dark:text-blue-400"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Variables Activas</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{variablesFiltros.length}}</p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-[#eef7ed] dark:border-[#1e3b1d] hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div class="flex items-center gap-4">
+          <div class="bg-green-50 dark:bg-green-900/30 rounded-full p-3">
+            <i class="fas fa-leaf text-2xl text-green-600 dark:text-green-400"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Cultivos Afectados</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{idCultivosSinRepetir.length}}</p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-[#eef7ed] dark:border-[#1e3b1d] hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div class="flex items-center gap-4">
+          <div class="bg-purple-50 dark:bg-purple-900/30 rounded-full p-3">
+            <i class="fas fa-calculator text-2xl text-purple-600 dark:text-purple-400"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Coeficiente Promedio</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">0.95</p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-[#eef7ed] dark:border-[#1e3b1d] hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div class="flex items-center gap-4">
+          <div class="bg-orange-50 dark:bg-orange-900/30 rounded-full p-3">
+            <i class="fas fa-chart-line text-2xl text-orange-600 dark:text-orange-400"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Impacto Global</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">+8.3%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div class="flex flex-col sm:flex-row gap-4 flex-1">
+          <div class="relative flex-1">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="text" placeholder="Buscar variables..." id="searchVariables"
+              class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#437d3f] focus:border-[#437d3f] dark:bg-gray-700 dark:text-white transition-all duration-300">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variables existentes - Grid mejorado -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+      @for(variable of variablesFiltros;track variable.id;let i=$index){
+
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
+        <div class="p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{variable.name}}</h3>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button (click)="abrirDeleteModal(variable.name)"
+                class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-2">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Ajuste (%)</label>
+                <span
+                  class="text-sm font-bold text-[#437d3f] dark:text-[#65b15f]">{{(variable.valor*100).toFixed(0)}}%</span>
+              </div>
+              <input type="range" min="0" max="200" [value]="(variable.valor*100)"
+                (input)="calcularPorcentaje($event,i)"
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-[#437d3f]">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Valor:</span>
+                <span class="font-medium text-gray-900 dark:text-white ml-1">{{variable.valor.toFixed(2)}}</span>
+              </div>
+            </div>
+
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              {{descripcion2(i)}}
+            </p>
+          </div>
+        </div>
+      </div>
+      }
+
+    </div>
+
+    <!-- Formulario para nueva variable -->
+    <!-- Formulario para nueva variable -->
+    <div
+      class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div class="bg-gradient-to-r from-[#437d3f] to-[#65b15f] p-6">
+        <div class="flex items-center gap-3">
+          <div class="bg-white/20 rounded-lg p-2">
+            <i class="fas fa-plus-circle text-white text-xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-white">Crear Nueva Variable Global</h2>
+            <p class="text-white/80 text-sm">Define una nueva variable que afectará a todos los cultivos</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Columna Izquierda: Nombre + Filtro Cultivos -->
+          <div class="space-y-6">
+            <!-- Nombre de la Variable -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <i class="fas fa-tag mr-2"></i>Nombre de la Variable
+              </label>
+              <input type="text" placeholder="Ej: Humedad Relativa" id="nombreVariable" [(ngModel)]="nombreVariable"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#437d3f] focus:border-[#437d3f] dark:bg-gray-700 dark:text-white transition-all duration-300">
+            </div>
+
+            <!-- Filtro de Cultivos -->
+            <div class="space-y-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <i class="fas fa-seedling mr-2"></i>Cultivos a Afectar
+              </label>
+
+              <!-- Buscador de cultivos -->
+              <div class="relative mb-3">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="text" placeholder="Buscar cultivos..." id="searchCultivos" [(ngModel)]="busquedaCultivos"
+                  (input)="buscarCultivos()"
+                  class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#437d3f] focus:border-[#437d3f] dark:bg-gray-700 dark:text-white transition-all duration-300 text-sm">
+              </div>
+
+              <!-- Acciones rápidas -->
+              <div class="flex gap-2 mb-3">
+                <button type="button" id="selectAllCultivos" (click)="todos()"
+                  class="text-xs px-3 py-1.5 bg-[#437d3f] text-white rounded-md hover:bg-[#396a35] transition-colors duration-200">
+                  <i class="fas fa-check-double mr-1"></i>Todos
+                </button>
+                <button type="button" id="deselectAllCultivos" (click)="ninguno()"
+                  class="text-xs px-3 py-1.5 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors duration-200">
+                  <i class="fas fa-times mr-1"></i>Ninguno
+                </button>
+              </div>
+
+              <!-- Lista de cultivos -->
+              <div
+                class="cultivos-filter border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-gray-50 dark:bg-gray-700/50">
+                <div class="space-y-2" id="cultivosList">
+                  @for(cultivo of cultivosFiltrados;track cultivo.id){
+                  <label class="cultivo-item flex items-center gap-3 p-2 rounded-md cursor-pointer">
+                    <input type="checkbox" class="checkbox-custom" [value]="cultivo.id" data-cultivo="Tomate"
+                      (click)="contarSeleccionados()">
+                    <div class="flex items-center gap-2">
+                      <i class="fas fa-seedling text-green-600 text-sm"></i>
+                      <span
+                        class="text-sm text-gray-700 dark:text-gray-300">{{cultivo.nombreAgricultor+'-'+cultivo.provincia+'-'+cultivo.nombreGenero+'-'+cultivo.nombreVariedad}}</span>
+                    </div>
+                  </label>
+                  }
+
+                </div>
+
+                <div id="noCultivosFound" class="hidden text-center py-4">
+                  <i class="fas fa-search text-gray-400 text-2xl mb-2"></i>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">No se encontraron cultivos</p>
+                </div>
+              </div>
+
+              <!-- Cultivos seleccionados -->
+              <div id="selectedCultivos" class="mt-3">
+                <div class="flex flex-wrap gap-2" id="selectedBadges">
+                  <!-- Badges dinámicos -->
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  <span id="selectedCount">{{contadorCheckbox}}</span> cultivos seleccionados
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Rango y Vista Previa -->
+          <div class="space-y-4">
+            <!-- Configuración del valor -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <i class="fas fa-sliders-h mr-2"></i>Valor Inicial (100% = Neutral)
+              </label>
+              <div class="space-y-3">
+                <input type="range" min="0" max="200" value="100" id="rango" (input)="porcentaje()"
+                  class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-[#437d3f]">
+                <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                  <span>0%</span>
+                  <span class="font-bold text-[#437d3f] dark:text-[#65b15f]" id="valorPorcentaje">100%</span>
+                  <span>200%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vista Previa -->
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+              <h4 class="font-medium text-gray-900 dark:text-white mb-2">Vista Previa del Impacto</h4>
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span class="text-gray-500 dark:text-gray-400">Valor calculado:</span>
+                  <span class="font-medium text-gray-900 dark:text-white ml-1" id="valorCalculado">{{valorRango}}</span>
+                </div>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-400 mt-2" id="descripcionImpacto">
+                {{descripcion()}}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <button type="button" id="cancelarBtn"
+            class="px-6 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300">
+            Cancelar
+          </button>
+          <button type="button" id="crearVariableBtn" (click)="crearVariable()"
+            class="px-6 py-2.5 bg-[#437d3f] hover:bg-[#396a35] text-white rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            Crear Variable
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de éxito -->
+    @if(showSuccessAlert){
+    <div id="successModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fadeIn">
+      <div class="relative p-4 w-full max-w-md max-h-full transform transition-transform duration-500 animate-zoomIn">
+        <div
+          class="relative bg-white rounded-lg shadow-lg border border-green-100 dark:border-green-900/30 dark:bg-gray-700 overflow-hidden">
+          <button type="button" id="closeSuccessModal"
+            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-300">
+            <svg class="w-3 h-3 transform transition-transform duration-300 hover:rotate-90" aria-hidden="true"
+              (click)="cerrarModal()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+            </svg>
+            <span class="sr-only">Cerrar Modal</span>
+          </button>
+          <div class="p-4 md:p-5 text-center">
+            <div
+              class="mx-auto mb-4 w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center transform transition-all duration-700 animate-scaleUp">
+              <svg class="text-green-500 w-10 h-10 animate-checkmark" aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 12l2 2 6-6" />
+              </svg>
+            </div>
+            <h3 class="mb-5 text-lg font-normal text-gray-700 dark:text-gray-300 animate-fadeInUp">
+              {{message}}
+            </h3>
+            <button id="acceptSuccessBtn" type="button" (click)="cerrarModal()"
+              class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center transition-all duration-300 transform hover:scale-105 animate-pulseLight">
+              Aceptar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+
+    <!-- Modal de error -->
+    @if(showErrorAlert){
+    <div id="errorModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fadeIn">
+      <div class="relative p-4 w-full max-w-md max-h-full transform transition-transform duration-500 animate-zoomIn">
+        <div
+          class="relative bg-white rounded-lg shadow-lg border border-red-100 dark:border-red-900/30 dark:bg-gray-700 overflow-hidden">
+          <button type="button" id="closeErrorModal"
+            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-300">
+            <svg class="w-3 h-3 transform transition-transform duration-300 hover:rotate-90" aria-hidden="true"
+              (click)="cerrarErrorModal()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+            </svg>
+            <span class="sr-only">Cerrar Modal</span>
+          </button>
+          <div class="p-4 md:p-5 text-center">
+            <div
+              class="mx-auto mb-4 w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center transform transition-all duration-700 animate-scaleUp">
+              <svg class="text-red-500 w-10 h-10 animate-pulse" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                fill="none" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4m0 4h.01" />
+              </svg>
+            </div>
+            <h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white animate-fadeInUp">
+              ¡Error!
+            </h3>
+            <p class="mb-5 text-sm text-gray-600 dark:text-gray-300 animate-fadeInUp" id="errorMessage">
+              {{errorMessage}}
+            </p>
+            <div class="flex justify-center gap-3">
+              <button id="closeErrorBtn" type="button" (click)="cerrarErrorModal()"
+                class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center transition-all duration-300 transform hover:scale-105 animate-pulseLight">
+                <i class="fas fa-times mr-2"></i>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+    <!-- Modal de confirmación de eliminación -->
+    @if(showDeleteModal){
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fadeIn">
+      <div class="relative p-4 w-full max-w-md max-h-full transform transition-transform duration-500 animate-zoomIn">
+        <div class="relative bg-white rounded-lg shadow-lg dark:bg-gray-700 overflow-hidden">
+          <button type="button" (click)="cerrarDeleteModal()"
+            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-300">
+            <svg class="w-3 h-3 transform transition-transform duration-300 hover:rotate-90" aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+            </svg>
+            <span class="sr-only">Cerrar Modal</span>
+          </button>
+          <div class="p-4 md:p-5 text-center">
+            <!-- Icono de advertencia -->
+            <div
+              class="mx-auto mb-4 w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center transform transition-all duration-700 animate-scaleUp">
+              <svg class="text-red-500 w-10 h-10 animate-pulse" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg>
+            </div>
+
+            <h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white animate-fadeInUp">
+              ¿Confirmar eliminación?
+            </h3>
+
+            <p class="mb-5 text-sm text-gray-600 dark:text-gray-300 animate-fadeInUp">
+              ¿Estás seguro de que deseas eliminar la variable "<strong>{{ nombreVariableBorrar }}</strong>"?
+              <br>
+              <span class="text-red-600 dark:text-red-400 text-xs mt-1 block">
+                Esta acción no se puede deshacer.
+              </span>
+            </p>
+
+            <div class="flex justify-center gap-3">
+              <!-- Botón Cancelar -->
+              <button (click)="cerrarDeleteModal()" type="button"
+                class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600 transition-all duration-300 transform hover:scale-105">
+                <i class="fas fa-times mr-2"></i>
+                Cancelar
+              </button>
+
+              <!-- Botón Eliminar -->
+              <button (click)="borrar(nombreVariableBorrar)" type="button"
+                class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center transition-all duration-300 transform hover:scale-105 animate-pulseLight">
+                <i class="fas fa-trash-alt mr-2"></i>
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+    @if(loading){
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
+        <div class="flex items-center space-x-3">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#437d3f]"></div>
+          <span class="text-gray-700 dark:text-gray-300 font-medium">Actualizando datos...</span>
+        </div>
+      </div>
+    </div>
+    }

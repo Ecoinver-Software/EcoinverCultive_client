@@ -224,10 +224,10 @@ export class DashboardComponent implements OnInit {
     if (generoProduccion[0]) {
       cultivo = this.cultive.filter(item => item.idGenero == generoProduccion[0].idGenero);
 
-      for (let i = 0; i < this.cultive.length; i++) {
-        if (this.cultiveProductions.filter(item => item.cultiveId == this.cultive[i].id && !this.selectedProductions.some(p => p.cultiveId === item.cultiveId))) {
+      for (let i = 0; i < cultivo.length; i++) {
+        if (this.cultiveProductions.filter(item => item.cultiveId == cultivo[i].id && !this.selectedProductions.some(p => p.cultiveId === item.cultiveId))) {
           this.selectedProductions = this.selectedProductions.concat(
-            this.cultiveProductions.filter(item => item.cultiveId == this.cultive[i].id)
+            this.cultiveProductions.filter(item => item.cultiveId == cultivo[i].id)
           );
         }
       }
@@ -312,7 +312,7 @@ export class DashboardComponent implements OnInit {
           }
         }
 
-        console.log(kgsProduction);
+        
 
         for (let i = 0; i < planningDetails.length; i++) {//para ir sumando los kg de cada semana del comercial
           //Necesitamos saber en que mes entra la planificación de la necesidad
@@ -331,7 +331,7 @@ export class DashboardComponent implements OnInit {
             }
           }
         }
-        console.log(kgs);
+        
         let label: string[] = [];
         for (let i = 0; i < meses.length; i++) {
           switch (meses[i]) {
@@ -425,7 +425,7 @@ export class DashboardComponent implements OnInit {
         }
 
 
-        console.log(production);
+        
         // Gráfico principal (combinado)    
         this.data = {
           labels: label,
@@ -1039,17 +1039,17 @@ export class DashboardComponent implements OnInit {
     let cultivo: Cultive[] = [];
     const generosSeleccionados = this.comNeeds.filter(item => item.nombreGenero == genero);//Obtenemos las necesidades con el nombre de género especificado
     const tipo = this.chartType;
-    console.log(this.comNeeds);
+    
     const generoProduccion = this.genders.filter(item => item.nombreGenero == genero);
-    console.log(generoProduccion);
+    
 
     if (generoProduccion[0]) {
       cultivo = this.cultive.filter(item => item.idGenero == generoProduccion[0].idGenero);
 
-      for (let i = 0; i < this.cultive.length; i++) {
-        if (this.cultiveProductions.filter(item => item.cultiveId == this.cultive[i].id && !this.selectedProductions.some(p => p.cultiveId === item.cultiveId))) {
+      for (let i = 0; i < cultivo.length; i++) {
+        if (this.cultiveProductions.filter(item => item.cultiveId == cultivo[i].id && !this.selectedProductions.some(p => p.cultiveId === item.cultiveId))) {
           this.selectedProductions = this.selectedProductions.concat(
-            this.cultiveProductions.filter(item => item.cultiveId == this.cultive[i].id)
+            this.cultiveProductions.filter(item => item.cultiveId == cultivo[i].id)
           );
         }
       }
@@ -1080,7 +1080,7 @@ export class DashboardComponent implements OnInit {
 
     for (let i = 0; i < this.cultiveProductions.length; i++) {
 
-      const encontrados = this.cultive.filter(item => item.id == this.cultiveProductions[i].cultiveId);
+      const encontrados = cultivo.filter(item => item.id == this.cultiveProductions[i].cultiveId);
 
 
       if (encontrados.length > 0 && !production.some(item => item.id == this.cultiveProductions[i].cultiveId)) {
@@ -1449,7 +1449,7 @@ export class DashboardComponent implements OnInit {
                 repetidos2.push({ mes: j, cliente: client?.clientName ?? '' });
               }
               kgs2[j] = (kgs2[j] || 0) + (planningDetails[i].kilos ?? 0);//Si los kilos estan vacios lo ponemos a 0.
-              console.log(planningDetails[i].id);
+              
             }
           }
         }
@@ -1639,7 +1639,7 @@ export class DashboardComponent implements OnInit {
         let kgsProductionReal2=new Array(meses2.length).fill(0);
         let clientes3: string[] = new Array(meses2.length);
         let repetidos3: { mes: number, cliente: string }[] = [];
-        console.log(this.selectedProductions)
+        
         for (let i = 0; i < this.selectedProductions.length; i++) {
           const mes = new Date(this.selectedProductions[i].fechaInicio);
 
@@ -1927,12 +1927,12 @@ export class DashboardComponent implements OnInit {
       }
     }
     let cultivo: Cultive[] = [];
-    const generosSeleccionados = this.comNeeds.filter(item => item.nombreGenero == genero);//Obtenemos las necesidades con el nombre de género especificado
-
+    const generosSeleccionados = this.genders.filter(item => item.nombreGenero == genero);//Obtenemos las necesidades con el nombre de género especificado
+    
     if (generosSeleccionados[0]) {
 
       cultivo = this.cultive.filter(item => item.idGenero == generosSeleccionados[0].idGenero);
-
+      
 
     }
 

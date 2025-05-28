@@ -1566,7 +1566,8 @@ export class CultiveDetailsComponent
       name: nombreVariable.value,
       idCultivo: idNumero,
       fechaRegistro: new Date(),
-      valor: this.valor / 100
+      valor: this.valor / 100,
+      categoria:'global'
     }
 
     console.log('Variable a enviar:', variable);
@@ -1581,7 +1582,8 @@ export class CultiveDetailsComponent
           name: data.name,
           idCultivo: data.idCultivo,
           fechaRegistro: data.fechaRegistro,
-          valor: data.valor
+          valor: data.valor,
+          categoria:data.categoria
         });
         this.cambiarKilosAjustados();
         this.porcentaje(this.variables.length - 1);
@@ -1755,9 +1757,7 @@ export class CultiveDetailsComponent
     for(let i=0;i<this.variables.length;i++){
      
       multiplicacion*=this.variables[i].valor;
-      
-    
-     
+ 
     }
     let resultado=(multiplicacion*100).toFixed(0);
   

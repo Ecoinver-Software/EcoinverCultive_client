@@ -20,7 +20,8 @@ export class VariablesService {
       name:variable.name,
       idCultivo:variable.idCultivo,
       fechaRegistro:variable.fechaRegistro,
-      valor:variable.valor
+      valor:variable.valor,
+      categoria:variable.categoria
     }
     return this.http.post<Variables>(this.url,body);
   }
@@ -29,12 +30,13 @@ export class VariablesService {
       name:variable.name,
       idCultivo:variable.idCultivo,
       fechaRegistro:variable.fechaRegistro,
-      valor:variable.valor
+      valor:variable.valor,
+      categoria:variable.categoria
     }
     return this.http.put(this.url+'/'+id,body);
   }
 
-  delete(id:number){
-    return this.http.delete(this.url+'/'+id);
+  delete(id:number):Observable<Variables>{
+    return this.http.delete<Variables>(this.url+'/'+id);
   }
 }
