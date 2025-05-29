@@ -89,7 +89,7 @@
       </div>
     </div>
 
-    <!-- Variables existentes - Grid mejorado -->
+    <!-- Reemplazar la sección "Variables existentes - Grid mejorado" -->
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
       @for(variable of variablesFiltros;track variable.id;let i=$index){
 
@@ -98,8 +98,15 @@
         <div class="p-6">
           <div class="flex items-start justify-between mb-4">
             <div class="flex items-center gap-3">
+              <div class="bg-[#eef7ed] dark:bg-[#1e3b1d] rounded-lg p-2">
+                <i class="fas fa-sliders-h text-[#437d3f] dark:text-[#65b15f]"></i>
+              </div>
               <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{variable.name}}</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                  <i class="fas fa-seedling"></i>
+                  {{cantidadCultivos(i)}} cultivos afectados <!-- Aquí pones tu lógica -->
+                </p>
               </div>
             </div>
             <div class="flex gap-2">
@@ -113,6 +120,7 @@
             </div>
           </div>
 
+          <!-- Slider de valor -->
           <div class="space-y-4">
             <div>
               <div class="flex justify-between items-center mb-2">
@@ -136,13 +144,62 @@
               {{descripcion2(i)}}
             </p>
           </div>
+
+          <!-- Cultivos afectados -->
+          <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+            <button (click)="toggle(i)"
+              class="w-full flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#437d3f] dark:hover:text-[#65b15f] transition-colors mb-3">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-seedling text-green-600"></i>
+                <span>Cultivos Afectados</span>
+                <span
+                  class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs px-2 py-0.5 rounded-full">{{cantidadCultivos(i)}}</span>
+                <!-- Tu contador aquí -->
+              </div>
+              <i [class.rotate-180]="activeIndex === i" class="fas fa-chevron-down transition-transform"></i>
+
+            </button>
+
+            <!-- Lista de cultivos (colapsable) -->
+            <div
+              class="space-y-2 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+              @if(activeIndex==i){
+              @for(cultivo of cultivosAsociados;track cultivo.idCultivo){
+              <!-- Cultivo 1 - Ejemplo -->
+              <div
+                class="flex items-center gap-3 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {{cultivo.nombreAgricultor}}
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {{cultivo.provincia}} • {{cultivo.nombreGenero}} • {{cultivo.nombreVariedad}}
+                  </p>
+                </div>
+              </div>
+              }
+              }
+
+
+              <!-- Si no hay cultivos -->
+              <!-- 
+          <div class="text-center py-3 text-gray-500 dark:text-gray-400">
+            <i class="fas fa-seedling text-lg mb-1 opacity-50"></i>
+            <p class="text-xs">Sin cultivos afectados</p>
+          </div>
+          -->
+
+            </div>
+
+            
+          </div>
         </div>
       </div>
       }
-
     </div>
 
-    <!-- Formulario para nueva variable -->
+  
     <!-- Formulario para nueva variable -->
     <div
       class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">

@@ -255,10 +255,11 @@ export class CultiveDetailsComponent
       (data) => {
         this.variables = data;
         console.log(data);
-        this.variables = this.variables.filter(item => item.idCultivo == idNumero);
+        this.variables = this.variables.filter(item => item.idCultivo == idNumero && item.categoria=='normal');
         for (let i = 0; i < this.variables.length; i++) {
           this.value.push(this.variables[i].valor);
         }
+
       },
       (error) => {
         console.log(error);
@@ -1567,7 +1568,7 @@ export class CultiveDetailsComponent
       idCultivo: idNumero,
       fechaRegistro: new Date(),
       valor: this.valor / 100,
-      categoria:'global'
+      categoria:'normal'
     }
 
     console.log('Variable a enviar:', variable);
@@ -1577,14 +1578,7 @@ export class CultiveDetailsComponent
       (data) => {
 
         console.log(data);
-        this.variables.push({
-          id: data.id,
-          name: data.name,
-          idCultivo: data.idCultivo,
-          fechaRegistro: data.fechaRegistro,
-          valor: data.valor,
-          categoria:data.categoria
-        });
+        
         this.cambiarKilosAjustados();
         this.porcentaje(this.variables.length - 1);
 
@@ -1631,7 +1625,7 @@ export class CultiveDetailsComponent
     const valor = this.variables[i].valor;
     this.variableService.delete(this.variables[i].id).subscribe(
       (data) => {
-
+        
         console.log(data);
         this.arreglarKilosAjustados(valor);
 
@@ -1666,6 +1660,8 @@ export class CultiveDetailsComponent
     //Se ajustan solo aquellas en las que las fechas entran en el rango 
     const fechaHoy = new Date();
 
+    
+
     for (let i = 0; i < this.productions.length; i++) {
       //Pasamos la fecha string a una fecha correcta.
 
@@ -1673,7 +1669,7 @@ export class CultiveDetailsComponent
         console.log('=== PROCESANDO PRODUCCIÓN ===', i);
 
         const kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) / valor;
-
+       
         this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
           (data) => {
             this.productions[i].kilosAjustados = kilos.toString();
@@ -1688,6 +1684,7 @@ export class CultiveDetailsComponent
       }
     }
   }
+
   abrirModalEditar(i: number) {
 
     this.editarConfirm = true;

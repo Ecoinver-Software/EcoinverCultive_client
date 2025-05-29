@@ -16,6 +16,8 @@ import { Cultive } from '../../types/Cultive';
 export class VariablesGlobalesComponent implements OnInit {
 
   //Variables
+  activeIndex: number | null = null;
+  
   loading: boolean = false;
   producciones: CultiveProductionDto[] = [];
   variables: Variables[] = [];
@@ -23,7 +25,7 @@ export class VariablesGlobalesComponent implements OnInit {
   cultivos: Cultive[] = [];
   valorRango: number = 100;
   nombreVariable: string = '';
-  //Variables booleanas para menajar las alertas
+  //Variables booleanas para manejar las alertas
   showErrorAlert: boolean = false;
   showSuccessAlert: boolean = false;
   errorMessage: string = '';
@@ -36,6 +38,8 @@ export class VariablesGlobalesComponent implements OnInit {
   message: string = '';
   showDeleteModal: boolean = false;
   nombreVariableBorrar: string = '';
+  cultivosAsociados: Cultive[] = [];
+  
   constructor(private productionService: CultiveProductionService, private variablesService: VariablesService, private cultiveService: CultivoService) {
 
   }
@@ -68,6 +72,7 @@ export class VariablesGlobalesComponent implements OnInit {
         for (let i = 0; i < this.variablesFiltros.length; i++) {
           const encontrado = this.idCultivosSinRepetir.find(item => item == this.variablesFiltros[i].idCultivo);
           if (encontrado == undefined) {
+
             this.idCultivosSinRepetir.push(this.variablesFiltros[i].idCultivo);
 
           }
@@ -82,7 +87,6 @@ export class VariablesGlobalesComponent implements OnInit {
 
   porcentaje() {
     let rango = document.getElementById('rango') as HTMLInputElement;
-
     this.valorRango = Number(rango.value)
 
   }
@@ -100,6 +104,7 @@ export class VariablesGlobalesComponent implements OnInit {
       return 'Mantiene la producción actual';
     }
   }
+
   descripcion2(i: number) {
     const numero = this.variablesFiltros[i].valor * 100;
 
@@ -113,6 +118,7 @@ export class VariablesGlobalesComponent implements OnInit {
       return 'Mantiene la producción actual';
     }
   }
+
   crearVariable() {
 
     if (this.nombreVariable.trim() == '') {
@@ -120,8 +126,6 @@ export class VariablesGlobalesComponent implements OnInit {
       this.showErrorAlert = true;
       return;
     }
-
-
 
     if (this.idsCultivosSeleccionados.length == 0) {
 
@@ -132,6 +136,7 @@ export class VariablesGlobalesComponent implements OnInit {
 
     let totalOperaciones = this.idsCultivosSeleccionados.length;
     let operacionesCompletadas = 0;
+
     for (let i = 0; i < this.idsCultivosSeleccionados.length; i++) {
       const encontrado = this.variables.find(item => item.idCultivo == this.idsCultivosSeleccionados[i] && item.name == this.nombreVariable);
       if (encontrado !== undefined) {
@@ -154,7 +159,7 @@ export class VariablesGlobalesComponent implements OnInit {
 
           this.calcularVariablesFiltros();
           this.ajustarKilos(data.idCultivo, data.valor);
-           operacionesCompletadas++;
+          operacionesCompletadas++;
 
           if (operacionesCompletadas == totalOperaciones) {
             this.loading = false;
@@ -175,6 +180,7 @@ export class VariablesGlobalesComponent implements OnInit {
 
   cerrarErrorModal() {
     this.showErrorAlert = false;
+
   }
 
   ajustarKilos(idCultivo: number, valor: number) {
@@ -187,8 +193,6 @@ export class VariablesGlobalesComponent implements OnInit {
       this.productionService.updatePatch(producciones[i].id, Number(producciones[i].kilosAjustados.trim().replace(',', '.')) * valor).subscribe(
         (data) => {
           console.log(data);
-         
-
         },
         (error) => {
           console.log(error);
@@ -200,6 +204,7 @@ export class VariablesGlobalesComponent implements OnInit {
 
   cerrarModal() {
     this.showSuccessAlert = false;
+    window.location.reload();
   }
 
   cultivosValidos() {
@@ -297,7 +302,12 @@ export class VariablesGlobalesComponent implements OnInit {
     }
     this.showDeleteModal = false;
 
+    if (valor == 0) {
 
+      this.loading = false;
+
+      return;
+    }
     // Ejecutar las operaciones
     for (let i = 0; i < this.producciones.length; i++) {
       const encontrado = variablesProduccion.find(item => item.idCultivo == this.producciones[i].cultiveId);
@@ -339,21 +349,59 @@ export class VariablesGlobalesComponent implements OnInit {
       const encontrado = this.variablesFiltros.find(item => item.name == this.variables[i].name);
       if (encontrado == undefined) {
         this.variablesFiltros.push(this.variables[i]);
-
       }
     }
+
+
   }
   calcularPorcentaje(evento: Event, i: number) {
     let slider = evento.target as HTMLInputElement;
     this.variablesFiltros[i].valor = Number(slider.value) / 100;
 
   }
+
   cerrarDeleteModal() {
     this.showDeleteModal = false;
   }
+
   abrirDeleteModal(name: string) {
     this.showDeleteModal = true;
     this.nombreVariableBorrar = name;
+  }
+
+  cultivosAfectados(i: number) {
+    this.cultivosAsociados=[];
+
+    const encontrado = this.variables.filter(item => item.name == this.variablesFiltros[i].name);
+    console.log(encontrado);
+    if (encontrado !== undefined) {
+      for (let i = 0; i < encontrado.length; i++) {
+        const cultivo = this.cultivos.find(item => item.id == encontrado[i].idCultivo);
+        if (cultivo !== undefined) {
+          this.cultivosAsociados.push(cultivo);
+        }
+      }
+    }
+  }
+
+  toggle(index: number) {
+    if (this.activeIndex === index) {
+      this.activeIndex = null; // Cierra si está abierto
+    } else {
+      this.activeIndex = index; // Abre y cierra el anterior
+      this.cultivosAfectados(index); // actualiza datos si es necesario
+    }
+  }
+
+  cantidadCultivos(i:number){
+
+      const encontrado = this.variables.filter(item => item.name == this.variablesFiltros[i].name);
+    console.log(encontrado);
+    if (encontrado !== undefined) {
+      return encontrado.length;
+    }
+    return 0;
+
   }
 
 }
