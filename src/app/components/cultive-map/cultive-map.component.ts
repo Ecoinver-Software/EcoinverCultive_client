@@ -270,7 +270,7 @@ export class CultiveMapComponent implements OnInit {
         padding: [0, 0, 50, 0],
         textStyle: { 
           fontSize: 14, 
-          color: '#fff' 
+          color: 'gray' 
         }
       },
       graphic: [{
@@ -278,7 +278,7 @@ export class CultiveMapComponent implements OnInit {
         left: 'center',
         top: 40,
         shape: { x1: -150, y1: 0, x2: 150, y2: 0 },
-        style: { stroke: '#fff', lineWidth: 1 }
+        style: { stroke: 'gray', lineWidth: 1 }
       }],
       tooltip: {
         trigger: 'item',
@@ -303,7 +303,7 @@ export class CultiveMapComponent implements OnInit {
         radius: ['40%', '70%'],
         label: {
           formatter: '{b}: {c} m² ({d}%)',
-          color: '#fff',
+          color: 'gray',
           textBorderWidth: 0,
           textBorderColor: 'transparent',
           textShadowBlur: 0,
@@ -322,7 +322,7 @@ export class CultiveMapComponent implements OnInit {
         padding: [0, 0, 20, 0],
         textStyle: { 
           fontSize: 15, 
-          color: '#fff' 
+          color: 'Gray' 
         }
       },
       graphic: [{
@@ -330,7 +330,7 @@ export class CultiveMapComponent implements OnInit {
         left: 'center',
         top: 45,
         shape: { x1: -150, y1: 0, x2: 150, y2: 0 },
-        style: { stroke: '#fff', lineWidth: 1 }
+        style: { stroke: 'gray', lineWidth: 1 }
       }],
       tooltip: {
         trigger: 'item',
