@@ -89,6 +89,9 @@ export class CultiveDetailsComponent
   // Propiedad para alternar entre vistas de estadísticas
   statsView: 'tramos' | 'resumen' = 'tramos';
 
+  // Booleando para controlar la visibilidad del boton de pdf
+  showPdfButton: boolean = false;
+
   //barra progresiva
   progressPercentage: number = 0;
   private progressInterval: any;
@@ -118,6 +121,10 @@ export class CultiveDetailsComponent
 
   setActiveTab(tab: 'Datos de cultivo' | 'Mapping' | 'Insights' | 'nerfs'): void {
     this.activeTab = tab;
+
+    // Hace que solo salga el botón de pdf si esta en Insights
+    this.showPdfButton = (tab === 'Insights');
+
     if (tab === 'Mapping') {
       setTimeout(() => this.initMap(), 0); // Pequeño delay
     }

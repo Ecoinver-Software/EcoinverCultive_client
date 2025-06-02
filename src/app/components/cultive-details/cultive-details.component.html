@@ -199,11 +199,11 @@
       {{ cultivo?.nombreVariedad }}
     </p>
     <!-- Botón de exportación -->
-    <button (click)="exportToPdf()"
-      class="cursor-pointer ml-2 bg-[#437d3f] hover:bg-[#396a35] text-white px-3 py-1 rounded-md text-xs flex items-center transition-colors"
-      title="Exportar a PDF">
-      <i class="fas fa-file-pdf mr-1"></i> PDF
-    </button>
+    <button *ngIf="showPdfButton" (click)="exportToPdf()"
+    class="cursor-pointer ml-2 bg-[#437d3f] hover:bg-[#396a35] text-white px-3 py-1 rounded-md text-xs flex items-center transition-colors"
+    title="Exportar a PDF">
+    <i class="fas fa-file-pdf mr-1"></i> PDF
+  </button>
   </div>
 </div>
 
