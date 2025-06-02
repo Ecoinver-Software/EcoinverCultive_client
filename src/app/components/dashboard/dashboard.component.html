@@ -254,12 +254,35 @@
         
         <!-- Contenedor gráfica -->
         <div class="p-5 sm:px-6 py-5 animate-fade-in" style="animation-delay: 400ms;">
-          <div class="w-full h-80 overflow-hidden">
-            <p-chart *ngIf="chartType === 'commercial'" type="line" [data]="commercialData" [options]="options" class="w-full h-full" />
-            <p-chart *ngIf="chartType === 'production'" type="line" [data]="productionData" [options]="options" class="w-full h-full" />
-            <p-chart *ngIf="chartType === 'combined'" type="line" [data]="data" [options]="options" class="w-full h-full" />
-          </div>
-        </div>
+  <div class="w-full h-80 overflow-hidden">
+    <p-chart 
+      *ngIf="chartType === 'commercial'" 
+      #commercialChart
+      type="line" 
+      [data]="commercialData" 
+      [options]="options" 
+      class="commercial-chart w-full h-full"
+      data-chart-type="commercial" />
+      
+    <p-chart 
+      *ngIf="chartType === 'production'" 
+      #productionChart
+      type="line" 
+      [data]="productionData" 
+      [options]="options" 
+      class="production-chart w-full h-full"
+      data-chart-type="production" />
+      
+    <p-chart 
+      *ngIf="chartType === 'combined'" 
+      #combinedChart
+      type="line" 
+      [data]="data" 
+      [options]="options" 
+      class="combined-chart w-full h-full"
+      data-chart-type="combined" />
+  </div>
+</div>
       </div>
 
       <!-- Panel informativo -->
