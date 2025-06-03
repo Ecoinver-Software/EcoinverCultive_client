@@ -1667,8 +1667,6 @@ export class CultiveDetailsComponent
     //Se ajustan solo aquellas en las que las fechas entran en el rango 
     const fechaHoy = new Date();
 
-    
-
     for (let i = 0; i < this.productions.length; i++) {
       //Pasamos la fecha string a una fecha correcta.
 
@@ -1681,7 +1679,6 @@ export class CultiveDetailsComponent
           (data) => {
             this.productions[i].kilosAjustados = kilos.toString();
             console.log('Respuesta del servidor:', data);
-
 
           },
           (error) => {
@@ -1701,6 +1698,7 @@ export class CultiveDetailsComponent
   cancelarModal() {
     this.editarConfirm = false;
   }
+
   editarVariable() {
 
     this.variableService.put(this.variables[this.indice].id, this.variables[this.indice]).subscribe(
@@ -1743,8 +1741,10 @@ export class CultiveDetailsComponent
       }
     }
   }
+
   calcularPorcentaje(){
-    let suma=0;
+
+  let suma=0;
   for(let i=0;i<this.variables.length;i++){
     if(this.variables[i].valor<1){
       suma-=(1-this.variables[i].valor);
@@ -1754,10 +1754,11 @@ export class CultiveDetailsComponent
     }
   }
   return suma.toFixed(2);
+
   }
 
   produccionRelativa(){
-     let multiplicacion=1;
+    let multiplicacion=1;
     for(let i=0;i<this.variables.length;i++){
      
       multiplicacion*=this.variables[i].valor;
