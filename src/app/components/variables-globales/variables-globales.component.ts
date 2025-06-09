@@ -437,8 +437,8 @@ export class VariablesGlobalesComponent implements OnInit {
 
     // Tomar el valor original antes de modificar nada
     const valorOriginal = variablesConNombre[1]?.valor;
-    alert(valorOriginal);
-    alert(nuevoValor);
+    //alert(valorOriginal);
+    //alert(nuevoValor);
     console.log(variablesConNombre);
     if (valorOriginal === undefined) return;
 
