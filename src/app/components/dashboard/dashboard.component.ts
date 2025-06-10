@@ -1650,6 +1650,8 @@ export class DashboardComponent implements OnInit {
             }
           }
         }
+
+        if(this.producReal) {
         for(let i=0;i<this.producReal.length;i++){
           const mes = new Date(this.producReal[i].fechaInicio);
           for(let j=0;j<meses2.length;j++){
@@ -1660,6 +1662,9 @@ export class DashboardComponent implements OnInit {
 
 
         }
+      }else{
+        console.log('No hay producciones reales, linea 1666');
+      }
 
         for (let i = 0; i < planningDetails.length; i++) {//para ir sumando los kg de cada semana
           //Necesitamos saber en que mes entra la planificación de la necesidad
