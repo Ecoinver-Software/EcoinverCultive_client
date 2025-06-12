@@ -10,6 +10,7 @@ import { AuthService } from '../../services/Auth.service';
 import { HostListener } from '@angular/core';
 
 import { trigger, transition, style, animate, keyframes } from '@angular/animations';
+import { environment } from '../../environment/environment';
 //alertas
 
 @Component({
@@ -102,9 +103,15 @@ export class UsersComponent implements OnInit {
       this.loadListaRoles();
       this.loadUsers();
     });
+
+      //console.log('=== DEBUG URLS ===');
+      //console.log('environment.baseUrl:', environment.baseUrl);
+      //console.log('Final apiUrl:', environment.baseUrl + 'users');
+      //console.log('Final roleUrl:', environment.baseUrl + 'Roles');
+      //console.log('==================');
   }
 
-  
+
   private setCurrentUserLevel(): void {
     if (this.currentUser?.role) {
       this.currentUserLevel = this.roleLevelMap[this.currentUser.role.toLowerCase()] || 99;
@@ -152,7 +159,7 @@ export class UsersComponent implements OnInit {
   private loadListaRoles(): void {
     this.UsersService.getRoles().subscribe({
       next: (listaRoles: RoleResponse[]) => {
-        this.roles = listaRoles.filter(role => 
+        this.roles = listaRoles.filter(role =>
           this.canAssignRole(role.name)
         );
       },
@@ -419,14 +426,14 @@ export class UsersComponent implements OnInit {
     if (this.showModal || this.showDeleteModal) {
       return;
     }
-  
+
     const target = event.target as HTMLElement;
-    
+
     // Verifica si el clic fue en una fila de la tabla (tbody tr)
     const clickedRow = target.closest('tbody tr');
     // Verifica si el clic fue en un botón de acción (editar/borrar)
     const isActionButton = target.closest('.action-button');
-  
+
     // Si no es una fila ni un botón de acción, deselecciona
     if (!clickedRow && !isActionButton) {
       this.selectedUsuario = null;

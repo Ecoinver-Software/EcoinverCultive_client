@@ -14,8 +14,8 @@ RUN npm run build -- --output-path=dist
 FROM nginx:1.23-alpine
 RUN mkdir -p /etc/ssl/certs /etc/ssl/private
 
-COPY rootCA.crt    /usr/local/share/ca-certificates/rootCA.crt
-RUN update-ca-certificates
+# COPY rootCA.crt    /usr/local/share/ca-certificates/rootCA.crt
+# RUN update-ca-certificates
 
 COPY nginx/certs/server.crt  /etc/ssl/certs/server.crt
 COPY nginx/certs/server.key  /etc/ssl/private/server.key
