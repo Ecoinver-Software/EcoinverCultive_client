@@ -4,4 +4,5 @@ export interface Variables {
     idCultivo:number;
     fechaRegistro:Date;
     valor:number;
+    categoria:string;
 }

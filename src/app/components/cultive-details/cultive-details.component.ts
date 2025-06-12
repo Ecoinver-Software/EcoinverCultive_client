@@ -89,6 +89,9 @@ export class CultiveDetailsComponent
   // Propiedad para alternar entre vistas de estadísticas
   statsView: 'tramos' | 'resumen' = 'tramos';
 
+  // Booleando para controlar la visibilidad del boton de pdf
+  showPdfButton: boolean = false;
+
   //barra progresiva
   progressPercentage: number = 0;
   private progressInterval: any;
@@ -118,6 +121,10 @@ export class CultiveDetailsComponent
 
   setActiveTab(tab: 'Datos de cultivo' | 'Mapping' | 'Insights' | 'nerfs'): void {
     this.activeTab = tab;
+
+    // Hace que solo salga el botón de pdf si esta en Insights
+    this.showPdfButton = (tab === 'Insights');
+
     if (tab === 'Mapping') {
       setTimeout(() => this.initMap(), 0); // Pequeño delay
     }
@@ -255,10 +262,11 @@ export class CultiveDetailsComponent
       (data) => {
         this.variables = data;
         console.log(data);
-        this.variables = this.variables.filter(item => item.idCultivo == idNumero);
+        this.variables = this.variables.filter(item => item.idCultivo == idNumero && item.categoria=='normal');
         for (let i = 0; i < this.variables.length; i++) {
           this.value.push(this.variables[i].valor);
         }
+
       },
       (error) => {
         console.log(error);
@@ -1566,7 +1574,8 @@ export class CultiveDetailsComponent
       name: nombreVariable.value,
       idCultivo: idNumero,
       fechaRegistro: new Date(),
-      valor: this.valor / 100
+      valor: this.valor / 100,
+      categoria:'normal'
     }
 
     console.log('Variable a enviar:', variable);
@@ -1576,13 +1585,7 @@ export class CultiveDetailsComponent
       (data) => {
 
         console.log(data);
-        this.variables.push({
-          id: data.id,
-          name: data.name,
-          idCultivo: data.idCultivo,
-          fechaRegistro: data.fechaRegistro,
-          valor: data.valor
-        });
+        
         this.cambiarKilosAjustados();
         this.porcentaje(this.variables.length - 1);
 
@@ -1629,7 +1632,7 @@ export class CultiveDetailsComponent
     const valor = this.variables[i].valor;
     this.variableService.delete(this.variables[i].id).subscribe(
       (data) => {
-
+        
         console.log(data);
         this.arreglarKilosAjustados(valor);
 
@@ -1671,12 +1674,11 @@ export class CultiveDetailsComponent
         console.log('=== PROCESANDO PRODUCCIÓN ===', i);
 
         const kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) / valor;
-
+       
         this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
           (data) => {
             this.productions[i].kilosAjustados = kilos.toString();
             console.log('Respuesta del servidor:', data);
-
 
           },
           (error) => {
@@ -1686,6 +1688,7 @@ export class CultiveDetailsComponent
       }
     }
   }
+
   abrirModalEditar(i: number) {
 
     this.editarConfirm = true;
@@ -1695,6 +1698,7 @@ export class CultiveDetailsComponent
   cancelarModal() {
     this.editarConfirm = false;
   }
+
   editarVariable() {
 
     this.variableService.put(this.variables[this.indice].id, this.variables[this.indice]).subscribe(
@@ -1737,8 +1741,10 @@ export class CultiveDetailsComponent
       }
     }
   }
+
   calcularPorcentaje(){
-    let suma=0;
+
+  let suma=0;
   for(let i=0;i<this.variables.length;i++){
     if(this.variables[i].valor<1){
       suma-=(1-this.variables[i].valor);
@@ -1748,16 +1754,15 @@ export class CultiveDetailsComponent
     }
   }
   return suma.toFixed(2);
+
   }
 
   produccionRelativa(){
-     let multiplicacion=1;
+    let multiplicacion=1;
     for(let i=0;i<this.variables.length;i++){
      
       multiplicacion*=this.variables[i].valor;
-      
-    
-     
+ 
     }
     let resultado=(multiplicacion*100).toFixed(0);
   

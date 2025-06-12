@@ -39,11 +39,7 @@ export class CultiveProductionService {
     return this.http.put<CultiveProductionDto>(url, dto);
   }
   updatePatch(id: number, kilos: number) {
-    console.log('=== SERVICIO updatePatch ===');
-    console.log('ID recibido:', id, typeof id);
-    console.log('Kilos recibidos:', kilos, typeof kilos);
-    console.log('URL que se construirá:', `${this.baseUrl}/${id}/${kilos}`);
-    
+   
     return this.http.patch(`${this.baseUrl}/${id}/${kilos}`, null);
 }
   /** DELETE: remove a production */

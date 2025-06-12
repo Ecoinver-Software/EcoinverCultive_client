@@ -14,7 +14,7 @@ import { RankingComponent } from './components/ranking/ranking.component';
 import { StockComponent } from './components/stock/stock.component';
 import { StockDetailsComponent } from './components/stock-details/stock-details.component';
 import { ChangelogComponent } from './components/changelog/changelog.component';
-import { VariablesGlobalesComponent } from './variables-globales/variables-globales.component';
+import { VariablesGlobalesComponent } from './components/variables-globales/variables-globales.component';
 
 
 export const routes: Routes = [
