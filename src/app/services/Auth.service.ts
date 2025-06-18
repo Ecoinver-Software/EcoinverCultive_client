@@ -25,7 +25,7 @@ export class AuthService {
   //metodo para obtener el usuario actual:
   // auth.service.ts
   getCurrentUser(): { id: string; role: string } | null {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('jwt');
     if (!token) return null;
   
     try {

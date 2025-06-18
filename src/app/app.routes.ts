@@ -19,10 +19,10 @@ import { VariablesGlobalesComponent } from './components/variables-globales/vari
 
 export const routes: Routes = [
   // Redirige la raíz al login
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
   // Ruta para el login (sin layout)
-  { path: 'login', component: LoginComponent },
+  //{ path: 'login', component: LoginComponent },
 
   // Rutas protegidas que usan un layout común
   {
@@ -49,5 +49,5 @@ export const routes: Routes = [
   },
 
   // Ruta comodín redirige a login
-  { path: '**', redirectTo: 'login' }
+  { path: '**', redirectTo: 'dashboard' }
 ];
