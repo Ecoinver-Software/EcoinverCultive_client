@@ -49,12 +49,12 @@ export class VariablesGlobalesComponent implements OnInit {
     this.productionService.getAllCultiveProductions().subscribe(
       (data) => {
         this.producciones = data;
-        const fechaHoy = new Date();
+
 
         //Para coger aquellos cultivos cuya planidficación entra en la fecha de la creación de la variable.
         for (let i = 0; i < this.producciones.length; i++) {
           const encontrado = this.idCultivoFechaValida.find(item => item == this.producciones[i].cultiveId);
-          if (encontrado == null && new Date(this.producciones[i].fechaFin).getTime() >= fechaHoy.getTime()) {
+          if (encontrado == null) {
             this.idCultivoFechaValida.push(this.producciones[i].cultiveId);
           }
         }
@@ -205,11 +205,18 @@ export class VariablesGlobalesComponent implements OnInit {
   }
 
   cultivosValidos() {
+    const fechaHoy = new Date();
     for (let i = 0; i < this.idCultivoFechaValida.length; i++) {
       this.cultiveService.getById(this.idCultivoFechaValida[i]).subscribe(
         (data) => {
-          this.cultivos.push(data);
-          this.cultivosFiltrados.push(data);
+          if (data.fechaFin) {
+            if (new Date(data.fechaFin).getTime() <= fechaHoy.getTime()) {
+              this.cultivos.push(data);
+              this.cultivosFiltrados.push(data);
+            }
+          }
+
+
         },
         (error) => {
           console.log(error);
@@ -490,16 +497,16 @@ export class VariablesGlobalesComponent implements OnInit {
     return Promise.all(promesas);
   }
 
-  coeficientePromedio(){
-    const suma=this.variables.reduce((a,b)=>a+b.valor,0);
-    const promedio=suma/this.variables.length;
-    if(!isNaN(promedio)){
+  coeficientePromedio() {
+    const suma = this.variables.reduce((a, b) => a + b.valor, 0);
+    const promedio = suma / this.variables.length;
+    if (!isNaN(promedio)) {
       return promedio.toFixed(2); // Retorna el promedio con 2 decimales
     }
-    else{
+    else {
       return 0;
     }
-    
-  } 
+
+  }
 
 }
