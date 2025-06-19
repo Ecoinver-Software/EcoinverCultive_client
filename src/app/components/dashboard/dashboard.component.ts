@@ -181,7 +181,7 @@ export class DashboardComponent implements OnInit {
   const token = localStorage.getItem('jwt');
 
   if (!token) {
-    alert('No hay token de App A');
+    alert('No hay token del App Hub, vuelva al App Hub y vuelva a iniciar sesión');
     return;
   }
 
@@ -193,9 +193,10 @@ export class DashboardComponent implements OnInit {
     return;
   }
 
-  console.log('🚀 Iniciando auto-login con username:', username);
+  //console.log('Iniciando auto-login con username:', username);
 
   // Hacer auto-login en App B
+  /*
   this.http
     .post('https://172.16.60.254:5001/api/auth/auto-login', {
 
@@ -222,7 +223,8 @@ export class DashboardComponent implements OnInit {
           alert('Endpoint auto-login no encontrado. ¿Agregaste el método al AuthController?');
         }
       },
-    });
+    });*/
+
 }
 
   private getUsername(token: string): string | null {
@@ -237,7 +239,6 @@ export class DashboardComponent implements OnInit {
     const username = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
 
     console.log('✅ Username encontrado:', username);
-
     return username || null;
 
   } catch (error) {
