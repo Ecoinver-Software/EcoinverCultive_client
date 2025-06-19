@@ -194,7 +194,7 @@ export class DashboardComponent implements OnInit {
 
   // Hacer auto-login en App B
   this.http
-    .post('http://localhost:5189/api/auth/auto-login', {
+    .post('https://172.16.60.254:5001/api/auth/auto-login', {
       username: username,
       email: null,
     })
@@ -206,13 +206,13 @@ export class DashboardComponent implements OnInit {
         localStorage.setItem('jwt', response.token);
 
         console.log('✅ Token de App B guardado exitosamente');
-        
+
         // Opcional: cargar datos
         // this.cargarDatos();
       },
       error: (error) => {
         console.log('❌ Error en auto-login:', error);
-        
+
         // Si hay error 500, puede ser que necesites crear el endpoint en el backend
         if (error.status === 404) {
           alert('Endpoint auto-login no encontrado. ¿Agregaste el método al AuthController?');
@@ -231,11 +231,11 @@ export class DashboardComponent implements OnInit {
 
     // ✅ USAR EL CAMPO CORRECTO QUE ENCONTRAMOS
     const username = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
-    
+
     console.log('✅ Username encontrado:', username);
-    
+
     return username || null;
-    
+
   } catch (error) {
     console.error('Error decodificando token:', error);
     return null;
@@ -246,7 +246,7 @@ export class DashboardComponent implements OnInit {
   /*
 private cargarDatos() {
   const token = localStorage.getItem('appBToken');
-  
+
   this.http.get('http://localhost:5189/api/', {
     headers: { 'Authorization': `Bearer ${token}` }
   }).subscribe({

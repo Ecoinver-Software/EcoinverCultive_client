@@ -5,7 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   providedIn: 'root'
 })
 export class ValidationTokenService {
-  private apiHub_url = 'https://localhost:7028/api';
+  private apiHub_url = 'https://172.16.60.254:8443/api';
 
   constructor(private http: HttpClient) { }
 
