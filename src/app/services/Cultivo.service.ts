@@ -28,4 +28,8 @@ export class CultivoService {
   ): Observable<Cultive> {
     return this.http.patch<Cultive>(`${this.baseUrl}/${id}`, cambios);
   }
+
+  patch(id:number,kilos:number){
+    return this.http.patch(this.baseUrl+'/'+id+'/prod',kilos);
+  }
 }

@@ -14,6 +14,7 @@ import { CultiveProductionDto } from '../../types/CultiveProductionTypes';
 import jsPDF from 'jspdf';
 import { Variables } from '../../types/variables';
 import { VariablesService } from '../../services/variables.service';
+import { CultivoService } from '../../services/Cultivo.service';
 
 
 interface Cultivo {
@@ -116,7 +117,8 @@ export class CultiveDetailsComponent
     private route: ActivatedRoute,
     private http: HttpClient,
     private productionService: CultiveProductionService,
-    private variableService: VariablesService
+    private variableService: VariablesService,
+    private cultivoService: CultivoService
   ) { }
 
   setActiveTab(tab: 'Datos de cultivo' | 'Mapping' | 'Insights' | 'nerfs'): void {
@@ -262,7 +264,7 @@ export class CultiveDetailsComponent
       (data) => {
         this.variables = data;
         console.log(data);
-        this.variables = this.variables.filter(item => item.idCultivo == idNumero && item.categoria=='normal');
+        this.variables = this.variables.filter(item => item.idCultivo == idNumero && item.categoria == 'normal');
         for (let i = 0; i < this.variables.length; i++) {
           this.value.push(this.variables[i].valor);
         }
@@ -1532,6 +1534,7 @@ export class CultiveDetailsComponent
   }
 
   addVariable() {
+
     this.errorMessage = null;
     const nombreVariable = document.getElementById('nombre') as HTMLInputElement;
     const fechaHoy = new Date();
@@ -1556,14 +1559,20 @@ export class CultiveDetailsComponent
 
       return;
     }
-    if (this.productions.length <= 0) {//Pra cuando no haya producciones asociadas al cultivo.
+
+    if (this.productions.length <= 0) {//Para cuando no haya producciones asociadas al cultivo.
       this.showErrorAlert = true;
 
       this.errorMessage = 'Esta variable no afectará a ningun cultivo';
       return;
     }
-    //Comprobamos que la variable que se crea afectará minímo a uan de las producciones.
-    if (new Date(this.productions[this.productions.length - 1].fechaFin).getTime() < fechaHoy.getTime()) {
+    if (!this.cultivo?.fechaFin) {
+      this.showErrorAlert = true;
+      this.errorMessage = 'No hay fecha de fin definida para el cultivo';
+      return;
+    }
+    //Comprobamos que la variable que se crea afectará minímo a una de las producciones.
+    if (new Date(this.cultivo?.fechaFin).getTime() < fechaHoy.getTime()) {
       this.showErrorAlert = true;
       this.errorMessage = 'Esta variable no afectará a ningun cultivo';
       return;
@@ -1575,7 +1584,7 @@ export class CultiveDetailsComponent
       idCultivo: idNumero,
       fechaRegistro: new Date(),
       valor: this.valor / 100,
-      categoria:'normal'
+      categoria: 'normal'
     }
 
     console.log('Variable a enviar:', variable);
@@ -1585,7 +1594,7 @@ export class CultiveDetailsComponent
       (data) => {
 
         console.log(data);
-        
+
         this.cambiarKilosAjustados();
         this.porcentaje(this.variables.length - 1);
 
@@ -1604,27 +1613,41 @@ export class CultiveDetailsComponent
     const valor = this.valor / 100;
     //Para coger la fecha de hoy
     const fechaHoy = new Date();
-
+    if (!this.cultivo?.fechaFin) {
+      this.showErrorAlert = true;
+      this.errorMessage = 'Esta variable no afectará a ningun cultivo';
+      return;
+    }
+    if (new Date(this.cultivo?.fechaFin).getTime() < fechaHoy.getTime()) {
+      return;
+    }
+    let completado = 0;//Para que cuando termine las peticiones se calcule la producción estimada.
     for (let i = 0; i < this.productions.length; i++) {
       //Pasamos la fecha string a una fecha correcta.
 
-      if (this.productions[i] && new Date(this.productions[i].fechaFin).getTime() >= fechaHoy.getTime()) {
-        console.log('=== PROCESANDO PRODUCCIÓN ===', i);
+
+      console.log('=== PROCESANDO PRODUCCIÓN ===', i);
 
 
-        let kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) * valor;
+      let kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) * valor;
+      kilos = Math.round(kilos * 100) / 100; //Cogemos solo dos decimales de los kilos
+      this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
+        (data) => {
+          console.log('Respuesta del servidor:', data);
+          this.productions[i].kilosAjustados = kilos.toString();
 
-        this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
-          (data) => {
-            console.log('Respuesta del servidor:', data);
+          completado++;
+          if (completado == this.productions.length) {
+            this.calcularProduccionEstimada();
             this.showSuccessAlert = true;
-          },
-          (error) => {
-            console.log('Error:', error);
-
           }
-        );
-      }
+        },
+        (error) => {
+          console.log('Error:', error);
+
+        }
+      );
+
     }
   }
 
@@ -1632,9 +1655,9 @@ export class CultiveDetailsComponent
     const valor = this.variables[i].valor;
     this.variableService.delete(this.variables[i].id).subscribe(
       (data) => {
-        
+
         console.log(data);
-        this.arreglarKilosAjustados(valor);
+        this.arreglarKilosBorrar(valor);
 
         this.variables.splice(i, 1);
 
@@ -1666,26 +1689,39 @@ export class CultiveDetailsComponent
   arreglarKilosAjustados(valor: number) {
     //Se ajustan solo aquellas en las que las fechas entran en el rango 
     const fechaHoy = new Date();
+    if (!this.cultivo?.fechaFin) {
+      this.showErrorAlert = true;
+      this.errorMessage = 'Esta variable no afectará a ningun cultivo';
+      return;
+    }
+    if (new Date(this.cultivo?.fechaFin).getTime() < fechaHoy.getTime()) {
+      return;
+    }
 
+    let completo = 0;//Para saber cuando termina
     for (let i = 0; i < this.productions.length; i++) {
       //Pasamos la fecha string a una fecha correcta.
 
-      if (this.productions[i] && new Date(this.productions[i].fechaFin).getTime() >= fechaHoy.getTime()) {
-        console.log('=== PROCESANDO PRODUCCIÓN ===', i);
+      console.log('=== PROCESANDO PRODUCCIÓN ===', i);
 
-        const kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) / valor;
-       
-        this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
-          (data) => {
-            this.productions[i].kilosAjustados = kilos.toString();
-            console.log('Respuesta del servidor:', data);
+      let kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) * valor;
+      kilos = Math.round(kilos * 100) / 100;
+      this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
+        (data) => {
+          this.productions[i].kilosAjustados = kilos.toString();
+          console.log('Respuesta del servidor:', data);
+          completo++;
+          if (completo == this.productions.length) {
+            this.calcularProduccionEstimada();
 
-          },
-          (error) => {
-            console.log('Error:', error);
           }
-        );
-      }
+
+        },
+        (error) => {
+          console.log('Error:', error);
+        }
+      );
+
     }
   }
 
@@ -1700,12 +1736,13 @@ export class CultiveDetailsComponent
   }
 
   editarVariable() {
-
+    const valorAntiguo=this.variables[this.indice].valor;
+    this.variables[this.indice].valor=this.value[this.indice];
     this.variableService.put(this.variables[this.indice].id, this.variables[this.indice]).subscribe(
       (data) => {
         console.log(data);
-
-        this.arreglarKilosAjustados(this.variables[this.indice].valor / this.value[this.indice]);
+        alert(this);
+        this.arreglarKilosAjustados(this.value[this.indice] /valorAntiguo );//primero el nuevo valor luego el antiguo.
 
         this.variables[this.indice].valor = this.value[this.indice];
         this.editarConfirm = false;
@@ -1719,54 +1756,120 @@ export class CultiveDetailsComponent
   arreglarKilosEditar(valor: number) {
     //Se ajustan solo aquellas en las que las fechas entran en el rango 
     const fechaHoy = new Date();
+    if (!this.cultivo?.fechaFin) {
+      this.showErrorAlert = true;
+      this.errorMessage = 'Esta variable no afectará a ningun cultivo';
+      return;
+    }
+    if (new Date(this.cultivo?.fechaFin).getTime() < fechaHoy.getTime()) {
+      return;
+    }
 
     for (let i = 0; i < this.productions.length; i++) {
       //Pasamos la fecha string a una fecha correcta.
 
-      if (this.productions[i] && new Date(this.productions[i].fechaFin).getTime() >= fechaHoy.getTime()) {
-        console.log('=== PROCESANDO PRODUCCIÓN ===', i);
 
-        const kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) * valor;
+      console.log('=== PROCESANDO PRODUCCIÓN ===', i);
 
-        this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
-          (data) => {
-            this.productions[i].kilosAjustados = kilos.toString();
-            console.log('Respuesta del servidor:', data);
+      let kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) * valor;
+      kilos = Math.round(kilos * 100) / 100;
+      this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
+        (data) => {
+          this.productions[i].kilosAjustados = kilos.toString();
+          console.log('Respuesta del servidor:', data);
 
-          },
-          (error) => {
-            console.log('Error:', error);
+        },
+        (error) => {
+          console.log('Error:', error);
+        }
+      );
+
+    }
+  }
+  arreglarKilosBorrar(valor: number) {
+    //Se ajustan solo aquellas en las que las fechas entran en el rango 
+    const fechaHoy = new Date();
+    if (!this.cultivo?.fechaFin) {
+      this.showErrorAlert = true;
+      this.errorMessage = 'Esta variable no afectará a ningun cultivo';
+      return;
+    }
+    if (new Date(this.cultivo?.fechaFin).getTime() < fechaHoy.getTime()) {
+      return;
+    }
+    let completo = 0;
+    for (let i = 0; i < this.productions.length; i++) {
+      //Pasamos la fecha string a una fecha correcta.
+
+
+      console.log('=== PROCESANDO PRODUCCIÓN ===', i);
+
+      let kilos = Number(this.productions[i].kilosAjustados.trim().replace(',', '.')) / valor;
+
+      kilos = Math.round(kilos * 100) / 100;
+      this.productionService.updatePatch(this.productions[i].id, kilos).subscribe(
+        (data) => {
+          this.productions[i].kilosAjustados = kilos.toString();
+          console.log('Respuesta del servidor:', data);
+          completo++;
+          if (completo == this.productions.length) {
+            this.calcularProduccionEstimada();
           }
-        );
+        },
+        (error) => {
+          console.log('Error:', error);
+        }
+      );
+
+    }
+  }
+  calcularPorcentaje() {
+
+    let suma = 0;
+    for (let i = 0; i < this.variables.length; i++) {
+      if (this.variables[i].valor < 1) {
+        suma -= (1 - this.variables[i].valor);
+      }
+      else {
+        suma += (this.variables[i].valor - 1);
       }
     }
+    return suma.toFixed(2);
+
   }
 
-  calcularPorcentaje(){
+  produccionRelativa() {
 
-  let suma=0;
-  for(let i=0;i<this.variables.length;i++){
-    if(this.variables[i].valor<1){
-      suma-=(1-this.variables[i].valor);
+    let multiplicacion = 1;
+    for (let i = 0; i < this.variables.length; i++) {
+
+      multiplicacion *= this.variables[i].valor;
+
     }
-    else{
-      suma+=(this.variables[i].valor-1);
+    let resultado = (multiplicacion * 100).toFixed(0);
+
+    return resultado + '%';
+  }
+
+  calcularProduccionEstimada() {//Actualizamos la producción estimada despues de cambiar los valores de las variables
+
+    let suma = 0;
+    for (let i = 0; i < this.productions.length; i++) {
+      suma += Number(this.productions[i].kilosAjustados.replace(',', '.').trim());
+
+    }
+    if (this.cultivo) {
+      this.cultivo.produccionEstimada = suma;
+
+      this.cultivoService.patch(this.cultivo.id, suma).subscribe(
+        (data) => {
+          console.log(data);
+          this.initializeChart();
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
     }
   }
-  return suma.toFixed(2);
-
-  }
-
-  produccionRelativa(){
-    let multiplicacion=1;
-    for(let i=0;i<this.variables.length;i++){
-     
-      multiplicacion*=this.variables[i].valor;
- 
-    }
-    let resultado=(multiplicacion*100).toFixed(0);
-  
-  return resultado +'%';
-  }
-
 }

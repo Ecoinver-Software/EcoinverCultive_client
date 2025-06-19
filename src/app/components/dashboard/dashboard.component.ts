@@ -22,6 +22,7 @@ import { ProducReal } from '../../types/ProducReal';
 import { ValidationTokenService } from '../../services/validation-token.service';
 import { HttpClient } from '@angular/common/http';
 //import { AuthService } from '../../services/auth.service';
+import { JwtSyncService } from '../../services/jwt-sync-service.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -45,7 +46,8 @@ export class DashboardComponent implements OnInit {
     private producRealService: ProducRealService,
     //private authService: AuthService,
     private validarTokenService: ValidationTokenService,
-    private http: HttpClient
+    private http: HttpClient,
+    private jwtSync: JwtSyncService
   ) {}
 
   // Propiedades para los gráficos
@@ -103,6 +105,7 @@ export class DashboardComponent implements OnInit {
   producReal: ProducReal[] = [];
 
   ngOnInit(): void {
+    this.jwtSync.requestJwt();
     this.loadData();
 
     // Obtenemos los registros de los datos de la base de datos
@@ -195,6 +198,7 @@ export class DashboardComponent implements OnInit {
   // Hacer auto-login en App B
   this.http
     .post('https://172.16.60.254:5001/api/auth/auto-login', {
+
       username: username,
       email: null,
     })
