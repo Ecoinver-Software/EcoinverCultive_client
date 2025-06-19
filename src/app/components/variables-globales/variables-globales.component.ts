@@ -42,6 +42,7 @@ export class VariablesGlobalesComponent implements OnInit {
   buscar: string = '';
   editModal: boolean = false;
   indice: number = 0;
+  antiguoValor:number[]=[];//Para el editar, ya que se actualizan en el slider variables y variablesFiltros.
   constructor(private productionService: CultiveProductionService, private variablesService: VariablesService, private cultiveService: CultivoService) {
 
   }
@@ -128,7 +129,13 @@ export class VariablesGlobalesComponent implements OnInit {
       this.showErrorAlert = true;
       return;
     }
-
+    const encontrado = this.variables.find(item => item.name == this.nombreVariable);
+    console.log(this.variablesFiltros)
+    if (encontrado !== undefined) {
+      this.errorMessage = 'El Nombre de la variable ya existe';
+      this.showErrorAlert = true;
+      return;
+    }
     if (this.idsCultivosSeleccionados.length == 0) {
 
       this.errorMessage = 'Debes seleccionar al menos un cultivo';
@@ -165,7 +172,8 @@ export class VariablesGlobalesComponent implements OnInit {
       this.loading = false;
       this.message = 'Variable creada correctamente';
       this.showSuccessAlert = true;
-      this.calcularVariablesFiltros();
+      this.antiguoValor.push(this.valorRango / 100);//Cuando se crea una varibale guardamos su valor para una posterior edicion
+      
 
     } catch (error) {
       console.log(error);
@@ -191,10 +199,10 @@ export class VariablesGlobalesComponent implements OnInit {
 
     // Crear promesas para TODAS las actualizaciones
     const promesas = producciones.map(produccion => {
-      const kilos = Number(produccion.kilosAjustados.trim().replace(',', '.')) * valor;
+      const kilos = Math.round(Number(produccion.kilosAjustados.trim().replace(',', '.')) * valor)*100/100;
       return this.productionService.updatePatch(produccion.id, kilos).toPromise();
     });
-
+    this.calcularProduccionEstimada(idCultivo, valor, '1');
     // Retornar Promise que espera a TODAS
     return Promise.all(promesas);
   }
@@ -210,7 +218,9 @@ export class VariablesGlobalesComponent implements OnInit {
       this.cultiveService.getById(this.idCultivoFechaValida[i]).subscribe(
         (data) => {
           if (data.fechaFin) {
-            if (new Date(data.fechaFin).getTime() <= fechaHoy.getTime()) {
+
+            if (new Date(data.fechaFin).getTime() >= fechaHoy.getTime()) {
+              
               this.cultivos.push(data);
               this.cultivosFiltrados.push(data);
             }
@@ -263,8 +273,11 @@ export class VariablesGlobalesComponent implements OnInit {
 
   todos() {
     this.contadorCheckbox = 0;
-    this.idsCultivosSeleccionados = this.idCultivoFechaValida;
-
+    for(let i=0;i<this.cultivosFiltrados.length;i++){
+      this.idsCultivosSeleccionados.push(this.cultivosFiltrados[i].id);
+    }
+      
+    
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     for (let i = 0; i < checkboxes.length; i++) {
       const checkbox = checkboxes[i] as HTMLInputElement;
@@ -275,13 +288,14 @@ export class VariablesGlobalesComponent implements OnInit {
   }
 
   borrar(name: string) {
+    const pos=this.variablesFiltros.findIndex(item=>item.name==name);
+    this.antiguoValor.splice(pos,1);
     const variables = this.variables.filter(item => item.name == name);
     for (let i = 0; i < variables.length; i++) {
       this.variablesService.delete(variables[i].id).subscribe(
         (data) => {
           console.log(data);
           this.ajustarKilosBorrar(variables[i].id, data.valor);
-
         }
       );
     }
@@ -290,7 +304,7 @@ export class VariablesGlobalesComponent implements OnInit {
 
   ajustarKilosBorrar(id: number, valor: number) {
     const variab = this.variablesFiltros.find(item => item.id == id);
-    const variablesProduccion = this.variables.filter(item => item.name == variab?.name);
+    const variablesProduccion = this.variables.filter(item => item.id == variab?.id);
 
     this.loading = true; // Mostrar spinner
 
@@ -322,7 +336,7 @@ export class VariablesGlobalesComponent implements OnInit {
       if (encontrado !== undefined) {
         this.productionService.updatePatch(
           this.producciones[i].id,
-          Number(this.producciones[i].kilosAjustados.trim().replace(',', '.')) / valor
+          Math.round(Number(this.producciones[i].kilosAjustados.trim().replace(',', '.')) / valor*100)/100
         ).subscribe(
           (data) => {
             console.log(data);
@@ -331,6 +345,7 @@ export class VariablesGlobalesComponent implements OnInit {
             // Verificar si ya terminaron todas
             if (operacionesCompletadas === totalOperaciones) {
               this.loading = false; // Ocultar spinner
+              this.calcularProduccionEstimada(this.producciones[i].cultiveId, valor, '2');
               window.location.reload();
 
             }
@@ -341,6 +356,7 @@ export class VariablesGlobalesComponent implements OnInit {
 
             // Verificar si ya terminaron todas (incluso con error)
             if (operacionesCompletadas === totalOperaciones) {
+              
               this.loading = false; // Ocultar spinner
               // Opcional: mostrar mensaje de error
             }
@@ -356,17 +372,17 @@ export class VariablesGlobalesComponent implements OnInit {
       const encontrado = this.variablesFiltros.find(item => item.name == this.variables[i].name);
       if (encontrado == undefined) {
         this.variablesFiltros.push(this.variables[i]);
+        this.antiguoValor.push(this.variables[i].valor);
       }
     }
-
 
   }
 
   calcularPorcentaje(evento: Event, i: number) {
     let slider = evento.target as HTMLInputElement;
+    
     this.variablesFiltros[i].valor = Number(slider.value) / 100;
-
-
+    
   }
 
   cerrarDeleteModal() {
@@ -380,14 +396,19 @@ export class VariablesGlobalesComponent implements OnInit {
 
   cultivosAfectados(i: number) {
     this.cultivosAsociados = [];
-
+    const fechaHoy = new Date();
     const encontrado = this.variables.filter(item => item.name == this.variablesFiltros[i].name);
+
     console.log(encontrado);
     if (encontrado !== undefined) {
       for (let i = 0; i < encontrado.length; i++) {
         const cultivo = this.cultivos.find(item => item.id == encontrado[i].idCultivo);
+
         if (cultivo !== undefined) {
-          this.cultivosAsociados.push(cultivo);
+          if (new Date(cultivo.fechaFin!).getTime() >= fechaHoy.getTime()) {
+            this.cultivosAsociados.push(cultivo);
+          }
+
         }
       }
     }
@@ -438,15 +459,15 @@ export class VariablesGlobalesComponent implements OnInit {
     this.editModal = false; // Cerrar el modal de edición
 
     const nombre = this.variablesFiltros[i].name;
+    
     const nuevoValor = this.variablesFiltros[i].valor;
     const variablesConNombre = this.variables.filter(v => v.name === nombre);
     console.log(this.variables);
-
+   
     // Tomar el valor original antes de modificar nada
-    const valorOriginal = variablesConNombre[1]?.valor;
-    //alert(valorOriginal);
-    //alert(nuevoValor);
-    console.log(variablesConNombre);
+    const valorOriginal = this.antiguoValor[i];
+    
+    
     if (valorOriginal === undefined) return;
 
     this.loading = true;
@@ -474,6 +495,7 @@ export class VariablesGlobalesComponent implements OnInit {
       this.loading = false;
       this.message = 'Variable editada correctamente';
       this.showSuccessAlert = true;
+      this.antiguoValor[i]=nuevoValor;
       this.calcularVariablesFiltros();
     } catch (error) {
       console.log(error);
@@ -491,9 +513,10 @@ export class VariablesGlobalesComponent implements OnInit {
     const promesas = cultivosAfectados.map(cultivo =>
       this.productionService.updatePatch(
         cultivo.id,
-        Number(cultivo.kilosAjustados.trim().replace(',', '.')) * factor
+        Math.round(Number(cultivo.kilosAjustados.trim().replace(',', '.')) * factor*100) /100
       ).toPromise()
     );
+    this.calcularProduccionEstimada(idCultivo,factor,'1');
     return Promise.all(promesas);
   }
 
@@ -508,5 +531,39 @@ export class VariablesGlobalesComponent implements OnInit {
     }
 
   }
+  calcularProduccionEstimada(idCultivo: number, valor: number, opcion: string) {//Actualizamos la producción estimada despues de cambiar los valores de las variables
+    const producciones = this.producciones.filter(item => item.cultiveId == idCultivo);
+    let suma = 0;
+
+
+    switch (opcion) {//Segun la operación editar,añadir o borrar.
+      case '1'://Para el crear y el editar.
+        for (let i = 0; i < producciones.length; i++) {
+          suma += Number(producciones[i].kilosAjustados.replace(',', '.').trim()) * valor;
+
+        }
+        break;
+      case '2'://Para el borrar.
+        for (let i = 0; i < producciones.length; i++) {
+          suma += Number(producciones[i].kilosAjustados.replace(',', '.').trim()) / valor;
+
+        }
+        break;
+
+    }
+
+
+    this.cultiveService.patch(idCultivo, suma).subscribe(
+      (data) => {
+        console.log(data);
+
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+
+  }
+
 
 }
