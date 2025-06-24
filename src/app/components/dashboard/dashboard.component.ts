@@ -23,6 +23,7 @@ import { ValidationTokenService } from '../../services/validation-token.service'
 import { HttpClient } from '@angular/common/http';
 //import { AuthService } from '../../services/auth.service';
 import { JwtSyncService } from '../../services/jwt-sync-service.service';
+import { AuthService } from '../../services/Auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -47,7 +48,8 @@ export class DashboardComponent implements OnInit {
     //private authService: AuthService,
     private validarTokenService: ValidationTokenService,
     private http: HttpClient,
-    private jwtSync: JwtSyncService
+    private jwtSync: JwtSyncService,
+    private authService:AuthService
   ) {}
 
   // Propiedades para los gráficos
@@ -72,6 +74,7 @@ export class DashboardComponent implements OnInit {
     endDate: new Date(),
     idGenero: 0,
     nombreGenero: '',
+    nombreUsuario:'',
     kgs: 0,
   };
   isExporting: boolean = false;
@@ -108,6 +111,16 @@ export class DashboardComponent implements OnInit {
     this.jwtSync.requestJwt();
     this.loadData();
 
+    //Para obtener la información del usuario
+    this.authService.obtenerInfo().subscribe(
+      (data)=>{
+        console.log(data);
+       
+      },
+      (error)=>{
+        console.log(error);
+      }
+    )
     // Obtenemos los registros de los datos de la base de datos
     this.comercialServicio.getComercial().subscribe(
       (data) => {

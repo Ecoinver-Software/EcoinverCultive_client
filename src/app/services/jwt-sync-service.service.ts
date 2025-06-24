@@ -20,7 +20,7 @@ export class JwtSyncService {
   }
 
   openApp(url:string): void {
-    const app = window.open('url', '_blank');
+    const app = window.open(url, '_blank');
     
     setTimeout(() => {
       const jwt = localStorage.getItem('jwt');

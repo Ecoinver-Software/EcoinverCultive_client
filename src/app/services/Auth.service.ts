@@ -1,17 +1,19 @@
 // src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { jwtDecode } from 'jwt-decode'; //para poder decodificar el token
 
 // por ejemplo, si está en "src/app/environment/environment.ts"
 import { environment } from '../../app/environment/environment';
 import { LoginResponse } from '../types/LoginResponse';
+import { Client, User } from '../types/Client';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  url=environment.baseUrl+'/auth/me';
   constructor(private http: HttpClient) {}
 
   login(usuario: string, password: string): Observable<LoginResponse> {
@@ -46,5 +48,13 @@ export class AuthService {
       console.error('Error decodificando token:', error);
       return null;
     }
+  }
+  obtenerInfo():Observable<User>{
+const token = localStorage.getItem('jwt'); // o donde guardes el JWT
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  return this.http.get<User>(this.url, { headers });
   }
 }

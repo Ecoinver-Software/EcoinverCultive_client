@@ -6,10 +6,11 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CreateComercial } from '../../types/createComercial';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { Client } from '../../types/Client';
+import { Client, User } from '../../types/Client';
 import { GenderService } from '../../services/Gender.service';
 import { Gender } from '../../types/gender';
-import { animate, style, transition, trigger } from '@angular/animations';
+import { AuthService } from '../../services/Auth.service';
+
 
 
 export interface Comercial {
@@ -20,6 +21,7 @@ export interface Comercial {
   endDate: Date;
   idGenero: number;
   nombreGenero: string;
+  nombreUsuario:string;
   kgs: number;
 }
 
@@ -49,6 +51,7 @@ export class ComercialComponent implements OnInit {
     startDate: undefined,
     endDate: undefined,
     idGenero: 0,
+    nombreUsuario:'',
     nombreGenero: '',
 
     kgs: 0
@@ -58,7 +61,20 @@ export class ComercialComponent implements OnInit {
   showCreateModal: boolean = false;
   showEditModal: boolean = false;
   genderArray: Gender[] = []//Variable donde se guardan los generos
-  constructor(private comercialServicio: ComercialServiceService, private ruta: Router, private fb: FormBuilder, private gender: GenderService) {
+  usuarioSesion:User={
+    id: '',
+    userName: '',
+    name: '',
+    lastName: '',
+    role: '',
+    roleLevel: 0
+  }
+  //Un array que va a tener los el género,los kilos, la fecha de inicio y la fecha fin.
+  addComercial: { idGenero: number, kg: number, fechaInicio: Date, fechaFin: Date, nombreGenero: string }[] = [];
+
+  constructor(private comercialServicio: ComercialServiceService, private ruta: Router, private fb: FormBuilder, private gender: GenderService,
+    private user:AuthService
+  ) {
 
     this.miFormulario = this.fb.group(//Un validador del formulario para el edit
       {
@@ -103,6 +119,16 @@ export class ComercialComponent implements OnInit {
 
   ngOnInit(): void {
 
+    //Se obtienen los datos del usuario que ha iniciado sesión en el hub.
+    this.user.obtenerInfo().subscribe(
+      (data)=>{
+        console.log(data);
+        this.usuarioSesion=data;
+      },
+      (error)=>{
+        console.log(error);
+      }
+    )
 
     //Obtenemos los registros de los datos de la base de datos
     this.comercialServicio.getComercial().subscribe(
@@ -165,7 +191,7 @@ export class ComercialComponent implements OnInit {
           (item.clientName.toLowerCase().includes(query)) ||
           (startDate.includes(query)) || item.nombreGenero.toLowerCase().includes(query) ||
           (endDate.includes(query)) ||
-          (item.kgs?.toString().includes(query))|| item.idGenero.toString().includes(query)
+          (item.kgs?.toString().includes(query)) || item.idGenero.toString().includes(query)
 
         );
 
@@ -214,58 +240,62 @@ export class ComercialComponent implements OnInit {
   create(): void {
     this.miFormulario2.get('clientName2')?.enable();
     this.miFormulario2.get('generoNombre2')?.enable();
-    const formulario = this.miFormulario2.value;
 
-    this.clientData = {
-      clientCode: formulario.clientCode2,
-      clientName: formulario.clientName2,
-      startDate: formulario.startDate2,
-      endDate: formulario.endDate2,
-
-      idGenero: formulario.genero2,
-      nombreGenero: formulario.generoNombre2,
-      kgs: formulario.kgs2
-    };
-
-
-    //Comprobación de la fecha fechaInicio>fechaFin
-    if (this.clientData.startDate && this.clientData.endDate) {
-      let startDate = new Date(this.clientData.startDate);
-      let endDate = new Date(this.clientData.endDate);
-      startDate = new Date(startDate.setHours(12, 0, 0, 0));
-      endDate = new Date(endDate.setHours(12, 0, 0, 0));
-
-      this.clientData.startDate = startDate;
-      this.clientData.endDate = endDate;
-      if (startDate.getTime() > endDate.getTime()) {
-        this.validarFechas = true;
-      }
-      else {
-        this.validarFechas = false;
-      }
-    }
-    else {
-      this.validarFechas = false;
-    }
-
-    if (this.validarFechas) {
-      setTimeout(() => {
-        this.fecha = true;
-        this.validarFechas = false; // De esta manera, Angular actualizará la vista.
-      }, 0); //Cambiamos la variable para que el usuario pueda volver a darle al botón
+    //Comprobamos que el clientCode y el clientName no estém vacíos.
+    if (!this.miFormulario2.get('clientCode2')?.value || !this.miFormulario2.get('clientName2')) {
       return;
     }
-    console.log(this.clientData);
-    this.comercialServicio.createComercial(this.clientData).subscribe(
 
-      (data) => {
-        this.paginatedData = data;
-        window.location.reload();
-      },
-      (error) => {
-        console.error('Error al crear el cliente ', error);
+    //Comprobación de si hay datos(par que no se envíen datos vacíos).
+    if (this.addComercial.length == 0) {
+      return;
+    }
+    //para actualizar la página justo cuando terminen todas las operaciones
+    let contador = 0;
+    let operacionesTotales = this.addComercial.length;
+    for (let i = 0; i < this.addComercial.length; i++) {
+      const formulario = {
+        clientCode: this.miFormulario2.get('clientCode2')?.value,
+        clientName: this.miFormulario2.get('clientName2')?.value,
+        startDate: this.addComercial[i].fechaInicio,
+        endDate: this.addComercial[i].fechaFin,
+        idGenero: this.addComercial[i].idGenero,
+        nombreGenero: this.addComercial[i].nombreGenero,
+        nombreUsuario:this.usuarioSesion.name+' '+this.usuarioSesion.lastName,
+        kgs: this.addComercial[i].kg
       }
-    );
+      this.clientData = {
+        clientCode: formulario.clientCode,
+        clientName: formulario.clientName,
+        startDate: formulario.startDate,
+        endDate: formulario.endDate,
+
+        idGenero: formulario.idGenero,
+        nombreGenero: formulario.nombreGenero,
+        nombreUsuario:formulario.nombreUsuario,
+        kgs: formulario.kgs
+      };
+
+
+      console.log(this.clientData);
+      this.comercialServicio.createComercial(this.clientData).subscribe(
+
+        (data) => {
+          this.paginatedData = data;
+          contador++;
+          if (contador == operacionesTotales) {
+            window.location.reload();
+          }
+
+
+        },
+        (error) => {
+          console.error('Error al crear el cliente ', error);
+        }
+      );
+    }
+
+
 
   }
 
@@ -283,6 +313,7 @@ export class ComercialComponent implements OnInit {
       idGenero: formulario.genero,
       nombreGenero: formulario.generoNombre,
       endDate: formulario.endDate,
+      nombreUsuario:this.usuarioSesion.name+' '+this.usuarioSesion.lastName,
       kgs: formulario.kgs
     };
     console.log(this.clientData);
@@ -410,6 +441,76 @@ export class ComercialComponent implements OnInit {
   closeEditModal() {
     this.showEditModal = false;
   }
+  //Para la búsqueda de los generos sellecionados por el usuario al crear
 
+  generoBusqueda(idGenero: number) {
+    const nombreGenero = this.genderArray.find(item => item.idGenero == idGenero);
+    return nombreGenero?.nombreGenero;
+  }
 
+  guardarArray() {//Cada vez que se llame a este método se iran guardando las necesidades en el array.
+    if (!this.miFormulario2.get('genero2')?.value || !this.miFormulario2.get('kgs2')?.value || !this.miFormulario2.get('startDate2')?.value || !this.miFormulario2.get('endDate2')?.value || !this.miFormulario2.get('generoNombre2')?.value) {
+
+      return;
+    }
+    const fechaActual = new Date();//Para el año actual
+    let inicioCampana;
+    let finCampana;
+    if (fechaActual.getMonth() >= 8) {
+       inicioCampana = new Date(fechaActual.getFullYear(), 8, 1);
+       finCampana = new Date(fechaActual.getFullYear()+1, 7, 31);
+    }
+    else{
+       inicioCampana = new Date(fechaActual.getFullYear()-1, 8, 1);
+      finCampana = new Date(fechaActual.getFullYear(), 7, 31);
+    }
+    inicioCampana.setHours(12,0,0,0);
+    finCampana.setHours(12,0,0,0);
+    //Validamos también la fecha
+    //Comprobación de la fecha fechaInicio>fechaFin, también que este dentro de la campaña
+    if (this.miFormulario2.get('startDate2')?.value && this.miFormulario2.get('endDate2')?.value) {
+      let startDate = new Date(this.miFormulario2.get('startDate2')?.value);
+      let endDate = new Date(this.miFormulario2.get('endDate2')?.value);
+      startDate = new Date(startDate.setHours(12, 0, 0, 0));
+      endDate = new Date(endDate.setHours(12, 0, 0, 0));
+     
+      this.clientData.startDate = startDate;
+      this.clientData.endDate = endDate;
+      if (startDate.getTime() > endDate.getTime()) {
+        
+        this.fecha = true;
+        return;
+      }
+      
+      else if(startDate.getTime()<inicioCampana.getTime() || endDate.getTime()>finCampana.getTime()){
+        
+        this.fecha=true;
+        return;
+      }
+      else {
+        this.fecha = false;
+      }
+    }
+
+    this.addComercial.push({
+      idGenero: this.miFormulario2.get('genero2')?.value,
+      kg: this.miFormulario2.get('kgs2')?.value,
+      fechaInicio: this.miFormulario2.get('startDate2')?.value,
+      fechaFin: this.miFormulario2.get('endDate2')?.value,
+      nombreGenero: this.miFormulario2.get('generoNombre2')?.value
+    });
+
+    ['genero2', 'generoNombre2', 'kgs2', 'startDate2', 'endDate2'].forEach(campo => {//Lo que hace esto es que se toma que no se hobera tocado(touched) para la validación en el html.
+      const control = this.miFormulario2.get(campo);
+      control?.setValue('');
+      control?.markAsPristine();
+      control?.markAsUntouched();
+      control?.updateValueAndValidity();
+    });
+
+  }
+  //Para quitar la necesidad que quiera el usuario.
+  quitarNecesidad(i:number){
+    this.addComercial.splice(i,1);
+  }
 }
