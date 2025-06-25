@@ -15,6 +15,7 @@ import { StockComponent } from './components/stock/stock.component';
 import { StockDetailsComponent } from './components/stock-details/stock-details.component';
 import { ChangelogComponent } from './components/changelog/changelog.component';
 import { VariablesGlobalesComponent } from './components/variables-globales/variables-globales.component';
+import { ComercialGroupedComponent } from './components/comercial-grouped/comercial-grouped.component';
 
 
 export const routes: Routes = [
@@ -42,7 +43,8 @@ export const routes: Routes = [
       { path: 'stock', component: StockComponent },
       { path: 'stock-details/:id', component: StockDetailsComponent },
       { path: 'changelog', component: ChangelogComponent },
-      {path:'variables',component:VariablesGlobalesComponent},
+      { path: 'variables', component: VariablesGlobalesComponent },
+      { path: 'comercial-grouped', component: ComercialGroupedComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
     ]
