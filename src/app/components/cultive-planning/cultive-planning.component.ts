@@ -1579,7 +1579,7 @@ export class CultivePlanningComponent implements OnInit {
         if (fechaAnterior) {
 
           if (fechaAnterior.getMonth() > fechaInicio.getMonth()) {
-            alert('Hola mundo');
+         
             fechaInicio.setFullYear(anoSiembra + 1);
             fechaFin.setFullYear(anoSiembra + 1);
           }
@@ -1850,7 +1850,7 @@ export class CultivePlanningComponent implements OnInit {
                   if (fechaAnterior) {
 
                     if (fechaAnterior.getMonth() > fechaInicio.getMonth()) {
-                      alert('Hola mundo');
+                     
                       fechaInicio.setFullYear(anoSiembra + 1);
                       fechaFin.setFullYear(anoSiembra + 1);
                     }

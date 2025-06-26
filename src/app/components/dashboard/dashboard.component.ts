@@ -1342,7 +1342,7 @@ private cargarDatos() {
         }
         const pos = meses.findIndex(item => item == 12);//Para encontrar donde se encuentra diciembre.
 
-        alert(pos);
+        
 
         let kgsProduction: number[] = new Array(meses.length).fill(0);
         let kgsProductionReal: number[] = new Array(meses.length).fill(0);
