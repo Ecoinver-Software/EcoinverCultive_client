@@ -83,12 +83,12 @@ export class CultivePlanningComponent implements OnInit {
 
   // Detección de modo oscuro
   isDarkMode: boolean = false;
- // Limita el máximo de tramos
-maxTramos = 12;
-numTramosInput: number = 12;
-numTramos: number = this.numTramosInput;
+  // Limita el máximo de tramos
+  maxTramos = 12;
+  numTramosInput: number = 12;
+  numTramos: number = this.numTramosInput;
 
-  
+
 
   cards: TramoCard[] = [];
 
@@ -144,7 +144,7 @@ numTramos: number = this.numTramosInput;
     private cultivePlanningDetailsService: CultivePlanningDetailsService,
     private productionService: CultiveProductionService,
     private genderService: GenderService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Comprobar tema oscuro
@@ -161,20 +161,20 @@ numTramos: number = this.numTramosInput;
 
     // Cargar géneros
     this.genderService.getWithId().subscribe(
-    (data) => {
-      this.genderList = data;
+      (data) => {
+        this.genderList = data;
 
-      // Ordenar familias alfabéticamente
-      this.familias = Array.from(
-        new Set(this.genderList.map(g => g.nombreFamilia))
-      ).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
-      
-      this.updateGenderOptions();
-    },
-    (error) => {
-      console.error('Error cargando géneros', error);
-    }
-  );
+        // Ordenar familias alfabéticamente
+        this.familias = Array.from(
+          new Set(this.genderList.map(g => g.nombreFamilia))
+        ).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+
+        this.updateGenderOptions();
+      },
+      (error) => {
+        console.error('Error cargando géneros', error);
+      }
+    );
 
 
     this.filteredGenderOptions = [...this.genderOptions];
@@ -186,36 +186,36 @@ numTramos: number = this.numTramosInput;
   /**
  * Dispara al cambiar manualmente el número de tramos.
  */
-onNumTramosChange(): void {
-  // 1) Normalizar a entero en rango
-  this.numTramosInput = Math.max(1, Math.min(this.maxTramos, Math.floor(this.numTramosInput)));
-  // 2) Ajustar cards sin resetear todo
-  this.adjustTramos(this.numTramosInput);
-  // 3) Reflejar el cambio
-  this.numTramos = this.numTramosInput;
-}
-
-/**
- * Aumenta en uno el número de tramos.
- */
-incrementTramos(): void {
-  if (this.numTramosInput < this.maxTramos) {
-    this.numTramosInput++;
+  onNumTramosChange(): void {
+    // 1) Normalizar a entero en rango
+    this.numTramosInput = Math.max(1, Math.min(this.maxTramos, Math.floor(this.numTramosInput)));
+    // 2) Ajustar cards sin resetear todo
     this.adjustTramos(this.numTramosInput);
+    // 3) Reflejar el cambio
     this.numTramos = this.numTramosInput;
   }
-}
 
-/**
- * Disminuye en uno el número de tramos.
- */
-decrementTramos(): void {
-  if (this.numTramosInput > 1) {
-    this.numTramosInput--;
-    this.adjustTramos(this.numTramosInput);
-    this.numTramos = this.numTramosInput;
+  /**
+   * Aumenta en uno el número de tramos.
+   */
+  incrementTramos(): void {
+    if (this.numTramosInput < this.maxTramos) {
+      this.numTramosInput++;
+      this.adjustTramos(this.numTramosInput);
+      this.numTramos = this.numTramosInput;
+    }
   }
-}
+
+  /**
+   * Disminuye en uno el número de tramos.
+   */
+  decrementTramos(): void {
+    if (this.numTramosInput > 1) {
+      this.numTramosInput--;
+      this.adjustTramos(this.numTramosInput);
+      this.numTramos = this.numTramosInput;
+    }
+  }
 
 
 
@@ -229,23 +229,23 @@ decrementTramos(): void {
     console.log('Verificando fechas de siembra de cultivos...');
     const year = new Date().getFullYear();
     let contadorActualizados = 0;
-    
+
     // Verificar y asignar fechas de siembra a los cultivos que no las tengan
     this.cultivo.forEach(cultivo => {
       if (!cultivo.fechaSiembra) {
         // Generar una fecha aleatoria dentro del año actual
         const month = Math.floor(Math.random() * 12);
         const day = Math.floor(Math.random() * 28) + 1; // Evitar problemas con meses de 30/31 días
-        
+
         cultivo.fechaSiembra = new Date(year, month, day);
         contadorActualizados++;
       }
     });
-    
+
     console.log(`Se asignaron fechas de siembra a ${contadorActualizados} cultivos`);
   }
 
-  
+
   /**
    * Genera las 24 quincenas del año actual (2 por mes)
    */
@@ -267,14 +267,14 @@ decrementTramos(): void {
       // Primera quincena (días 1-15)
       const fechaInicio1 = new Date(year, month, 1);
       const fechaFin1 = new Date(year, month, 15);
-      
+
       const quincena1: Quincena = {
         id: `Q${month * 2 + 1}-${year}`,
         nombre: `${this.getNombreMes(month)} (1-15)`,
         fechaInicio: fechaInicio1,
         fechaFin: fechaFin1
       };
-      
+
       this.quincenas.push(quincena1);
       this.quincenaOptions.push({
         id: quincena1.id,
@@ -287,14 +287,14 @@ decrementTramos(): void {
       const fechaInicio2 = new Date(year, month, 16);
       // Último día del mes
       const fechaFin2 = new Date(year, month + 1, 0);
-      
+
       const quincena2: Quincena = {
         id: `Q${month * 2 + 2}-${year}`,
         nombre: `${this.getNombreMes(month)} (16-${fechaFin2.getDate()})`,
         fechaInicio: fechaInicio2,
         fechaFin: fechaFin2
       };
-      
+
       this.quincenas.push(quincena2);
       this.quincenaOptions.push({
         id: quincena2.id,
@@ -317,82 +317,82 @@ decrementTramos(): void {
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
-    
+
     return meses[month];
   }
 
   onQuincenaChange(): void {
-  // Si no hay quincena seleccionada, reseteamos todo
-  if (!this.selectedQuincena) {
-    this.cards = [];
-    this.selectedCultivosIds = [];
-    this.selectedCultivos   = [];
-    return;
+    // Si no hay quincena seleccionada, reseteamos todo
+    if (!this.selectedQuincena) {
+      this.cards = [];
+      this.selectedCultivosIds = [];
+      this.selectedCultivos = [];
+      return;
+    }
+
+    // Buscamos la quincena y construimos el nombre de la planificación
+    const quincena = this.quincenas.find(q => q.id === this.selectedQuincena)!;
+    const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
+
+    // Consultamos todas las planificaciones para ver si ya existe ésta
+    this.cultivoPlanningService.getAllCultivePlannings().subscribe(plans => {
+      const planExist = plans.find(p => p.nombre === nombrePlan);
+
+      if (planExist?.id) {
+        //  —— Si existe, cargamos sus datos (tramos, valores y cultivos)
+        this.buscarDatosQuincena();
+      } else {
+        //  —— Si no existe, inicializamos “en blanco” basados en la quincena
+        this.initializeTramosPorQuincena(quincena);
+        this.buscarCultivosEnQuincena(quincena);
+      }
+    });
   }
 
-  // Buscamos la quincena y construimos el nombre de la planificación
-  const quincena = this.quincenas.find(q => q.id === this.selectedQuincena)!;
-  const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
 
-  // Consultamos todas las planificaciones para ver si ya existe ésta
-  this.cultivoPlanningService.getAllCultivePlannings().subscribe(plans => {
-    const planExist = plans.find(p => p.nombre === nombrePlan);
+  /**
+  * Filtra los cultivos cuya fecha de siembra cae entre la quincena,
+  * comparando únicamente día y mes para evitar desfases de hora.
+  */
+  /**
+   * Filtra los cultivos cuya fecha de siembra cae en la misma quincena del año,
+   * independientemente del año (solo compara mes y día)
+   */
+  /**
+   * Busca cultivos en quincena con filtro de género corregido
+   */
+  buscarCultivosEnQuincena(quincena: Quincena): void {
+    const mesQuincena = quincena.fechaInicio.getMonth();
+    const diaInicioQuincena = quincena.fechaInicio.getDate();
+    const diaFinQuincena = quincena.fechaFin.getDate();
 
-    if (planExist?.id) {
-      //  —— Si existe, cargamos sus datos (tramos, valores y cultivos)
-      this.buscarDatosQuincena();
-    } else {
-      //  —— Si no existe, inicializamos “en blanco” basados en la quincena
-      this.initializeTramosPorQuincena(quincena);
-      this.buscarCultivosEnQuincena(quincena);
-    }
-  });
-}
-  
+    console.log(`🔍 Buscando en: ${quincena.nombre}`);
+    console.log(`🎯 Género seleccionado: "${this.selectedGenre}" (ID: ${this.selectedGeneroId})`);
 
- /**
- * Filtra los cultivos cuya fecha de siembra cae entre la quincena,
- * comparando únicamente día y mes para evitar desfases de hora.
- */
-/**
- * Filtra los cultivos cuya fecha de siembra cae en la misma quincena del año,
- * independientemente del año (solo compara mes y día)
- */
-/**
- * Busca cultivos en quincena con filtro de género corregido
- */
-buscarCultivosEnQuincena(quincena: Quincena): void {
-  const mesQuincena = quincena.fechaInicio.getMonth();
-  const diaInicioQuincena = quincena.fechaInicio.getDate();
-  const diaFinQuincena = quincena.fechaFin.getDate();
+    const cultivosEnQuincena = this.cultivo.filter(c => {
+      if (!c.fechaSiembra) return false;
 
-  console.log(`🔍 Buscando en: ${quincena.nombre}`);
-  console.log(`🎯 Género seleccionado: "${this.selectedGenre}" (ID: ${this.selectedGeneroId})`);
+      const fechaSiembra = new Date(c.fechaSiembra);
+      const mesSiembra = fechaSiembra.getMonth();
+      const diaSiembra = fechaSiembra.getDate();
 
-  const cultivosEnQuincena = this.cultivo.filter(c => {
-    if (!c.fechaSiembra) return false;
-    
-    const fechaSiembra = new Date(c.fechaSiembra);
-    const mesSiembra = fechaSiembra.getMonth();
-    const diaSiembra = fechaSiembra.getDate();
-    
-    const mismaQuincena = mesSiembra === mesQuincena 
-                        && diaSiembra >= diaInicioQuincena
-                        && diaSiembra <= diaFinQuincena;
-    
-    return mismaQuincena;
-  });
+      const mismaQuincena = mesSiembra === mesQuincena
+        && diaSiembra >= diaInicioQuincena
+        && diaSiembra <= diaFinQuincena;
 
-  console.log(`📊 Cultivos en quincena (antes filtro género): ${cultivosEnQuincena.length}`);
+      return mismaQuincena;
+    });
 
-  // ✅ CORRECCIÓN: Aplicar filtro de género con trim() para eliminar espacios
-  const cultivosFiltrados = this.selectedGeneroId
-    ? cultivosEnQuincena.filter(c => {
+    console.log(`📊 Cultivos en quincena (antes filtro género): ${cultivosEnQuincena.length}`);
+
+    // ✅ CORRECCIÓN: Aplicar filtro de género con trim() para eliminar espacios
+    const cultivosFiltrados = this.selectedGeneroId
+      ? cultivosEnQuincena.filter(c => {
         const generoObj = this.genderList.find(g => g.idGenero === this.selectedGeneroId);
         const nombreGeneroSeleccionado = generoObj?.nombreGenero?.trim(); // ← TRIM aquí
         const nombreGeneroCultivo = c.nombreGenero?.trim(); // ← TRIM aquí también
         const coincide = nombreGeneroCultivo === nombreGeneroSeleccionado;
-        
+
         // Debug para pepinos
         if (c.nombreGenero && c.nombreGenero.toLowerCase().includes('pepino')) {
           console.log(`🎯 FILTRO GÉNERO PEPINO: "${c.nombreGenero}"`);
@@ -400,21 +400,21 @@ buscarCultivosEnQuincena(quincena: Quincena): void {
           console.log(`   Género cultivo (con trim): "${nombreGeneroCultivo}"`);
           console.log(`   Coincide: ${coincide}`);
         }
-        
+
         return coincide;
       })
-    : cultivosEnQuincena;
+      : cultivosEnQuincena;
 
-  console.log(`📊 Cultivos finales (después filtro género): ${cultivosFiltrados.length}`);
+    console.log(`📊 Cultivos finales (después filtro género): ${cultivosFiltrados.length}`);
 
-  // Actualizar UI
-  this.selectedCultivosIds = cultivosFiltrados.map(c => c.id);
-  this.selectedCultivos = cultivosFiltrados.map(c =>
-    `${c.nombreAgricultor} - ${c.nombreGenero} - ${c.nombreVariedad}`
-  );
+    // Actualizar UI
+    this.selectedCultivosIds = cultivosFiltrados.map(c => c.id);
+    this.selectedCultivos = cultivosFiltrados.map(c =>
+      `${c.nombreAgricultor} - ${c.nombreGenero} - ${c.nombreVariedad}`
+    );
 
-  console.log(`🎯 IDs finales:`, this.selectedCultivosIds);
-}
+    console.log(`🎯 IDs finales:`, this.selectedCultivosIds);
+  }
 
 
 
@@ -427,44 +427,44 @@ buscarCultivosEnQuincena(quincena: Quincena): void {
   initializeTramosPorQuincena(quincena: Quincena): void {
     const fechaInicio = new Date(quincena.fechaInicio);
     const fechaFin = new Date(quincena.fechaFin);
-    
+
     // Calcular duración en días
     const duracionQuincenaMs = fechaFin.getTime() - fechaInicio.getTime();
     const duracionQuincenaDias = Math.ceil(duracionQuincenaMs / (1000 * 60 * 60 * 24)) + 1;
-    
+
     // Duración de cada tramo en días
     const duracionTramoDias = Math.floor(duracionQuincenaDias / this.numTramos);
-    
+
     // Inicializar los tramos
     this.cards = [];
-    
+
     for (let i = 0; i < this.numTramos; i++) {
       const tramoFechaInicio = new Date(fechaInicio);
       tramoFechaInicio.setDate(fechaInicio.getDate() + i * duracionTramoDias);
-      
+
       const tramoFechaFin = new Date(tramoFechaInicio);
-      
+
       // El último tramo termina en la fecha de fin de la quincena
       if (i === this.numTramos - 1) {
         tramoFechaFin.setTime(fechaFin.getTime());
       } else {
         tramoFechaFin.setDate(tramoFechaInicio.getDate() + duracionTramoDias - 1);
       }
-      
+
       // Formatear fechas como YYYY-MM-DD para inputs de tipo date
       const startDateFormatted = this.formatDateForInput(tramoFechaInicio);
       const endDateFormatted = this.formatDateForInput(tramoFechaFin);
-      
+
       this.cards.push({
         value: 0.1, // Valor por defecto para los kilos
         startDate: startDateFormatted,
         endDate: endDateFormatted
       });
     }
-    
+
     console.log('Tramos inicializados para quincena:', this.cards);
   }
-  
+
   /**
    * Formatea una fecha para usarla en inputs de tipo date (YYYY-MM-DD)
    * @param date Fecha a formatear
@@ -476,53 +476,53 @@ buscarCultivosEnQuincena(quincena: Quincena): void {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
-  
+
   /**
    * Maneja los cambios en las fechas de un tramo
    * @param index Índice del tramo que cambió
    */
   onTramoFechaChange(index: number): void {
     const card = this.cards[index];
-    
+
     console.log(`Cambio en fechas del tramo ${index + 1}:`, {
       startDate: card.startDate,
       endDate: card.endDate
     });
-    
+
     // Validar que la fecha fin sea posterior a la fecha inicio
     if (card.startDate && card.endDate) {
       const fechaInicio = new Date(card.startDate);
       const fechaFin = new Date(card.endDate);
-      
+
       if (fechaInicio > fechaFin) {
         // Si la fecha inicio es posterior a la fecha fin, ajustar la fecha fin
         //alert('La fecha de fin debe ser posterior a la fecha de inicio. Se ajustará automáticamente.');
         card.endDate = card.startDate;
       }
     }
-    
+
     // Si hay un detalle existente para este tramo, actualizar sus fechas
     if (this.details && this.details.length > 0) {
       const tramoNum = index + 1;
       const existingDetail = this.details.find(d => d.tramo === tramoNum);
-      
+
       if (existingDetail) {
         // Actualizar fechas en el detalle
         if (card.startDate) {
           existingDetail.fechaInicio = new Date(card.startDate);
-          
+
         }
-        
+
         if (card.endDate) {
           existingDetail.fechaFin = new Date(card.endDate);
         }
       }
     }
-    
+
     // Verificar si hay cultivos que caen dentro del nuevo rango de fechas
     this.actualizarCultivosAfectados();
   }
-  
+
   /**
    * Actualiza los cultivos afectados cuando cambian las fechas de los tramos
    */
@@ -531,180 +531,180 @@ buscarCultivosEnQuincena(quincena: Quincena): void {
     if (!this.selectedQuincena) {
       return;
     }
-  
+
     // 2️⃣ Buscamos la quincena original sin alterarla
     const quincenaOriginal = this.quincenas.find(q => q.id === this.selectedQuincena);
     if (!quincenaOriginal) {
       console.error('No se encontró la quincena seleccionada');
       return;
     }
-  
+
     // 3️⃣ Volvemos a filtrar cultivos sólo con el rango de la quincena original
     this.buscarCultivosEnQuincena(quincenaOriginal);
   }
 
- /**
- * Busca si existen datos guardados para la quincena seleccionada,
- * ajusta el número de tramos, inicializa los cards, y sincroniza
- * todas las producciones (create/update/delete).
- */
-buscarDatosQuincena(): void {
-  // Necesitamos la quincena y el nombre de la planificación
-  const quincena = this.quincenas.find(q => q.id === this.selectedQuincena)!;
-  const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
+  /**
+  * Busca si existen datos guardados para la quincena seleccionada,
+  * ajusta el número de tramos, inicializa los cards, y sincroniza
+  * todas las producciones (create/update/delete).
+  */
+  buscarDatosQuincena(): void {
+    // Necesitamos la quincena y el nombre de la planificación
+    const quincena = this.quincenas.find(q => q.id === this.selectedQuincena)!;
+    const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
 
-  //console.log('🔍 Buscando datos para:', nombrePlan);
+    //console.log('🔍 Buscando datos para:', nombrePlan);
 
-  // 1️⃣ Obtenemos todas las planificaciones y buscamos la que corresponde
-  this.cultivoPlanningService.getAllCultivePlannings().subscribe(planificaciones => {
-    const planExist = planificaciones.find(p => p.nombre === nombrePlan);
-    if (!planExist?.id) {
-      //console.warn(`No existe planificación ${nombrePlan}`);
-      return;
-    }
-
-    //console.log('✅ Planificación encontrada:', planExist.id);
-
-    // 2️⃣ Traemos los detalles (tramos) que ya existen en BD
-    this.cultivePlanningDetailsService
-      .getDetailsByPlanningId(planExist.id.toString())
-      .subscribe(details => {
-        if (!details.length) {
-          //console.warn('No hay tramos guardados para esta planificación');
-          return;
-        }
-
-        //console.log('✅ Detalles encontrados:', details.length);
-        //console.log('🔧 Detalles:', details.map(d => ({ id: d.id, tramo: d.tramo })));
-
-        // 3️⃣ Ajustamos el número de tramos en la UI
-        this.numTramosInput = details.length;
-        this.numTramos      = details.length;
-
-        // 4️⃣ Montamos los cards EXACTAMENTE con los datos guardados
-        this.cards = details.map(d => ({
-          value:     d.kilos,
-          startDate: this.formatDateForInput(new Date(d.fechaInicio)),
-          endDate:   this.formatDateForInput(new Date(d.fechaFin))
-        }));
-
-        // 5️⃣ ⚠️ CRÍTICO: Guardamos los detalles ANTES de cualquier otra cosa
-        this.details = details;
-        //console.log('💾 Details asignados a this.details:', this.details.length);
-
-        // 6️⃣ Cargamos las producciones asociadas a estos tramos
-        this.loadProductionsForDetails(details).subscribe(() => {
-          //onsole.log('✅ Producciones cargadas en mapa:', this.produccionesMap.size);
-          //console.log('🔧 Verificando this.details después de loadProductions:', this.details?.length || 'UNDEFINED/NULL');
-          
-          // 7️⃣ Buscar cultivos por fecha de siembra
-          this.buscarCultivosEnQuincena(quincena);
-          //console.log('🔧 Verificando this.details después de buscarCultivos:', this.details?.length || 'UNDEFINED/NULL');
-          
-          // 8️⃣ Combinar con cultivos asociados en BD y DESPUÉS sincronizar
-          this.cargarCultivosAsociados(planExist.id).subscribe(() => {
-            //console.log('🔧 Verificando this.details antes de syncAllProductions:', this.details?.length || 'UNDEFINED/NULL');
-            
-            // 9️⃣ Ahora SÍ sincronizar producciones con la lista completa de cultivos
-            this.syncAllProductions();
-            this.mostrarMensajeExito('Planificación cargada correctamente');
-          });
-        });
-      }, err => {
-        //console.error('Error al cargar detalles:', err);
-      });
-  }, err => {
-    //console.error('Error al listar planificaciones:', err);
-  });
-}
-
-private adjustTramos(newCount: number): void {
-  const oldCards = [...this.cards];
-  const actualCount = oldCards.length;
-
-  // Si sube el número de tramos, añadimos nuevos al final
-  if (newCount > actualCount) {
-    for (let i = actualCount; i < newCount; i++) {
-      let start: string;
-      let end: string;
-
-      if (i === 0) {
-        // Primer tramo: arrancamos en el inicio de la quincena si existe
-        if (this.selectedQuincena) {
-          const q = this.quincenas.find(q => q.id === this.selectedQuincena)!;
-          start = this.formatDateForInput(q.fechaInicio);
-        } else {
-          const today = new Date();
-          start = this.formatDateForInput(today);
-        }
-        end = start;
-      } else {
-        // Empieza el día siguiente al end del tramo anterior
-        const prevEnd = new Date(oldCards[i - 1].endDate!);
-        prevEnd.setDate(prevEnd.getDate() + 1);
-        start = this.formatDateForInput(prevEnd);
-        end = this.formatDateForInput(prevEnd);
+    // 1️⃣ Obtenemos todas las planificaciones y buscamos la que corresponde
+    this.cultivoPlanningService.getAllCultivePlannings().subscribe(planificaciones => {
+      const planExist = planificaciones.find(p => p.nombre === nombrePlan);
+      if (!planExist?.id) {
+        //console.warn(`No existe planificación ${nombrePlan}`);
+        return;
       }
 
-      oldCards.push({ value: 0, startDate: start, endDate: end });
+      //console.log('✅ Planificación encontrada:', planExist.id);
+
+      // 2️⃣ Traemos los detalles (tramos) que ya existen en BD
+      this.cultivePlanningDetailsService
+        .getDetailsByPlanningId(planExist.id.toString())
+        .subscribe(details => {
+          if (!details.length) {
+            //console.warn('No hay tramos guardados para esta planificación');
+            return;
+          }
+
+          //console.log('✅ Detalles encontrados:', details.length);
+          //console.log('🔧 Detalles:', details.map(d => ({ id: d.id, tramo: d.tramo })));
+
+          // 3️⃣ Ajustamos el número de tramos en la UI
+          this.numTramosInput = details.length;
+          this.numTramos = details.length;
+
+          // 4️⃣ Montamos los cards EXACTAMENTE con los datos guardados
+          this.cards = details.map(d => ({
+            value: d.kilos,
+            startDate: this.formatDateForInput(new Date(d.fechaInicio)),
+            endDate: this.formatDateForInput(new Date(d.fechaFin))
+          }));
+
+          // 5️⃣ ⚠️ CRÍTICO: Guardamos los detalles ANTES de cualquier otra cosa
+          this.details = details;
+          //console.log('💾 Details asignados a this.details:', this.details.length);
+
+          // 6️⃣ Cargamos las producciones asociadas a estos tramos
+          this.loadProductionsForDetails(details).subscribe(() => {
+            //onsole.log('✅ Producciones cargadas en mapa:', this.produccionesMap.size);
+            //console.log('🔧 Verificando this.details después de loadProductions:', this.details?.length || 'UNDEFINED/NULL');
+
+            // 7️⃣ Buscar cultivos por fecha de siembra
+            this.buscarCultivosEnQuincena(quincena);
+            //console.log('🔧 Verificando this.details después de buscarCultivos:', this.details?.length || 'UNDEFINED/NULL');
+
+            // 8️⃣ Combinar con cultivos asociados en BD y DESPUÉS sincronizar
+            this.cargarCultivosAsociados(planExist.id).subscribe(() => {
+              //console.log('🔧 Verificando this.details antes de syncAllProductions:', this.details?.length || 'UNDEFINED/NULL');
+
+              // 9️⃣ Ahora SÍ sincronizar producciones con la lista completa de cultivos
+              this.syncAllProductions();
+              this.mostrarMensajeExito('Planificación cargada correctamente');
+            });
+          });
+        }, err => {
+          //console.error('Error al cargar detalles:', err);
+        });
+    }, err => {
+      //console.error('Error al listar planificaciones:', err);
+    });
+  }
+
+  private adjustTramos(newCount: number): void {
+    const oldCards = [...this.cards];
+    const actualCount = oldCards.length;
+
+    // Si sube el número de tramos, añadimos nuevos al final
+    if (newCount > actualCount) {
+      for (let i = actualCount; i < newCount; i++) {
+        let start: string;
+        let end: string;
+
+        if (i === 0) {
+          // Primer tramo: arrancamos en el inicio de la quincena si existe
+          if (this.selectedQuincena) {
+            const q = this.quincenas.find(q => q.id === this.selectedQuincena)!;
+            start = this.formatDateForInput(q.fechaInicio);
+          } else {
+            const today = new Date();
+            start = this.formatDateForInput(today);
+          }
+          end = start;
+        } else {
+          // Empieza el día siguiente al end del tramo anterior
+          const prevEnd = new Date(oldCards[i - 1].endDate!);
+          prevEnd.setDate(prevEnd.getDate() + 1);
+          start = this.formatDateForInput(prevEnd);
+          end = this.formatDateForInput(prevEnd);
+        }
+
+        oldCards.push({ value: 0, startDate: start, endDate: end });
+      }
     }
-  }
-  // Si baja, recortamos el array
-  else if (newCount < actualCount) {
-    oldCards.splice(newCount, actualCount - newCount);
+    // Si baja, recortamos el array
+    else if (newCount < actualCount) {
+      oldCards.splice(newCount, actualCount - newCount);
+    }
+
+    this.cards = oldCards;
   }
 
-  this.cards = oldCards;
-}
 
-  
   /**
    * Carga los cultivos asociados a una planificación
    * @param planificacionId ID de la planificación
    */
   cargarCultivosAsociados(planificacionId: number | string) {
-  // Convertir a número si es string
-  const planificacionIdNumber = typeof planificacionId === 'string' 
-    ? parseInt(planificacionId, 10) 
-    : planificacionId;
-  
-  console.log('🔧 Cargando cultivos asociados para planificación:', planificacionIdNumber);
-  console.log('🔧 Details actuales antes de cargar cultivos:', this.details.length);
-  
-  // Cargar todos los cultivos de la BD y devolver Observable
-  return this.cultivoService.getAll().pipe(
-    map((cultivos) => {
-      // Filtrar cultivos asociados a esta planificación en BD
-      const cultivosAsociadosEnBD = cultivos.filter(c => c.idCultivePlanning === planificacionIdNumber);
-      
-      // Obtener los IDs de cultivos ya asociados en BD
-      const idsAsociadosEnBD = cultivosAsociadosEnBD.map(c => c.id);
-      
-      // Obtener los IDs de cultivos encontrados por fecha (ya están en this.selectedCultivosIds)
-      const idsPorFecha = [...this.selectedCultivosIds];
-      
-      // Combinar ambas listas eliminando duplicados
-      const idsCombinados = [...new Set([...idsAsociadosEnBD, ...idsPorFecha])];
-      
-      // Actualizar selecciones con la lista combinada
-      this.selectedCultivosIds = idsCombinados;
-      this.selectedCultivos = idsCombinados.map(id => {
-        const cultivo = cultivos.find(c => c.id === id);
-        if (cultivo) {
-          return `${cultivo.nombreAgricultor} - ${cultivo.nombreGenero} - ${cultivo.nombreVariedad}`;
-        }
-        return `Cultivo ID ${id}`;
-      });
-      
-      console.log(`Cargados ${idsAsociadosEnBD.length} cultivos asociados en BD`);
-      console.log(`Encontrados ${idsPorFecha.length} cultivos por fecha de siembra`);
-      console.log(`Total combinado: ${this.selectedCultivosIds.length} cultivos`);
-      console.log('🔧 Details actuales después de cargar cultivos:', this.details.length);
-      
-      return this.selectedCultivosIds; // Devolver para el pipe
-    })
-  );
-}
+    // Convertir a número si es string
+    const planificacionIdNumber = typeof planificacionId === 'string'
+      ? parseInt(planificacionId, 10)
+      : planificacionId;
+
+    console.log('🔧 Cargando cultivos asociados para planificación:', planificacionIdNumber);
+    console.log('🔧 Details actuales antes de cargar cultivos:', this.details.length);
+
+    // Cargar todos los cultivos de la BD y devolver Observable
+    return this.cultivoService.getAll().pipe(
+      map((cultivos) => {
+        // Filtrar cultivos asociados a esta planificación en BD
+        const cultivosAsociadosEnBD = cultivos.filter(c => c.idCultivePlanning === planificacionIdNumber);
+
+        // Obtener los IDs de cultivos ya asociados en BD
+        const idsAsociadosEnBD = cultivosAsociadosEnBD.map(c => c.id);
+
+        // Obtener los IDs de cultivos encontrados por fecha (ya están en this.selectedCultivosIds)
+        const idsPorFecha = [...this.selectedCultivosIds];
+
+        // Combinar ambas listas eliminando duplicados
+        const idsCombinados = [...new Set([...idsAsociadosEnBD, ...idsPorFecha])];
+
+        // Actualizar selecciones con la lista combinada
+        this.selectedCultivosIds = idsCombinados;
+        this.selectedCultivos = idsCombinados.map(id => {
+          const cultivo = cultivos.find(c => c.id === id);
+          if (cultivo) {
+            return `${cultivo.nombreAgricultor} - ${cultivo.nombreGenero} - ${cultivo.nombreVariedad}`;
+          }
+          return `Cultivo ID ${id}`;
+        });
+
+        console.log(`Cargados ${idsAsociadosEnBD.length} cultivos asociados en BD`);
+        console.log(`Encontrados ${idsPorFecha.length} cultivos por fecha de siembra`);
+        console.log(`Total combinado: ${this.selectedCultivosIds.length} cultivos`);
+        console.log('🔧 Details actuales después de cargar cultivos:', this.details.length);
+
+        return this.selectedCultivosIds; // Devolver para el pipe
+      })
+    );
+  }
 
   // Método para comprobar si está activo el tema oscuro
   checkDarkMode(): void {
@@ -759,7 +759,7 @@ private adjustTramos(newCount: number): void {
           if (this.cultivo && this.cultivo.length > 0) {
             // Asegurarnos de que los cultivos tengan fechas de siembra
             this.asegurarFechasSiembra();
-            
+
             this.extractGenresAndOrganizeCultivos();
             this.prepareDisplayNames(); // Preparar displayNames para NgSelect
           } else {
@@ -819,11 +819,11 @@ private adjustTramos(newCount: number): void {
     });
 
     // Convertir el conjunto a un array ordenado y asignarlo a géneros
-    this.generos = Array.from(genresSet).sort((a, b) => 
-    a.localeCompare(b, 'es', { sensitivity: 'base' })
-  );
+    this.generos = Array.from(genresSet).sort((a, b) =>
+      a.localeCompare(b, 'es', { sensitivity: 'base' })
+    );
     console.log(this.generos);
-    
+
     // Inicializar cultivos filtrados con todos los cultivos
     this.filteredCultivos = [...this.cultivo];
 
@@ -1008,13 +1008,13 @@ private adjustTramos(newCount: number): void {
    */
   formatDisplayDate(dateString: string | null): string {
     if (!dateString) return '';
-    
+
     try {
       const date = new Date(dateString);
       const dia = date.getDate().toString().padStart(2, '0');
       const mes = (date.getMonth() + 1).toString().padStart(2, '0');
       const anio = date.getFullYear();
-      
+
       return `${dia}/${mes}/${anio}`;
     } catch (error) {
       console.error('Error al formatear fecha:', error);
@@ -1027,19 +1027,19 @@ private adjustTramos(newCount: number): void {
    * para mostrarla en el input
    */
   getFechaInicioDisplay(): string {
-  if (!this.selectedQuincena || this.selectedQuincena === 'nueva') {
-    return '';
+    if (!this.selectedQuincena || this.selectedQuincena === 'nueva') {
+      return '';
+    }
+
+    const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
+    if (!quincena?.fechaInicio) {
+      return '';
+    }
+
+    // formatea "DD/MM/YYYY" y luego recorta a "DD/MM"
+    const fullDate = this.formatDisplayDate(this.formatDate(quincena.fechaInicio));
+    return fullDate.substring(0, 5);
   }
-  
-  const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
-  if (!quincena?.fechaInicio) {
-    return '';
-  }
-  
-  // formatea "DD/MM/YYYY" y luego recorta a "DD/MM"
-  const fullDate = this.formatDisplayDate(this.formatDate(quincena.fechaInicio));
-  return fullDate.substring(0, 5);
-}
 
 
   /**
@@ -1047,18 +1047,18 @@ private adjustTramos(newCount: number): void {
    * para mostrarla en el input
    */
   getFechaFinDisplay(): string {
-  if (!this.selectedQuincena || this.selectedQuincena === 'nueva') {
-    return '';
+    if (!this.selectedQuincena || this.selectedQuincena === 'nueva') {
+      return '';
+    }
+
+    const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
+    if (!quincena?.fechaFin) {
+      return '';
+    }
+
+    const fullDate = this.formatDisplayDate(this.formatDate(quincena.fechaFin));  // "DD/MM/YYYY"
+    return fullDate.substring(0, 5);  // "DD/MM"
   }
-  
-  const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
-  if (!quincena?.fechaFin) {
-    return '';
-  }
-  
-  const fullDate = this.formatDisplayDate(this.formatDate(quincena.fechaFin));  // "DD/MM/YYYY"
-  return fullDate.substring(0, 5);  // "DD/MM"
-}
 
 
   /**
@@ -1069,37 +1069,37 @@ private adjustTramos(newCount: number): void {
     if (!this.selectedQuincena || this.selectedQuincena === 'nueva') {
       return '';
     }
-    
+
     const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
     return quincena ? quincena.nombre : '';
   }
 
   // 1. Improved loadProductionsForDetails - Make it return an Observable
-private loadProductionsForDetails(details: CultivePlanningDetails[]) {
-  //alert("ssa");
-  // Extract detail IDs as numbers for proper comparison
-  const detailIds = new Set(details.map((d) => d.id));
-  
-  // Return the observable so we can wait for it to complete
-  return this.productionService.getAllCultiveProductions().pipe(
-    map(allProds => {
-      // Clear the map to avoid stale data
-      this.produccionesMap.clear();
-      
-      // Filter and store productions related to our details
-      allProds
-        .filter((p) => detailIds.has(p.cultivePlanningDetailsId))
-        .forEach((p) => {
-          const key = `${p.cultivePlanningDetailsId}_${p.cultiveId}`;
-          this.produccionesMap.set(key, p);
-        });
-      
-      console.log(`Loaded ${this.produccionesMap.size} productions for details`);
-      console.log(`Loaded ${this.produccionesMap}`);
-      return this.produccionesMap;
-    })
-  );
-}
+  private loadProductionsForDetails(details: CultivePlanningDetails[]) {
+    //alert("ssa");
+    // Extract detail IDs as numbers for proper comparison
+    const detailIds = new Set(details.map((d) => d.id));
+
+    // Return the observable so we can wait for it to complete
+    return this.productionService.getAllCultiveProductions().pipe(
+      map(allProds => {
+        // Clear the map to avoid stale data
+        this.produccionesMap.clear();
+
+        // Filter and store productions related to our details
+        allProds
+          .filter((p) => detailIds.has(p.cultivePlanningDetailsId))
+          .forEach((p) => {
+            const key = `${p.cultivePlanningDetailsId}_${p.cultiveId}`;
+            this.produccionesMap.set(key, p);
+          });
+
+        console.log(`Loaded ${this.produccionesMap.size} productions for details`);
+        console.log(`Loaded ${this.produccionesMap}`);
+        return this.produccionesMap;
+      })
+    );
+  }
 
 
 
@@ -1117,54 +1117,54 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
    * Actualiza las opciones de géneros
    */
   private updateGenderOptions(): void {
-  this.genderOptions = this.genderList
-    .map(g => ({
-      ...g,
-      disabled: false,
-      nombreFamilia: g.nombreFamilia
-    }))
-    .sort((a, b) => a.nombreGenero.localeCompare(b.nombreGenero, 'es', { 
-      sensitivity: 'base' 
-    })); // Ordenar alfabéticamente en español
-  
-  // Aplica el filtro inicial sin criterios
-  this.filteredGenderOptions = [...this.genderOptions];
-}
+    this.genderOptions = this.genderList
+      .map(g => ({
+        ...g,
+        disabled: false,
+        nombreFamilia: g.nombreFamilia
+      }))
+      .sort((a, b) => a.nombreGenero.localeCompare(b.nombreGenero, 'es', {
+        sensitivity: 'base'
+      })); // Ordenar alfabéticamente en español
 
-  
+    // Aplica el filtro inicial sin criterios
+    this.filteredGenderOptions = [...this.genderOptions];
+  }
+
+
   /**
    * Aplica ambos criterios (texto y familia) para poblar filteredGenderOptions.
    */
   private filterGeneros(): void {
-  // Aplicar filtros de búsqueda y familia
-  const term = this.searchGeneroTerm.trim().toLowerCase();
-  
-  this.filteredGenderOptions = this.genderOptions
-    .filter(g => {
-      // Filtrar por término de búsqueda
-      const matchesSearch = !term || g.nombreGenero.toLowerCase().includes(term);
-      
-      // Filtrar por familia seleccionada
-      const matchesFamily = this.selectedFamilia === 'todas' || g.nombreFamilia === this.selectedFamilia;
-      
-      return matchesSearch && matchesFamily;
-    })
-    .sort((a, b) => a.nombreGenero.localeCompare(b.nombreGenero, 'es', { 
-      sensitivity: 'base' 
-    })); // Mantener orden alfabético después del filtrado
-}
+    // Aplicar filtros de búsqueda y familia
+    const term = this.searchGeneroTerm.trim().toLowerCase();
+
+    this.filteredGenderOptions = this.genderOptions
+      .filter(g => {
+        // Filtrar por término de búsqueda
+        const matchesSearch = !term || g.nombreGenero.toLowerCase().includes(term);
+
+        // Filtrar por familia seleccionada
+        const matchesFamily = this.selectedFamilia === 'todas' || g.nombreFamilia === this.selectedFamilia;
+
+        return matchesSearch && matchesFamily;
+      })
+      .sort((a, b) => a.nombreGenero.localeCompare(b.nombreGenero, 'es', {
+        sensitivity: 'base'
+      })); // Mantener orden alfabético después del filtrado
+  }
 
   // Método para abrir el modal con los cultivos filtrados
   openCultivoModal(): void {
     console.log('Abriendo modal de selección de cultivos');
-    
+
     // Almacenar los IDs seleccionados actuales para comparar después
     this.selectedCultivosIdsBefore = [...this.selectedCultivosIds];
-    
+
     // Inicializar arreglos temporales con las selecciones actuales
     this.tempSelectedCultivosIds = [...this.selectedCultivosIds];
     this.tempSelectedCultivos = [];
-    
+
     // Si hay un género elegido, filtrar por él; si no, cargar todos
     if (this.selectedGeneroId != null) {
       // Busco el nombre del género a partir de su ID
@@ -1183,15 +1183,15 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
       // Sin género, muestro todos
       this.filteredCultivos = [...this.cultivo];
     }
-  
+
     // Recalculo los displayName para el ng-select de cultivos
     this.prepareDisplayNames();
-  
+
     // Abro el modal
     this.showCultivoModal = true;
     //bug scroll
     document.body.style.overflow = 'hidden';
-    
+
     console.log('Lista de cultivos filtrados cargada:', this.filteredCultivos.length);
     console.log('Cultivos seleccionados al abrir modal:', this.tempSelectedCultivosIds);
   }
@@ -1205,7 +1205,7 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
   // Método para añadir cultivos seleccionados con NgSelect
   addSelectedCultivos(): void {
     console.log('Procesando cultivos seleccionados en modal:', this.tempSelectedCultivosIds);
-    
+
     // Si no hay selecciones, cerrar el modal y salir
     if (!this.tempSelectedCultivosIds || this.tempSelectedCultivosIds.length === 0) {
       console.log('No hay cultivos seleccionados');
@@ -1233,9 +1233,9 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
       }
       return `Cultivo ID ${id}`;
     });
-    
+
     console.log('Cultivos seleccionados actualizados:', this.selectedCultivos);
-    
+
     this.closeCultivoModal();
 
     // Si tenemos una planificación seleccionada (no nueva), actualizar en DB
@@ -1253,13 +1253,22 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
         nuevas.forEach((cultiveId) => {
           const key = `${detail.id}_${cultiveId}`;
           const existing = this.produccionesMap.get(key);
+          //Al crear las producciones se van a guardan las fechas segun el año de siembra.
+          //Filtramos el cultivo asociado al cultiveId
+          const cultivo = this.cultivo.find(item => item.id == cultiveId);
+
+          const fechaInicio = new Date(card.startDate!);
+          const fechaFin = new Date(card.endDate!);
+
+          const anoSiembra = new Date(cultivo?.fechaSiembra!).getFullYear();
+
 
           const dto: CreateCultiveProductionDto = {
             cultivePlanningDetailsId: detail.id,
             cultiveId: cultiveId,
             kilos: kilosStr,
-            fechaInicio: new Date(card.startDate!).toISOString(),
-            fechaFin: new Date(card.endDate!).toISOString(),
+            fechaInicio: new Date(anoSiembra, fechaInicio.getMonth(), fechaInicio.getDay()).toISOString(),
+            fechaFin: new Date(anoSiembra, fechaFin.getMonth(), fechaFin.getDay()).toISOString(),
           };
 
           if (existing) {
@@ -1310,11 +1319,11 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
   removeCultivo(index: number): void {
     // Obtener el ID del cultivo que vamos a quitar
     const cultiveId = this.selectedCultivosIds[index];
-  
+
     // Quitar de la UI: nombre y ID
     this.selectedCultivos.splice(index, 1);
     this.selectedCultivosIds.splice(index, 1);
-  
+
     // Para cada detalle (tramo) borrar la producción correspondiente a este cultivo
     this.details.forEach(detail => {
       const key = `${detail.id}_${cultiveId}`;
@@ -1350,17 +1359,17 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
   asociarCultivosAPlanificacion(planificacionId: number | string): void {
     console.log(`Asociando cultivos a planificación ${planificacionId}...`);
     console.log(`Cultivos seleccionados: ${this.selectedCultivosIds.join(', ')}`);
-    
+
     if (!planificacionId) {
       console.error('ID de planificación inválido, no se pueden asociar cultivos');
       return;
     }
 
     // Convertir planificacionId a número si es string
-    const planificacionIdNumber = typeof planificacionId === 'string' 
-      ? parseInt(planificacionId, 10) 
+    const planificacionIdNumber = typeof planificacionId === 'string'
+      ? parseInt(planificacionId, 10)
       : planificacionId;
-      
+
     // Si no se puede convertir a número, usar null
     const planningIdForUpdate = isNaN(planificacionIdNumber) ? null : planificacionIdNumber;
 
@@ -1368,27 +1377,27 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
     this.cultivoService.getAll().subscribe(
       (cultivos) => {
         console.log(`Total de cultivos en el sistema: ${cultivos.length}`);
-        
+
         // Cultivos que ya tienen esta planificación
-        const cultivosConEstaPlanificacion = cultivos.filter(c => 
+        const cultivosConEstaPlanificacion = cultivos.filter(c =>
           c.idCultivePlanning === planificacionIdNumber
         );
-        
+
         console.log(`Cultivos que ya tienen esta planificación: ${cultivosConEstaPlanificacion.length}`);
-        
+
         // Cultivos a vincular (los seleccionados que no tienen esta planificación)
-        const cultivosAVincular = this.selectedCultivosIds.filter(id => 
+        const cultivosAVincular = this.selectedCultivosIds.filter(id =>
           !cultivosConEstaPlanificacion.some(c => c.id === id)
         );
-        
+
         // Cultivos a desvincular (los que tienen esta planificación pero no están seleccionados)
-        const cultivosADesvincular = cultivosConEstaPlanificacion.filter(c => 
+        const cultivosADesvincular = cultivosConEstaPlanificacion.filter(c =>
           !this.selectedCultivosIds.includes(c.id)
         );
-        
+
         console.log(`Cultivos a vincular: ${cultivosAVincular.length}`);
         console.log(`Cultivos a desvincular: ${cultivosADesvincular.length}`);
-        
+
         // Vincular cultivos
         cultivosAVincular.forEach(cultivoId => {
           this.cultivoService.updateCultivo(cultivoId, {
@@ -1402,7 +1411,7 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
             }
           );
         });
-        
+
         // Desvincular cultivos
         cultivosADesvincular.forEach(cultivo => {
           this.cultivoService.updateCultivo(cultivo.id, {
@@ -1433,14 +1442,14 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
       this.mostrarMensajeExito('No hay quincena seleccionada');
       return;
     }
-  
+
     // Evitar valores negativos
     const valoresNegativos = this.cards.some(card => card.value !== null && card.value < 0);
     if (valoresNegativos) {
       alert('Los kilogramos estimados no pueden ser negativos');
       return;
     }
-  
+
     // 2️⃣ Buscar objeto quincena y construir nombre incluyendo género
     const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
     if (!quincena) {
@@ -1448,12 +1457,12 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
       return;
     }
     const nombrePlan = `${quincena.nombre} ${this.selectedGenre}`;
-  
+
     // 3️⃣ Comprobar si ya existe la planificación
     this.cultivoPlanningService.getAllCultivePlannings().subscribe(
       planificaciones => {
         const planExist = planificaciones.find(p => p.nombre === nombrePlan);
-  
+
         if (planExist && planExist.id) {
           // ——— ACTUALIZAR PLANIFICACIÓN EXISTENTE ———
           const updateDto: UpdateCultivePlanningDto = {
@@ -1462,13 +1471,13 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
             fechaInicio: quincena.fechaInicio,
             fechaFin: quincena.fechaFin
           };
-  
+
           this.cultivoPlanningService
             .updateCultivePlanning(planExist.id, updateDto)
             .subscribe(
               () => {
                 console.log(`Planificación ${planExist.id} actualizada a "${nombrePlan}"`);
-  
+
                 // 4️⃣ Ahora actualizar o crear sus detalles
                 this.cultivePlanningDetailsService
                   .getDetailsByPlanningId(planExist.id.toString())
@@ -1502,390 +1511,451 @@ private loadProductionsForDetails(details: CultivePlanningDetails[]) {
       }
     );
   }
-  
-  
+
+
   /**
  * Sincroniza (crea/actualiza/borra) todas las producciones
  * basadas en los detalles actuales y los cultivos seleccionados.
  */
-private syncAllProductions(): void {
-  console.log('🔄 INICIANDO syncAllProductions');
-  console.log('📊 Details disponibles:', this.details?.length || 0);
-  console.log('🌱 Cultivos seleccionados:', this.selectedCultivosIds.length, this.selectedCultivosIds);
-  console.log('💾 Producciones en mapa:', this.produccionesMap.size);
+  private syncAllProductions(): void {
+    console.log('🔄 INICIANDO syncAllProductions');
+    console.log('📊 Details disponibles:', this.details?.length || 0);
+    console.log('🌱 Cultivos seleccionados:', this.selectedCultivosIds.length, this.selectedCultivosIds);
+    console.log('💾 Producciones en mapa:', this.produccionesMap.size);
 
-  // ⚠️ VALIDACIONES CRÍTICAS
-  if (!this.details || this.details.length === 0) {
-    console.error('❌ ERROR: No hay details disponibles, no se pueden sincronizar producciones');
-    console.error('❌ Esto significa que this.details se perdió en algún punto');
-    return;
-  }
-
-  if (this.selectedCultivosIds.length === 0) {
-    console.warn('⚠️ No hay cultivos seleccionados, no se sincronizarán producciones');
-    return;
-  }
-
-  // 1) Crear/actualizar
-  this.details.forEach(detail => {
-    const card = this.cards[detail.tramo - 1];
-    
-    if (!card) {
-      console.warn(`⚠️ No se encontró card para tramo ${detail.tramo}`);
+    // ⚠️ VALIDACIONES CRÍTICAS
+    if (!this.details || this.details.length === 0) {
+      console.error('❌ ERROR: No hay details disponibles, no se pueden sincronizar producciones');
+      console.error('❌ Esto significa que this.details se perdió en algún punto');
       return;
     }
-    
-    const kilosStr = String(card.value ?? 0);
 
-    console.log(`🔧 Procesando detalle ${detail.id} (tramo ${detail.tramo})`);
+    if (this.selectedCultivosIds.length === 0) {
+      console.warn('⚠️ No hay cultivos seleccionados, no se sincronizarán producciones');
+      return;
+    }
+    let fechaAnterior: Date;
 
-    this.selectedCultivosIds.forEach(cultiveId => {
-      const key = `${detail.id}_${cultiveId}`;
-      const existing = this.produccionesMap.get(key);
+    // 1) Crear/actualizar
+    this.details.forEach(detail => {
+      const card = this.cards[detail.tramo - 1];
 
-      const dto: CreateCultiveProductionDto = {
-        cultivePlanningDetailsId: detail.id,
-        cultiveId:                cultiveId,
-        kilos:                    kilosStr,
-        fechaInicio:              new Date(card.startDate!).toISOString(),
-        fechaFin:                 new Date(card.endDate!).toISOString()
-      };
+      if (!card) {
+        console.warn(`⚠️ No se encontró card para tramo ${detail.tramo}`);
+        return;
+      }
 
-      if (existing) {
-        console.log(`🔄 Actualizando producción existente: ${key}`);
-        this.productionService
-          .updateCultiveProduction(existing.id, dto as UpdateCultiveProductionDto)
-          .subscribe(updated => {
-            this.produccionesMap.set(key, updated);
-            console.log(`✅ Producción actualizada: ${key}`);
-          });
+      const kilosStr = String(card.value ?? 0);
+
+      console.log(`🔧 Procesando detalle ${detail.id} (tramo ${detail.tramo})`);
+      // Actualizar fechaAnterior con la fecha fin ajustada
+
+      this.selectedCultivosIds.forEach(cultiveId => {
+        const key = `${detail.id}_${cultiveId}`;
+        const existing = this.produccionesMap.get(key);
+
+        // Filtramos el cultivo
+        const cultivo = this.cultivo.find(item => item.id == cultiveId);
+        const anoSiembra = new Date(cultivo?.fechaSiembra!).getFullYear();
+
+        // Fechas originales
+        const fechaInicioOriginal = new Date(card.startDate!);
+        const fechaFinOriginal = new Date(card.endDate!);
+
+        // Fechas para modificar
+        const fechaInicio = new Date(fechaInicioOriginal);
+        const fechaFin = new Date(fechaFinOriginal);
+
+        // Ajustar años según siembra
+        fechaInicio.setFullYear(anoSiembra);
+        fechaFin.setFullYear(anoSiembra);
+
+        // Detectar salto de año
+        if (fechaFinOriginal.getMonth() < fechaInicioOriginal.getMonth()) {
+          fechaFin.setFullYear(anoSiembra + 1);
+        }
+
+        // Comparar con fechaAnterior (ya ajustada en la iteración anterior)
+        if (fechaAnterior) {
+
+          if (fechaAnterior.getMonth() > fechaInicio.getMonth()) {
+            alert('Hola mundo');
+            fechaInicio.setFullYear(anoSiembra + 1);
+            fechaFin.setFullYear(anoSiembra + 1);
+          }
+        }
+
+        // Crear DTO con fechas ajustadas
+        const dto: CreateCultiveProductionDto = {
+          cultivePlanningDetailsId: detail.id,
+          cultiveId: cultiveId,
+          kilos: kilosStr,
+          fechaInicio: fechaInicio.toISOString(),
+          fechaFin: fechaFin.toISOString()
+        };
+
+
+
+        if (existing) {
+
+          this.productionService
+            .updateCultiveProduction(existing.id, dto as UpdateCultiveProductionDto)
+            .subscribe(updated => {
+              this.produccionesMap.set(key, updated);
+
+            });
+        } else {
+
+          this.productionService
+            .createCultiveProduction(dto)
+            .subscribe(created => {
+              this.produccionesMap.set(key, created);
+
+            });
+        }
+      });
+      fechaAnterior = new Date(card.endDate!);
+    });
+
+    // 2) Borrar las que ya no correspondan
+    const detalleIds = this.details.map(d => d.id);
+
+
+    Array.from(this.produccionesMap.entries()).forEach(([key, prod]) => {
+      const [detailIdStr, cultiveIdStr] = key.split('_');
+      const detailId = Number(detailIdStr);
+      const cultiveId = Number(cultiveIdStr);
+
+      const detalleValido = detalleIds.includes(detailId);
+      const cultivoValido = this.selectedCultivosIds.includes(cultiveId);
+
+
+
+      if (!detalleValido || !cultivoValido) {
+
+        this.productionService.deleteCultiveProduction(prod.id).subscribe(() => {
+          this.produccionesMap.delete(key);
+
+        });
       } else {
-        console.log(`➕ Creando nueva producción: ${key}`);
-        this.productionService
-          .createCultiveProduction(dto)
-          .subscribe(created => {
-            this.produccionesMap.set(key, created);
-            console.log(`✅ Producción creada: ${key}`);
-          });
+        console.log(`✅ Manteniendo producción: ${key}`);
       }
     });
-  });
 
-  // 2) Borrar las que ya no correspondan
-  const detalleIds = this.details.map(d => d.id);
-  console.log('🔍 Verificando producciones para borrar...');
-  console.log('📋 IDs de detalles válidos:', detalleIds);
-  console.log('🌱 IDs de cultivos válidos:', this.selectedCultivosIds);
-
-  Array.from(this.produccionesMap.entries()).forEach(([key, prod]) => {
-    const [detailIdStr, cultiveIdStr] = key.split('_');
-    const detailId  = Number(detailIdStr);
-    const cultiveId = Number(cultiveIdStr);
-
-    const detalleValido = detalleIds.includes(detailId);
-    const cultivoValido = this.selectedCultivosIds.includes(cultiveId);
-
-    console.log(`🔍 Verificando ${key}: detalle válido=${detalleValido}, cultivo válido=${cultivoValido}`);
-
-    if (!detalleValido || !cultivoValido) {
-      console.log(`🗑️ Borrando producción: ${key} (detalle=${detalleValido}, cultivo=${cultivoValido})`);
-      this.productionService.deleteCultiveProduction(prod.id).subscribe(() => {
-        this.produccionesMap.delete(key);
-        console.log(`❌ Producción borrada: ${key}`);
-      });
-    } else {
-      console.log(`✅ Manteniendo producción: ${key}`);
-    }
-  });
-  
-  console.log('🏁 FINALIZANDO syncAllProductions');
-}
-
-/**
- * Actualiza los detalles (tramos) de una planificación ya existente,
- * y luego sincroniza las producciones.
- */
-private actualizarPlanificacionExistente(
-  existingDetails: CultivePlanningDetails[],
-  planificacionId: number | string
-): void {
-  // 1️⃣ Separa los detalles a borrar y los que quedan
-  const detallesABorrar = existingDetails.filter(d => d.tramo > this.numTramos);
-  const detallesAActualizar = existingDetails.filter(d => d.tramo <= this.numTramos);
-
-  // 2️⃣ Borra primero los tramos que sobran
-  detallesABorrar.forEach(d => {
-    this.cultivePlanningDetailsService
-      .deleteCultivePlanningDetails(d.id)
-      .subscribe(() => {
-        console.log(`Detalle tramo ${d.tramo} borrado (ahora sobrante)`);
-      });
-  });
-
-  // 3️⃣ Actualiza los tramos existentes dentro de rango
-  const updateObs = detallesAActualizar.map(detail => {
-    const idx = detail.tramo - 1;           // idx < this.numTramos
-    const card = this.cards[idx];           // ¡ya existe!
-    return this.cultivePlanningDetailsService.updateCultivePlanningDetails(detail.id, {
-      id: detail.id,
-      fechaInicio: new Date(card.startDate!),
-      fechaFin:    new Date(card.endDate!),
-      kilos:       card.value || 0,
-      tramo:       detail.tramo,
-      cultivePlanningId: detail.cultivePlanningId
-    });
-  });
-
-  // 4️⃣ Si después de actualizar falta crear nuevos tramos (subir count)
-  const nuevosATraer: any[] = [];
-  for (let tramo = detallesAActualizar.length + 1; tramo <= this.numTramos; tramo++) {
-    const card = this.cards[tramo - 1];
-    nuevosATraer.push({
-      fechaInicio: new Date(card.startDate!),
-      fechaFin:    new Date(card.endDate!),
-      kilos:       card.value || 0,
-      tramo:       tramo
-    });
+    console.log('🏁 FINALIZANDO syncAllProductions');
   }
 
-  forkJoin(updateObs).subscribe(
-    updatedDetails => {
-      // 5️⃣ Crear los detalles nuevos si hacen falta
-      if (nuevosATraer.length) {
-        this.cultivePlanningDetailsService
-          .createMultiplePlanningDetails(planificacionId.toString(), nuevosATraer)
-          .subscribe(created => {
-            this.details = [...updatedDetails, ...created];
-            this.loadAndSyncProductions(this.details);
-            this.asociarCultivosAPlanificacion(planificacionId);
-            this.mostrarMensajeExito('Planificación actualizada correctamente');
-          });
-      } else {
-        this.details = updatedDetails;
-        this.loadAndSyncProductions(this.details);
-        this.asociarCultivosAPlanificacion(planificacionId);
-        this.mostrarMensajeExito('Planificación actualizada correctamente');
-      }
-    },
-    err => {
-      console.error('Error actualizando detalles:', err);
-      this.mostrarMensajeExito('Error al guardar los cambios');
-    }
-  );
-}
+  /**
+   * Actualiza los detalles (tramos) de una planificación ya existente,
+   * y luego sincroniza las producciones.
+   */
+  private actualizarPlanificacionExistente(
+    existingDetails: CultivePlanningDetails[],
+    planificacionId: number | string
+  ): void {
+    // 1️⃣ Separa los detalles a borrar y los que quedan
+    const detallesABorrar = existingDetails.filter(d => d.tramo > this.numTramos);
+    const detallesAActualizar = existingDetails.filter(d => d.tramo <= this.numTramos);
 
+    // 2️⃣ Borra primero los tramos que sobran
+    detallesABorrar.forEach(d => {
+      this.cultivePlanningDetailsService
+        .deleteCultivePlanningDetails(d.id)
+        .subscribe(() => {
+          console.log(`Detalle tramo ${d.tramo} borrado (ahora sobrante)`);
+        });
+    });
 
-
-/**
- * Carga en el map todas las producciones que ya existen
- * para estos detalles, y luego lanza la sincronización.
- */
-private loadAndSyncProductions(details: CultivePlanningDetails[]): void {
-  // Limpiar el map para no acumular de corridas anteriores
-  this.produccionesMap.clear();
-
-  // Primero traemos todas las producciones de la API
-  this.productionService.getAllCultiveProductions().subscribe(allProds => {
-    // Filtramos sólo las de nuestros details
-    const ids = new Set(details.map(d => d.id));
-    allProds
-      .filter(p => ids.has(p.cultivePlanningDetailsId))
-      .forEach(p => {
-        const key = `${p.cultivePlanningDetailsId}_${p.cultiveId}`;
-        this.produccionesMap.set(key, p);
+    // 3️⃣ Actualiza los tramos existentes dentro de rango
+    const updateObs = detallesAActualizar.map(detail => {
+      const idx = detail.tramo - 1;           // idx < this.numTramos
+      const card = this.cards[idx];           // ¡ya existe!
+      return this.cultivePlanningDetailsService.updateCultivePlanningDetails(detail.id, {
+        id: detail.id,
+        fechaInicio: new Date(card.startDate!),
+        fechaFin: new Date(card.endDate!),
+        kilos: card.value || 0,
+        tramo: detail.tramo,
+        cultivePlanningId: detail.cultivePlanningId
       });
+    });
 
-    // Una vez cargado el map, ejecutamos la sincronización
-    this.syncAllProductions();
-  });
-}
+    // 4️⃣ Si después de actualizar falta crear nuevos tramos (subir count)
+    const nuevosATraer: any[] = [];
+    for (let tramo = detallesAActualizar.length + 1; tramo <= this.numTramos; tramo++) {
+      const card = this.cards[tramo - 1];
+      nuevosATraer.push({
+        fechaInicio: new Date(card.startDate!),
+        fechaFin: new Date(card.endDate!),
+        kilos: card.value || 0,
+        tramo: tramo
+      });
+    }
 
-
-
-
-
-/**
- * Crea los detalles (tramos) para una planificación recién creada
- * y luego sincroniza las producciones.
- */
-private crearDetallesParaPlanificacionExistente(planificacion: CultivePlanning): void {
-  const planningId = planificacion.id!.toString();
-  const tramosDetails = this.cards.map((card, idx) => ({
-    fechaInicio: new Date(card.startDate!),
-    fechaFin:    new Date(card.endDate!),
-    kilos:       card.value || 0,
-    tramo:       idx + 1
-  }));
-
-  this.cultivePlanningDetailsService
-    .createMultiplePlanningDetails(planningId, tramosDetails)
-    .subscribe(
-      (createdDetails) => {
-        this.details = createdDetails;
-        // recargar producciones y luego sincronizar
-        this.loadAndSyncProductions(createdDetails);
-        // asociar cultivos a la planificación
-        this.asociarCultivosAPlanificacion(planificacion.id!);
-        this.mostrarMensajeExito('Planificación y producciones creadas correctamente');
+    forkJoin(updateObs).subscribe(
+      updatedDetails => {
+        // 5️⃣ Crear los detalles nuevos si hacen falta
+        if (nuevosATraer.length) {
+          this.cultivePlanningDetailsService
+            .createMultiplePlanningDetails(planificacionId.toString(), nuevosATraer)
+            .subscribe(created => {
+              this.details = [...updatedDetails, ...created];
+              this.loadAndSyncProductions(this.details);
+              this.asociarCultivosAPlanificacion(planificacionId);
+              this.mostrarMensajeExito('Planificación actualizada correctamente');
+            });
+        } else {
+          this.details = updatedDetails;
+          this.loadAndSyncProductions(this.details);
+          this.asociarCultivosAPlanificacion(planificacionId);
+          this.mostrarMensajeExito('Planificación actualizada correctamente');
+        }
       },
       err => {
-        console.error('Error creando detalles:', err);
+        console.error('Error actualizando detalles:', err);
         this.mostrarMensajeExito('Error al guardar los cambios');
       }
     );
-}
+  }
+
+
+
+  /**
+   * Carga en el map todas las producciones que ya existen
+   * para estos detalles, y luego lanza la sincronización.
+   */
+  private loadAndSyncProductions(details: CultivePlanningDetails[]): void {
+    // Limpiar el map para no acumular de corridas anteriores
+    this.produccionesMap.clear();
+
+    // Primero traemos todas las producciones de la API
+    this.productionService.getAllCultiveProductions().subscribe(allProds => {
+      // Filtramos sólo las de nuestros details
+      const ids = new Set(details.map(d => d.id));
+      allProds
+        .filter(p => ids.has(p.cultivePlanningDetailsId))
+        .forEach(p => {
+          const key = `${p.cultivePlanningDetailsId}_${p.cultiveId}`;
+          this.produccionesMap.set(key, p);
+        });
+
+      // Una vez cargado el map, ejecutamos la sincronización
+      this.syncAllProductions();
+    });
+  }
+
+
+
+
+
+  /**
+   * Crea los detalles (tramos) para una planificación recién creada
+   * y luego sincroniza las producciones.
+   */
+  private crearDetallesParaPlanificacionExistente(planificacion: CultivePlanning): void {
+    const planningId = planificacion.id!.toString();
+    const tramosDetails = this.cards.map((card, idx) => ({
+      fechaInicio: new Date(card.startDate!),
+      fechaFin: new Date(card.endDate!),
+      kilos: card.value || 0,
+      tramo: idx + 1
+    }));
+
+    this.cultivePlanningDetailsService
+      .createMultiplePlanningDetails(planningId, tramosDetails)
+      .subscribe(
+        (createdDetails) => {
+          this.details = createdDetails;
+          // recargar producciones y luego sincronizar
+          this.loadAndSyncProductions(createdDetails);
+          // asociar cultivos a la planificación
+          this.asociarCultivosAPlanificacion(planificacion.id!);
+          this.mostrarMensajeExito('Planificación y producciones creadas correctamente');
+        },
+        err => {
+          console.error('Error creando detalles:', err);
+          this.mostrarMensajeExito('Error al guardar los cambios');
+        }
+      );
+  }
 
 
   /**
  * Crea una nueva planificación con sus detalles,
  * asocia cultivos, y luego genera las producciones.
  */
-private crearNuevaPlanificacion(): void {
-  const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
-  if (!quincena) {
-    console.error('No se encontró la quincena seleccionada');
-    return;
-  }
-
-  // 1️⃣ Crear la planificación
-  const planDto: CreateCultivePlanningDto = {
-    nombre:     `${quincena.nombre} ${this.selectedGenre}`,
-    fechaInicio: quincena.fechaInicio,
-    fechaFin:    quincena.fechaFin,
-    idGenero:    this.idGnero
-  };
-
-  this.cultivoPlanningService.createCultivePlanning(planDto)
-    .subscribe(planificacion => {
-      // 2️⃣ Crear los detalles (tramos)
-      const tramosDetails = this.cards.map((card, idx) => ({
-        fechaInicio: new Date(card.startDate!),
-        fechaFin:    new Date(card.endDate!),
-        kilos:       card.value || 0,
-        tramo:       idx + 1
-      }));
-
-      this.cultivePlanningDetailsService
-        .createMultiplePlanningDetails(planificacion.id!.toString(), tramosDetails)
-        .subscribe(
-          (createdDetails: CultivePlanningDetails[]) => {
-            this.details = createdDetails;
-
-            // 3️⃣ Asociar cultivos a la planificación
-            this.asociarCultivosAPlanificacion(planificacion.id!);
-
-            // 4️⃣ Generar producciones para cada detail + cultivo
-            this.details.forEach(detail => {
-              const card = this.cards[detail.tramo - 1];
-              const kilosStr = String(card.value ?? 0);
-
-              this.selectedCultivosIds.forEach(cultiveId => {
-                const dto: CreateCultiveProductionDto = {
-                  cultivePlanningDetailsId: detail.id,
-                  cultiveId:                cultiveId,
-                  kilos:                    kilosStr,
-                  fechaInicio:              new Date(card.startDate!).toISOString(),
-                  fechaFin:                 new Date(card.endDate!).toISOString()
-                };
-                // Crear sin comprobar, porque son todas nuevas
-                this.productionService
-                  .createCultiveProduction(dto)
-                  .subscribe(created => {
-                    const key = `${detail.id}_${cultiveId}`;
-                    this.produccionesMap.set(key, created);
-                  });
-              });
-            });
-
-            this.mostrarMensajeExito('Planificación, detalles y producciones creadas correctamente');
-          },
-          error => {
-            console.error('Error creando detalles:', error);
-            this.mostrarMensajeExito('Error al guardar los detalles');
-          }
-        );
-    },
-    error => {
-      console.error('Error creando planificación:', error);
-      this.mostrarMensajeExito('Error al crear la planificación');
-    }
-  );
-}
-
-
-// Método para seleccionar un género
-selectGenero(generoId: number): void {
-  this.selectedGeneroId = generoId;
-  
-  // Si no está en la lista de seleccionados, añadirlo
-  if (!this.selectedCultivosIds.includes(generoId)) {
-    this.selectedCultivosIds.push(generoId);
-  }
-  
-  // Obtener el objeto de género seleccionado
-  const generoObj = this.genderList.find(g => g.idGenero === generoId);
-  if (generoObj) {
-    this.selectedGenre = generoObj.nombreGenero;
-    this.idGnero = generoObj.id;
-    
-    // Filtrar cultivos por el género seleccionado
-    if (this.cultivosPorGenero[this.selectedGenre]) {
-      this.filteredCultivos = this.cultivosPorGenero[this.selectedGenre];
-    } else {
-      this.filteredCultivos = [...this.cultivo];
-    }
-    
-    // Actualizar los displayNames para el selector
-    this.prepareDisplayNames();
-  }
-  
-  // Si hay una quincena seleccionada, buscar cultivos que comiencen dentro de ella
-  if (this.selectedQuincena) {
+  private crearNuevaPlanificacion(): void {
     const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
-    if (quincena) {
-      this.buscarCultivosEnQuincena(quincena);
+    if (!quincena) {
+      console.error('No se encontró la quincena seleccionada');
+      return;
+    }
+
+    // 1️⃣ Crear la planificación
+    const planDto: CreateCultivePlanningDto = {
+      nombre: `${quincena.nombre} ${this.selectedGenre}`,
+      fechaInicio: quincena.fechaInicio,
+      fechaFin: quincena.fechaFin,
+      idGenero: this.idGnero
+    };
+
+    this.cultivoPlanningService.createCultivePlanning(planDto)
+      .subscribe(planificacion => {
+        // 2️⃣ Crear los detalles (tramos)
+        const tramosDetails = this.cards.map((card, idx) => ({
+          fechaInicio: new Date(card.startDate!),
+          fechaFin: new Date(card.endDate!),
+          kilos: card.value || 0,
+          tramo: idx + 1
+        }));
+
+        this.cultivePlanningDetailsService
+          .createMultiplePlanningDetails(planificacion.id!.toString(), tramosDetails)
+          .subscribe(
+            (createdDetails: CultivePlanningDetails[]) => {
+              this.details = createdDetails;
+
+              // 3️⃣ Asociar cultivos a la planificación
+              this.asociarCultivosAPlanificacion(planificacion.id!);
+              let fechaAnterior:Date;
+              // 4️⃣ Generar producciones para cada detail + cultivo
+              this.details.forEach(detail => {
+                const card = this.cards[detail.tramo - 1];
+                const kilosStr = String(card.value ?? 0);
+
+
+                this.selectedCultivosIds.forEach(cultiveId => {
+                  // Filtramos el cultivo
+                  const cultivo = this.cultivo.find(item => item.id == cultiveId);
+                  const anoSiembra = new Date(cultivo?.fechaSiembra!).getFullYear();
+                  
+                  // Fechas originales
+                  const fechaInicioOriginal = new Date(card.startDate!);
+                  const fechaFinOriginal = new Date(card.endDate!);
+
+                  // Fechas para modificar
+                  const fechaInicio = new Date(fechaInicioOriginal);
+                  const fechaFin = new Date(fechaFinOriginal);
+
+                  // Ajustar años según siembra
+                  fechaInicio.setFullYear(anoSiembra);
+                  fechaFin.setFullYear(anoSiembra);
+
+                  // Detectar salto de año
+                  if (fechaFinOriginal.getMonth() < fechaInicioOriginal.getMonth()) {
+                    fechaFin.setFullYear(anoSiembra + 1);
+                  }
+
+                  // Comparar con fechaAnterior (ya ajustada en la iteración anterior)
+                  if (fechaAnterior) {
+
+                    if (fechaAnterior.getMonth() > fechaInicio.getMonth()) {
+                      alert('Hola mundo');
+                      fechaInicio.setFullYear(anoSiembra + 1);
+                      fechaFin.setFullYear(anoSiembra + 1);
+                    }
+                  }
+                  const dto: CreateCultiveProductionDto = {
+                    cultivePlanningDetailsId: detail.id,
+                    cultiveId: cultiveId,
+                    kilos: kilosStr,
+                    fechaInicio: new Date(fechaInicio).toISOString(),
+                    fechaFin: new Date(fechaFin).toISOString()
+                  };
+                  console.log(dto)
+                  // Crear sin comprobar, porque son todas nuevas
+                  this.productionService
+                    .createCultiveProduction(dto)
+                    .subscribe(created => {
+                      const key = `${detail.id}_${cultiveId}`;
+                      this.produccionesMap.set(key, created);
+                    });
+                });
+                fechaAnterior = new Date(card.endDate!);
+              });
+
+              this.mostrarMensajeExito('Planificación, detalles y producciones creadas correctamente');
+            },
+            error => {
+              console.error('Error creando detalles:', error);
+              this.mostrarMensajeExito('Error al guardar los detalles');
+            }
+          );
+      },
+        error => {
+          console.error('Error creando planificación:', error);
+          this.mostrarMensajeExito('Error al crear la planificación');
+        }
+      );
+  }
+
+
+  // Método para seleccionar un género
+  selectGenero(generoId: number): void {
+    this.selectedGeneroId = generoId;
+
+    // Si no está en la lista de seleccionados, añadirlo
+    if (!this.selectedCultivosIds.includes(generoId)) {
+      this.selectedCultivosIds.push(generoId);
+    }
+
+    // Obtener el objeto de género seleccionado
+    const generoObj = this.genderList.find(g => g.idGenero === generoId);
+    if (generoObj) {
+      this.selectedGenre = generoObj.nombreGenero;
+      this.idGnero = generoObj.id;
+
+      // Filtrar cultivos por el género seleccionado
+      if (this.cultivosPorGenero[this.selectedGenre]) {
+        this.filteredCultivos = this.cultivosPorGenero[this.selectedGenre];
+      } else {
+        this.filteredCultivos = [...this.cultivo];
+      }
+
+      // Actualizar los displayNames para el selector
+      this.prepareDisplayNames();
+    }
+
+    // Si hay una quincena seleccionada, buscar cultivos que comiencen dentro de ella
+    if (this.selectedQuincena) {
+      const quincena = this.quincenas.find(q => q.id === this.selectedQuincena);
+      if (quincena) {
+        this.buscarCultivosEnQuincena(quincena);
+      }
     }
   }
-}
 
 
-// Métodos para la interfaz de usuario
-mostrarTodos(): void {
-  // Volver a aplicar los filtros actuales sin restringir por seleccionados
-  this.filterGeneros();
-}
-
-mostrarSeleccionados(): void {
-  // Mostrar solo los géneros seleccionados
-  if (this.selectedCultivosIds.length > 0) {
-    this.filteredGenderOptions = this.genderOptions.filter(g => 
-      this.selectedCultivosIds.includes(g.idGenero)
-    );
+  // Métodos para la interfaz de usuario
+  mostrarTodos(): void {
+    // Volver a aplicar los filtros actuales sin restringir por seleccionados
+    this.filterGeneros();
   }
-}
 
-// Método mejorado
-limpiarFiltros(): void {
-  // 1. Limpiar el término de búsqueda
-  this.searchGeneroTerm = '';
-  
-  // 2. Resetear la selección de familia
-  this.selectedFamilia = 'todas';
-  
-  // 3. Resetear la selección de género 
-  this.selectedGeneroId = undefined;
-  
-  // 4. Aplicar los filtros para actualizar la vista
-  this.filterGeneros();
-  
-  // 5. Mostrar mensaje de confirmación
-  //this.mostrarMensajeExito('Filtros limpiados correctamente');
-}
+  mostrarSeleccionados(): void {
+    // Mostrar solo los géneros seleccionados
+    if (this.selectedCultivosIds.length > 0) {
+      this.filteredGenderOptions = this.genderOptions.filter(g =>
+        this.selectedCultivosIds.includes(g.idGenero)
+      );
+    }
+  }
 
+  // Método mejorado
+  limpiarFiltros(): void {
+    // 1. Limpiar el término de búsqueda
+    this.searchGeneroTerm = '';
 
+    // 2. Resetear la selección de familia
+    this.selectedFamilia = 'todas';
 
+    // 3. Resetear la selección de género 
+    this.selectedGeneroId = undefined;
 
+    // 4. Aplicar los filtros para actualizar la vista
+    this.filterGeneros();
 
-
-
+    // 5. Mostrar mensaje de confirmación
+    //this.mostrarMensajeExito('Filtros limpiados correctamente');
+  }
 }

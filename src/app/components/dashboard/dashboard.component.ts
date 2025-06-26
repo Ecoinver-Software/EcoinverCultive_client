@@ -49,8 +49,8 @@ export class DashboardComponent implements OnInit {
     private validarTokenService: ValidationTokenService,
     private http: HttpClient,
     private jwtSync: JwtSyncService,
-    private authService:AuthService
-  ) {}
+    private authService: AuthService
+  ) { }
 
   // Propiedades para los gráficos
   data: any;
@@ -74,7 +74,7 @@ export class DashboardComponent implements OnInit {
     endDate: new Date(),
     idGenero: 0,
     nombreGenero: '',
-    nombreUsuario:'',
+    nombreUsuario: '',
     kgs: 0,
   };
   isExporting: boolean = false;
@@ -113,11 +113,11 @@ export class DashboardComponent implements OnInit {
 
     //Para obtener la información del usuario
     this.authService.obtenerInfo().subscribe(
-      (data)=>{
+      (data) => {
         console.log(data);
-       
+
       },
-      (error)=>{
+      (error) => {
         console.log(error);
       }
     )
@@ -190,76 +190,76 @@ export class DashboardComponent implements OnInit {
 
   //metodo para validar el token e iniciar sesion asere
   loadData() {
-  // Obtener token de App A
-  const token = localStorage.getItem('jwt');
+    // Obtener token de App A
+    const token = localStorage.getItem('jwt');
 
-  if (!token) {
-    alert('No hay token del App Hub, vuelva al App Hub y vuelva a iniciar sesión');
-    return;
+    if (!token) {
+
+      return;
+    }
+
+    // Extraer username del token (método simple)
+    const username = this.getUsername(token);
+
+    if (!username) {
+      alert('Token inválido');
+      return;
+    }
+
+    //console.log('Iniciando auto-login con username:', username);
+
+    // Hacer auto-login en App B
+    /*
+    this.http
+      .post('https://localhost:7205/api/auth/auto-login', {
+        username: username,
+        email: null,
+      })
+      .subscribe({
+        next: (response: any) => {
+          console.log('✅ Iniciado sesión en App B:', response.userName);
+  
+          // Guardar token de App B
+          localStorage.setItem('jwt', response.token);
+  
+          console.log('✅ Token de App B guardado exitosamente');
+          
+          // Opcional: cargar datos
+          // this.cargarDatos();
+        },
+        error: (error) => {
+          console.log('❌ Error en auto-login:', error);
+          
+          // Si hay error 500, puede ser que necesites crear el endpoint en el backend
+          if (error.status === 404) {
+            alert('Endpoint auto-login no encontrado. ¿Agregaste el método al AuthController?');
+          }
+        },
+      });*/
+
   }
-
-  // Extraer username del token (método simple)
-  const username = this.getUsername(token);
-
-  if (!username) {
-    alert('Token inválido');
-    return;
-  }
-
-  //console.log('Iniciando auto-login con username:', username);
-
-  // Hacer auto-login en App B
-  /*
-  this.http
-    .post('https://localhost:7205/api/auth/auto-login', {
-      username: username,
-      email: null,
-    })
-    .subscribe({
-      next: (response: any) => {
-        console.log('✅ Iniciado sesión en App B:', response.userName);
-
-        // Guardar token de App B
-        localStorage.setItem('jwt', response.token);
-
-        console.log('✅ Token de App B guardado exitosamente');
-        
-        // Opcional: cargar datos
-        // this.cargarDatos();
-      },
-      error: (error) => {
-        console.log('❌ Error en auto-login:', error);
-        
-        // Si hay error 500, puede ser que necesites crear el endpoint en el backend
-        if (error.status === 404) {
-          alert('Endpoint auto-login no encontrado. ¿Agregaste el método al AuthController?');
-        }
-      },
-    });*/
-
-}
 
   private getUsername(token: string): string | null {
-  try {
-    // Dividir el token en 3 partes
-    const parts = token.split('.');
+    try {
+      // Dividir el token en 3 partes
+      const parts = token.split('.');
 
-    // Decodificar la parte del medio (payload)
-    const payload = JSON.parse(atob(parts[1]));
+      // Decodificar la parte del medio (payload)
+      const payload = JSON.parse(atob(parts[1]));
 
-    // ✅ USAR EL CAMPO CORRECTO QUE ENCONTRAMOS
-    const username = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
-    
-    console.log('✅ Username encontrado:', username);
-    
-    
-    return username || null;
-    
-  } catch (error) {
-    console.error('Error decodificando token:', error);
-    return null;
+      // ✅ USAR EL CAMPO CORRECTO QUE ENCONTRAMOS
+      const username = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+
+      console.log('✅ Username encontrado:', username);
+
+
+      return username || null;
+
+    } catch (error) {
+      console.error('Error decodificando token:', error);
+      return null;
+    }
   }
-}
 
   //cargar datos si es necesario
   /*
@@ -422,11 +422,18 @@ private cargarDatos() {
           }
 
           let mesActual = d.getMonth();
-
+          let mesesReales: number[] = [];//Para los meses reales de la campaña para que no aparezcan kilos en septiembre en el semeste.
           let meses: number[] = [];
           for (let i = mesActual - 2; i < mesActual + 4; i++) {
             //Rellenamos el label
             meses.push(i + 1);
+            if (d.getMonth() >= 0 && d.getMonth() <= 7 && i + 1 <= 8) {
+              mesesReales.push(i + 1);
+            }
+            else if (d.getMonth() >= 8 && d.getMonth() <= 11) {
+              mesesReales.push(i + 1);
+            }
+
           }
 
           let kgs: number[] = new Array(meses.length).fill(0);
@@ -464,8 +471,8 @@ private cargarDatos() {
             //Necesitamos saber en que mes entra la planificación de la necesidad
             const mes = new Date(planningDetails[i].fechaDesde);
 
-            for (let j = 0; j < meses.length; j++) {
-              if (mes.getMonth() + 1 == meses[j]) {
+            for (let j = 0; j < mesesReales.length; j++) {
+              if (mes.getMonth() + 1 == mesesReales[j]) {
                 //Saber los clientes que estan en la semana de la necesidad
                 const id = this.planning.find(
                   (item) =>
@@ -1321,10 +1328,21 @@ private cargarDatos() {
         let mesActual = d.getMonth();
 
         let meses: number[] = [];
+        let mesesReales: number[] = [];//Para los meses reales de la campaña para que no aparezcan kilos en septiembre en el semeste.
         for (let i = mesActual - 2; i < mesActual + 4; i++) {
           //Rellenamos el label
           meses.push(i + 1);
+          if (d.getMonth() >= 0 && d.getMonth() <= 7 && i + 1 <= 8) {
+            mesesReales.push(i + 1);
+          }
+          else if (d.getMonth() >= 8 && d.getMonth() <= 11) {
+            mesesReales.push(i + 1);
+          }
+
         }
+        const pos = meses.findIndex(item => item == 12);//Para encontrar donde se encuentra diciembre.
+
+        alert(pos);
 
         let kgsProduction: number[] = new Array(meses.length).fill(0);
         let kgsProductionReal: number[] = new Array(meses.length).fill(0);
@@ -1338,21 +1356,83 @@ private cargarDatos() {
             }
           }
         }
-
-        for (let i = 0; i < this.selectedProductions.length; i++) {
-          //para ir sumando los kg de cada semana de la producción
-          //Necesitamos saber en que mes entra la planificación de la necesidad
-          const mes = new Date(this.selectedProductions[i].fechaInicio);
-
-          for (let j = 0; j < meses.length; j++) {
-            if (mes.getMonth() + 1 == meses[j]) {
-              //Saber los clientes que estan en la semana de la necesidad
-              kgsProduction[j] =
-                (kgsProduction[j] || 0) +
-                parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+        if (pos ===-1) {
+          for (let i = 0; i < this.selectedProductions.length; i++) {
+            //para ir sumando los kg de cada semana de la producción
+            //Necesitamos saber en que mes entra la planificación de la necesidad
+            const mes = new Date(this.selectedProductions[i].fechaInicio);
+            const mesFin=new Date(this.selectedProductions[i].fechaFin);
+            for (let j = 0; j < meses.length; j++) {
+             
+              console.log(mes.getMonth());
+              
+              if ((mes.getMonth()+1 == meses[j] || mesFin.getMonth()+1==meses[j]) && mes.getFullYear() == d.getFullYear()) {
+                //Saber los clientes que estan en la semana de la necesidad
+                kgsProduction[j] =
+                  (kgsProduction[j] || 0) +
+                  parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+              }
             }
           }
         }
+        else {
+          if (pos < 2) {
+            for (let i = 0; i < this.selectedProductions.length; i++) {
+              //para ir sumando los kg de cada semana de la producción
+              //Necesitamos saber en que mes entra la planificación de la necesidad
+              const mes = new Date(this.selectedProductions[i].fechaInicio);
+
+              for (let j = 0; j < meses.length; j++) {
+                if (meses[i] >= 11) {
+                  if (mes.getMonth() + 1 == meses[j] && mes.getFullYear() == d.getFullYear()-1) {
+                    //Saber los clientes que estan en la semana de la necesidad
+                    kgsProduction[j] =
+                      (kgsProduction[j] || 0) +
+                      parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                  }
+                }
+                else if(meses[i]>=1 && meses[i]<=8){
+                  if (mes.getMonth() + 1 == meses[j] && mes.getFullYear() == d.getFullYear()) {
+                    //Saber los clientes que estan en la semana de la necesidad
+                    kgsProduction[j] =
+                      (kgsProduction[j] || 0) +
+                      parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                  }
+                }
+
+              }
+            }
+          }
+          else if(pos>=2){
+             for (let i = 0; i < this.selectedProductions.length; i++) {
+              //para ir sumando los kg de cada semana de la producción
+              //Necesitamos saber en que mes entra la planificación de la necesidad
+              const mes = new Date(this.selectedProductions[i].fechaInicio);
+
+              for (let j = 0; j < meses.length; j++) {
+                if (meses[i] >= 7) {
+                  if (mes.getMonth() + 1 == meses[j] && mes.getFullYear() == d.getFullYear()) {
+                    //Saber los clientes que estan en la semana de la necesidad
+                    kgsProduction[j] =
+                      (kgsProduction[j] || 0) +
+                      parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                  }
+                }
+                else if(meses[i]>=1 && meses[i]<=3){
+                  if (mes.getMonth() + 1 == meses[j] && mes.getFullYear() == d.getFullYear()+1) {
+                    //Saber los clientes que estan en la semana de la necesidad
+                    kgsProduction[j] =
+                      (kgsProduction[j] || 0) +
+                      parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                  }
+                }
+
+              }
+            }
+          }
+
+        }
+
 
         let kgs: number[] = new Array(meses.length).fill(0);
         let clientes: string[] = new Array(meses.length);
@@ -1362,8 +1442,8 @@ private cargarDatos() {
           //Necesitamos saber en que mes entra la planificación de la necesidad
           const mes = new Date(planningDetails[i].fechaDesde);
 
-          for (let j = 0; j < meses.length; j++) {
-            if (mes.getMonth() + 1 == meses[j]) {
+          for (let j = 0; j < mesesReales.length; j++) {
+            if (mes.getMonth() + 1 == mesesReales[j]) {//Aquí hay que meter una condicion extr !!!!!!!
               //Saber los clientes que estan en la semana de la necesidad
               const id = this.planning.find(
                 (item) =>
@@ -1732,9 +1812,13 @@ private cargarDatos() {
             ((totalNecesidad1 - totalProduccion1) * 100) / totalNecesidad1;
         }
         this.porcentajeReal = parseFloat(this.porcentajeReal.toFixed(2));
+        let sem = [];
+        for (let i = 0; i < label2.length; i++) {
+          sem[i] = 'Semana ' + label2[i];
+        }
         // Gráfico principal
         this.data = {
-          labels: semanas,
+          labels: sem,
           datasets: [
             {
               label: 'Necesidad comercial',
@@ -1889,24 +1973,76 @@ private cargarDatos() {
         this.vistaSeleccionada = 'año';
         let meses2: number[] = [9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8];
         let kgsProduction2: number[] = new Array(meses2.length).fill(0);
-
+        const anoActual = new Date()//Para las producciones que entreen en el año correspondiente
+        let anoReal = anoActual.getFullYear();//Para ir cambiando el año seguen el rango de meses.
         let kgs3: number[] = new Array(meses2.length).fill(0);
         let kgsProductionReal2 = new Array(meses2.length).fill(0);
         let clientes3: string[] = new Array(meses2.length);
         let repetidos3: { mes: number; cliente: string }[] = [];
 
-        for (let i = 0; i < this.selectedProductions.length; i++) {
-          const mes = new Date(this.selectedProductions[i].fechaInicio);
+        if (anoActual.getMonth() >= 8 && anoActual.getMonth() <= 11) {
+          anoReal = anoActual.getFullYear();//El año entre septiembre y diciembre
+          for (let i = 0; i < this.selectedProductions.length; i++) {
+            const mes = new Date(this.selectedProductions[i].fechaInicio);
 
-          for (let j = 0; j < meses2.length; j++) {
-            if (mes.getMonth() + 1 == meses2[j]) {
-              //Saber los clientes que estan en la semana de la necesidad
-              kgsProduction2[j] =
-                (kgsProduction2[j] || 0) +
-                parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+            for (let j = 0; j < meses2.length; j++) {
+              if (meses2[j] >= 9 && meses2[j] <= 12) {//las producciones de septiembre a diciembre.
+                if (mes.getMonth() + 1 == meses2[j] && anoReal == mes.getFullYear()) {
+                  //Saber los clientes que estan en la semana de la necesidad
+                  kgsProduction2[j] =
+                    (kgsProduction2[j] || 0) +
+                    parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                }
+              }
+              else if (meses2[j] >= 1 && meses2[j] <= 8) {
+                if (mes.getMonth() + 1 == meses2[j] && anoReal + 1 == mes.getFullYear()) {//Le sumamos uno ya que estamos entre enero y agosto.
+                  //Saber los clientes que estan en la semana de la necesidad
+                  kgsProduction2[j] =
+                    (kgsProduction2[j] || 0) +
+                    parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                }
+              }
+
+              if (mes.getMonth() + 1 == meses2[j]) {
+                //Saber los clientes que estan en la semana de la necesidad
+                kgsProduction2[j] =
+                  (kgsProduction2[j] || 0) +
+                  parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+              }
             }
           }
         }
+        else {
+          anoReal = anoActual.getFullYear();
+          for (let i = 0; i < this.selectedProductions.length; i++) {
+            const mes = new Date(this.selectedProductions[i].fechaInicio);
+
+            for (let j = 0; j < meses2.length; j++) {
+              if (meses2[j] >= 9 && meses2[j] <= 12) {//las producciones de septiembre a diciembre.
+                if (mes.getMonth() + 1 == meses2[j] && anoReal - 1 == mes.getFullYear()) {
+                  //Saber los clientes que estan en la semana de la necesidad
+                  kgsProduction2[j] =
+                    (kgsProduction2[j] || 0) +
+                    parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                }
+              }
+              else if (meses2[j] >= 1 && meses2[j] <= 8) {
+                if (mes.getMonth() + 1 == meses2[j] && anoReal == mes.getFullYear()) {//Le sumamos uno ya que estamos entre enero y agosto.
+                  //Saber los clientes que estan en la semana de la necesidad
+                  kgsProduction2[j] =
+                    (kgsProduction2[j] || 0) +
+                    parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                }
+              }
+
+
+            }
+          }
+        }
+
+
+
+
 
         if (this.producReal) {
           for (let i = 0; i < this.producReal.length; i++) {
@@ -2486,7 +2622,7 @@ private cargarDatos() {
       // Determinar el género seleccionado basado en el ID o usar "Todos" si no hay selección
       const generoSeleccionado = this.selectedGenderIds
         ? this.genders.find((g) => g.nombreGenero === this.selectedGenderIds)
-            ?.nombreGenero || this.selectedGenderIds
+          ?.nombreGenero || this.selectedGenderIds
         : 'Todos';
 
       // Indicador 2: Géneros seleccionados
@@ -3133,10 +3269,10 @@ private cargarDatos() {
                 rect.top >= 0 &&
                 rect.left >= 0 &&
                 rect.bottom <=
-                  (window.innerHeight ||
-                    document.documentElement.clientHeight) &&
+                (window.innerHeight ||
+                  document.documentElement.clientHeight) &&
                 rect.right <=
-                  (window.innerWidth || document.documentElement.clientWidth);
+                (window.innerWidth || document.documentElement.clientWidth);
 
               if (isVisible || attempts > 5) {
                 // Ser menos estricto después de varios intentos
