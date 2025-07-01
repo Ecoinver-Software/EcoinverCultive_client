@@ -1,171 +1,137 @@
-<div class="max-w-screen-2xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-    <div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg shadow-lg p-6">
-        <div
-            class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 border-b border-gray-300 dark:border-gray-600 pb-4 gap-4">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white text-center sm:text-left">
-                Visualización de Datos Comerciales
-            </h1>
-            <button (click)="refreshData()" [disabled]="loading"
-                class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg flex justify-center items-center space-x-2 transition-colors">
-                <svg class="w-4 h-4" [class.animate-spin]="loading" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                <span>{{ loading ? 'Cargando...' : 'Actualizar' }}</span>
-            </button>
+<p-table #dt1 [value]="customers" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading" [paginator]="true" [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']">
+    <ng-template #caption>
+        <div class="flex">
+            <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1)" />
+            <p-iconfield iconPosition="left" class="ml-auto">
+                <p-inputicon>
+                    <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Search keyword" />
+            </p-iconfield>
         </div>
-
-
-        <div *ngIf="error" class="bg-red-100 dark:bg-red-200 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-            {{ error }}
-        </div>
-
-        <div *ngIf="loading && groupedData.length === 0" class="flex justify-center items-center py-12">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        </div>
-
-        <ng-container *ngIf="!loading && groupedData.length > 0">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-blue-100 dark:bg-blue-900 dark:text-blue-100 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold">Total Usuarios</h3>
-                    <p class="text-2xl font-bold">{{ groupedData.length }}</p>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th style="min-width:15rem">
+                <div class="flex items-center">
+                    Name
+                    <p-columnFilter type="text" field="name" display="menu" />
                 </div>
-                <div class="bg-green-100 dark:bg-green-900 dark:text-green-100 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold">Total Registros</h3>
-                    <p class="text-2xl font-bold">{{ getTotalItems() }}</p>
+            </th>
+            <th style="min-width:15rem">
+                <div class="flex items-center">
+                    Country
+                    <p-columnFilter type="text" field="country.name" display="menu" />
                 </div>
-                <div class="bg-purple-100 dark:bg-purple-900 dark:text-purple-100 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold">Total Kgs</h3>
-                    <p class="text-2xl font-bold">{{ getTotalKgs() | number:'1.2-2' }}</p>
-                </div>
-            </div>
-
-            <div class="space-y-4">
-                <div *ngFor="let userData of groupedData"
-                    class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm">
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 cursor-pointer hover:from-blue-600 hover:to-blue-700 transition-all duration-200"
-                        (click)="toggleUser(userData)">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <svg class="w-5 h-5 transform transition-transform duration-200"
-                                    [class.rotate-90]="userData.expanded" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7" />
-                                </svg>
-                                <span class="text-xl font-semibold">{{ userData.usuario }}</span>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <span class="dark:bg-red-800 bg-opacity-20 px-3 py-1 rounded-full text-sm">
-                                    {{ userData.clientes.length }} clientes
-                                </span>
-                                <span class="dark:bg-red-400 bg-opacity-20 px-3 py-1 rounded-full text-sm">
-                                    {{ userData.totalKgs | number:'1.2-2' }} Kgs
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div *ngIf="userData.expanded" class="bg-gray-50 dark:bg-gray-900">
-                        <div *ngFor="let cliente of userData.clientes"
-                            class="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-                            <div class="bg-white dark:bg-gray-800 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
-                                (click)="toggleClient(cliente)">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center space-x-3">
-                                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-300 transform transition-transform duration-200"
-                                            [class.rotate-90]="cliente.expanded" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 5l7 7-7 7" />
-                                        </svg>
-                                        <div>
-                                            <span class="font-medium">{{ cliente.clientName }}</span>
-                                            <span class="text-gray-500 text-sm ml-2">({{ cliente.clientCode }})</span>
-                                        </div>
+            </th>
+            <th style="min-width:15rem">
+                <div class="flex items-center">
+                    Agent
+                    <p-columnFilter field="representative" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template #filter let-value let-filter="filterCallback">
+                            <p-multiselect [(ngModel)]="value" [options]="representatives" placeholder="Any" (onChange)="filter($event.value)" optionLabel="name" style="min-width: 14rem" [panelStyle]="{ minWidth: '16rem' }">
+                                <ng-template let-option #item>
+                                    <div class="flex items-center gap-2">
+                                        <img [alt]="option.label" src="https://primefaces.org/cdn/primeng/images/demo/avatar/{{ option.image }}" style="width: 32px" />
+                                        <span>{{ option.name }}</span>
                                     </div>
-                                    <div class="flex items-center space-x-3">
-                                        <span
-                                            class="bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-100 px-2 py-1 rounded text-sm">
-                                            {{ cliente.generos.length }} géneros
-                                        </span>
-                                        <span
-                                            class="bg-green-100 dark:bg-green-700 text-green-800 dark:text-green-100 px-2 py-1 rounded text-sm">
-                                            {{ cliente.totalKgs | number:'1.2-2' }} Kgs
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div *ngIf="cliente.expanded" class="bg-gray-100 dark:bg-gray-800 p-4">
-                                <div class="space-y-3">
-                                    <div *ngFor="let genero of cliente.generos"
-                                        class="bg-white dark:bg-gray-900 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-                                        <div class="flex items-center justify-between mb-3">
-                                            <h4 class="font-medium flex items-center">
-                                                <span class="w-3 h-3 bg-purple-500 rounded-full mr-2"></span>
-                                                {{ genero.nombreGenero }}
-                                            </h4>
-                                            <div class="flex items-center space-x-3">
-                                                <span
-                                                    class="bg-purple-100 dark:bg-purple-700 text-purple-800 dark:text-purple-100 px-2 py-1 rounded text-sm">
-                                                    {{ genero.items.length }} registros
-                                                </span>
-                                                <span
-                                                    class="bg-orange-100 dark:bg-orange-700 text-orange-800 dark:text-orange-100 px-2 py-1 rounded text-sm font-medium">
-                                                    {{ genero.totalKgs | number:'1.2-2' }} Kgs
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div class="overflow-x-auto">
-                                            <table class="min-w-full text-sm text-gray-900 dark:text-gray-100">
-                                                <thead class="bg-gray-50 dark:bg-gray-700">
-                                                    <tr>
-                                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase">ID
-                                                        </th>
-                                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase">
-                                                            Fecha Inicio</th>
-                                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase">
-                                                            Fecha Fin</th>
-                                                        <th class="px-3 py-2 text-right text-xs font-medium uppercase">
-                                                            Kgs</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody
-                                                    class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                                    <tr *ngFor="let item of genero.items"
-                                                        class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                                        <td class="px-3 py-2">{{ item.id }}</td>
-                                                        <td class="px-3 py-2">{{ item.startDate | date:'dd/MM/yyyy' }}
-                                                        </td>
-                                                        <td class="px-3 py-2">{{ item.endDate | date:'dd/MM/yyyy' }}
-                                                        </td>
-                                                        <td class="px-3 py-2 text-right font-medium">{{ item.kgs |
-                                                            number:'1.2-2' }}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Fin género -->
-                        </div>
-                    </div>
-                    <!-- Fin clientes -->
+                                </ng-template>
+                            </p-multiselect>
+                        </ng-template>
+                    </p-columnFilter>
                 </div>
-            </div>
-        </ng-container>
-
-        <div *ngIf="!loading && groupedData.length === 0" class="text-center py-12">
-            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay datos disponibles</h3>
-            <p class="text-gray-500 dark:text-gray-400">No se encontraron registros comerciales para mostrar.</p>
-        </div>
-    </div>
-</div>
+            </th>
+            <th style="min-width:10rem">
+                <div class="flex items-center">
+                    Date
+                    <p-columnFilter type="date" field="date" display="menu"></p-columnFilter>
+                </div>
+            </th>
+            <th style="min-width:10rem">
+                <div class="flex items-center">
+                    Balance
+                    <p-columnFilter type="numeric" field="balance" display="menu" currency="USD" />
+                </div>
+            </th>
+            <th style="min-width:10rem">
+                <div class="flex items-center">
+                    Status
+                    <p-columnFilter field="status" matchMode="equals" display="menu">
+                        <ng-template #filter let-value let-filter="filterCallback">
+                            <p-select [(ngModel)]="value" [options]="statuses" (onChange)="filter($event.value)" placeholder="Select One" styleClass="w-full">
+                                <ng-template let-option #item>
+                                    <p-tag [value]="option.value" [severity]="getSeverity(option.value)"></p-tag>
+                                </ng-template>
+                            </p-select>
+                        </ng-template>
+                    </p-columnFilter>
+                </div>
+            </th>
+            <th style="min-width:10rem">
+                <div class="flex items-center">
+                    Activity
+                    <p-columnFilter field="activity" matchMode="between" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template #filter let-value let-filter="filterCallback">
+                            <p-slider [(ngModel)]="value" [range]="true" styleClass="m-4" (onSlideEnd)="filter($event.values)" />
+                            <div class="flex items-center px-2">
+                                <span *ngIf="!value">0</span>
+                                <span *ngIf="value">{{ value[0] }} - {{ value[1] }}</span>
+                            </div>
+                        </ng-template>
+                    </p-columnFilter>
+                </div>
+            </th>
+            <th style="width: 3rem">
+                <div class="flex items-center">
+                    Verified
+                    <p-columnFilter type="boolean" field="verified" display="menu" />
+                </div>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-customer>
+        <tr>
+            <td>
+                {{ customer.name }}
+            </td>
+            <td>
+                <div class="flex items-center gap-2">
+                    <img src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" style="width: 20px" />
+                    <span>{{ customer.country.name }}</span>
+                </div>
+            </td>
+            <td>
+                <div class="flex items-center gap-2">
+                    <img [alt]="customer.representative.name" src="https://primefaces.org/cdn/primeng/images/demo/avatar/{{ customer.representative.image }}" width="32" />
+                    <span>{{ customer.representative.name }}</span>
+                </div>
+            </td>
+            <td>
+                {{ customer.date | date: 'MM/dd/yyyy' }}
+            </td>
+            <td>
+                {{ customer.balance | currency: 'USD' : 'symbol' }}
+            </td>
+            <td>
+                <p-tag [value]="customer.status" [severity]="getSeverity(customer.status)" />
+            </td>
+            <td>
+                <p-progressbar [value]="customer.activity" [showValue]="false" />
+            </td>
+            <td class="text-center">
+                <i
+                    class="pi"
+                    [ngClass]="{
+                        'text-green-500 pi-check-circle': customer.verified,
+                        'text-red-500 pi-times-circle': !customer.verified
+                    }"
+                ></i>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+        <tr>
+            <td colspan="7">No customers found.</td>
+        </tr>
+    </ng-template>
+</p-table>

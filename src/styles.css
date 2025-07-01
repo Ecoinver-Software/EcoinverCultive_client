@@ -51,3 +51,6 @@ html, body {
 .ng-dropdown-panel .ng-option.ng-option-disabled {
   color: #9ca3af !important;
 }
+
+html, body { height: 100%; }
+

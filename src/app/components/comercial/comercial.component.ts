@@ -23,6 +23,8 @@ export interface Comercial {
   nombreGenero: string;
   nombreUsuario:string;
   kgs: number;
+  kgsPlan:number;
+  pendiente:number;
 }
 
 
@@ -51,10 +53,12 @@ export class ComercialComponent implements OnInit {
     startDate: undefined,
     endDate: undefined,
     idGenero: 0,
-    nombreUsuario:'',
+    nombreUsuario: '',
     nombreGenero: '',
 
-    kgs: 0
+    kgs: 0,
+    kgsPlan: 0,
+    pendiente: 0
   };
   clientErp: Client[] = [];//Array para la base de datos del Erp
   showDeleteModal: boolean = false;
@@ -69,6 +73,9 @@ export class ComercialComponent implements OnInit {
     role: '',
     roleLevel: 0
   }
+
+  validar:boolean=false;
+  mensajeError:string='';
   //Un array que va a tener los el género,los kilos, la fecha de inicio y la fecha fin.
   addComercial: { idGenero: number, kg: number, fechaInicio: Date, fechaFin: Date, nombreGenero: string }[] = [];
 
@@ -273,7 +280,9 @@ export class ComercialComponent implements OnInit {
         idGenero: formulario.idGenero,
         nombreGenero: formulario.nombreGenero,
         nombreUsuario:formulario.nombreUsuario,
-        kgs: formulario.kgs
+        kgs: formulario.kgs,
+        kgsPlan:0,
+        pendiente:formulario.kgs
       };
 
 
@@ -314,7 +323,9 @@ export class ComercialComponent implements OnInit {
       nombreGenero: formulario.generoNombre,
       endDate: formulario.endDate,
       nombreUsuario:this.usuarioSesion.name+' '+this.usuarioSesion.lastName,
-      kgs: formulario.kgs
+      kgs: formulario.kgs,
+      kgsPlan:0,
+      pendiente:0
     };
     console.log(this.clientData);
     //Comprobación de la fecha fechaInicio>fechaFin
@@ -449,6 +460,19 @@ export class ComercialComponent implements OnInit {
   }
 
   guardarArray() {//Cada vez que se llame a este método se iran guardando las necesidades en el array.
+
+    //Antes que todo comprobamos que los clientes y el género seleccionados no esten ya en la DB.-
+    const encontrado=this.paginatedData.find(item=>item.clientCode==this.miFormulario2.get('clientCode2')?.value && item.idGenero==this.miFormulario2?.get('genero2')?.value);
+    if(encontrado!==undefined){
+      this.mensajeError='Error, esta necesidad ya existe';
+    
+      this.validar=true;//Para mostrar una alerta cuando la necesidad que si quiere crear ya exista.
+      setTimeout(() => {
+          this.validar=false;
+      }, 2000);
+      return;
+    }
+
     if (!this.miFormulario2.get('genero2')?.value || !this.miFormulario2.get('kgs2')?.value || !this.miFormulario2.get('startDate2')?.value || !this.miFormulario2.get('endDate2')?.value || !this.miFormulario2.get('generoNombre2')?.value) {
 
       return;

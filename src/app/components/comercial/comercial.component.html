@@ -1,4 +1,20 @@
 <div class="margen transition-all duration-300" class="margen p-4 pt bg-white dark:bg-gray-800 rounded-lg shadow">
+
+  <!-- Mensaje de error fijo con animación mejorada -->
+  <div *ngIf="validar" class="fixed top-20 z-9999 left-1/2 transform -translate-x-1/2 z-50 
+        bg-red border border-red-400 text-red-700 px-4 py-3 
+        rounded-lg shadow-md dark:bg-red-900/30 dark:border-red-800 
+        dark:text-red-400 
+        transition-all duration-500 ease-out animate-pulse animate-fadeInDown" role="alert">
+    <div class="flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 animate-spin-slow" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+      <span>{{ mensajeError }}</span>
+    </div>
+  </div>
+
   <!-- Encabezado: Búsqueda, Selector de Items por Página -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
 
@@ -65,7 +81,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-xs">
       <div class="relative p-4 w-full max-w-5xl max-h-[85vh] overflow-y-auto">
         <!-- Modal content -->
-        <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+        <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 ">
           <!-- Modal header -->
           <div
             class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
@@ -248,7 +264,7 @@
                   </div>
 
                   <!-- Lista de necesidades con scroll -->
-                  <div class="max-h-100  overflow-y-auto">
+                  <div class="max-h-[70dvh]  overflow-y-auto">
                     <div class="p-3 space-y-3">
                       @for(necesidad of addComercial;track necesidad; let i=$index){
                       <div
@@ -470,6 +486,8 @@
           <th scope="col" class="px-4 py-3">Id Género</th>
           <th scope="col" class="px-4 py-3">Nombre del Género</th>
           <th scope="col" class="px-4 py-3">Kilogramos</th>
+           <th scope="col" class="px-4 py-3">Kilogramos Planificados</th>
+            <th scope="col" class="px-4 py-3">Kilogramos Pendientes</th>
           <th scope="col">Creado Por</th>
         </tr>
       </thead>
@@ -486,6 +504,8 @@
           <td class="px-4 py-3">{{ item.idGenero}}</td>
           <td class="px-4 py-3">{{ item.nombreGenero}}</td>
           <td class="px-4 py-3">{{ item.kgs }}</td>
+           <td class="px-4 py-3">{{ item.kgsPlan}}</td>
+            <td class="px-4 py-3">{{ item.pendiente }}</td>
           <td>{{item.nombreUsuario}}</td>
         </tr>
       </tbody>

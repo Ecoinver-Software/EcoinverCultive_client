@@ -5,7 +5,9 @@ export interface CreateComercial {
         startDate:Date | undefined;
         endDate:  Date | undefined;
         idGenero:number;
-       nombreGenero:string;
-       nombreUsuario:string;
+        nombreGenero:string;
+        nombreUsuario:string;
         kgs:number;
+        kgsPlan:number;
+        pendiente:number;
 }

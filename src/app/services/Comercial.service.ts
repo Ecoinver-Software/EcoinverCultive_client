@@ -15,6 +15,8 @@ export interface Comercial {
   idGenero:number;
   nombreGenero:string;
   kgs: number;
+  kgsPlan:number;
+  pendiente:number;
   nombreUsuario:string;
 }
 

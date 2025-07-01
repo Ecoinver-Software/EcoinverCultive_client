@@ -18,6 +18,7 @@ export class ComercialPlanningService {
     return this.http.get<ComercialPlanning[]>(this.baseUrl);
   }
   post(planning:ComercialPlanningPost):Observable<{message:string,entity:ComercialPlanning}>{
+    
     return this.http.post<{ message: string, entity: ComercialPlanning }>(this.baseUrl,planning);
   }
 }

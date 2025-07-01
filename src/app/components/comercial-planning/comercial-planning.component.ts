@@ -19,7 +19,9 @@ import { ComercialPlanningDetailsWithId } from '../../types/ComercialPlanningDet
 export class ComercialPlanningComponent {
   modal = false;
   editarBoton: boolean = false;
-
+  contenedorPrincipal:boolean=false;
+  comercialFiltros:Comercial[]=[];
+  cliente:string='';
   validar: string | null = null//Para el botón guardar planificación
   semanas: { semana: number, fecha: string }[] = [];//Array que contendrá la semana y fecha de los cards
   rangoSemana: { inicio: Date, fin: Date }[] = [];
@@ -44,30 +46,36 @@ export class ComercialPlanningComponent {
     endDate: new Date(),
     idGenero: 0,
     nombreGenero: '',
-    nombreUsuario:'',
-    kgs: 0
+    nombreUsuario: '',
+    kgs: 0,
+    kgsPlan: 0,
+    pendiente: 0
   };
   editarPlanning: boolean = false;
   formulario: FormGroup;
   validForm: boolean = false;//Para validar el formualarrio
   index: number = -1;
-
+  usuariosSinRepetir:string[]=[];
+  usuario:string=''//Para el usuario en el filtro.
+  clienteSinRepetir:string[]=[];
   constructor(private comercialServicio: ComercialServiceService, private comercialPlanning: ComercialPlanningService, private comercialDetails: ComercialPlanningDetailsService, private fb: FormBuilder, private cdr: ChangeDetectorRef) {
     this.formulario = this.fb.group({
       semanas: this.fb.array([]) // Inicializa un FormArray vacío
     });
   }
-  
+
   ngOnInit(): void {
     this.comercialServicio.getComercial().subscribe(//Obtenemos las necesidades comerciales guardadas en la base de datos
       (data) => {
         this.comercial = data;
+        this.clientesSinRepetir();
+        
       },
       (error) => {
         console.log(error);
       }
     );
-    
+
     //Obtenemos los datos del planning de la BD
     this.comercialPlanning.get().subscribe(
       (data) => {
@@ -78,7 +86,7 @@ export class ComercialPlanningComponent {
       }
     );
   }
-  
+
   ngAfterViewInit() {
     this.cdr.detectChanges();
   }
@@ -105,8 +113,11 @@ export class ComercialPlanningComponent {
             endDate: evento.endDate,
             idGenero: evento.idGenero,
             nombreGenero: evento.nombreGenero,
-            nombreUsuario:'',
-            kgs: evento.kgs
+            nombreUsuario: '',
+            kgs: evento.kgs,
+            pendiente: 0,
+            kgsPlan: 0
+
           };
 
           const startDate = new Date(evento.startDate);
@@ -296,12 +307,12 @@ export class ComercialPlanningComponent {
     // Crear controles de formulario para cada semana
     for (let i = 0; i < this.semanas.length; i++) {
       let initialValue: string | number = '';
-      
+
       // Si existe planningEditar para este índice, usar su valor
       if (this.planningEditar[i] && this.planningEditar[i].kilos !== undefined) {
         initialValue = this.planningEditar[i].kilos || '';
       }
-      
+
       const control = this.fb.control(
         initialValue,
         [Validators.required, Validators.min(1)]
@@ -313,9 +324,9 @@ export class ComercialPlanningComponent {
     // Habilitar/deshabilitar controles basándose en datos existentes
     this.semanasFormArray.controls.forEach((control, index) => {
       // Si hay datos existentes en planningEditar para este índice
-      if (this.planningEditar[index] && 
-          this.planningEditar[index].kilos !== undefined && 
-          this.planningEditar[index].kilos !== 0) {
+      if (this.planningEditar[index] &&
+        this.planningEditar[index].kilos !== undefined &&
+        this.planningEditar[index].kilos !== 0) {
         control.disable();
       } else {
         control.enable();
@@ -334,7 +345,7 @@ export class ComercialPlanningComponent {
     this.semanasFormArray.controls.forEach((control, index) => {
       const value = control.value || 0;
       this.distribuido += Number(value);
-      
+
       if (this.planningEditar[index]) {
         this.planningEditar[index].kilos = Number(value);
       }
@@ -347,14 +358,16 @@ export class ComercialPlanningComponent {
     nombre = nombre.toLowerCase().trim();
     return comercial.clientCode.toString().toLowerCase().includes(nombre) || comercial.clientName.toLowerCase().includes(nombre);
   }
-  
+
   //Aquí se guardan los datos de los cards en la tabla commercialneedsplanningdetails
   async guardar() {
     this.validar = null;
-
+    
+    console.log(this.planning);
     const id = this.planning.find(item => item.idCommercialNeed == this.selectedComercial.id);
 
     if (id === undefined || this.plannigDetails.find(item => item.idCommercialNeedsPlanning == id?.id)) {
+      
       this.validar = 'Esta necesidad comercial ya existe en el sistema';
       this.modal = false;
       setTimeout(() => {
@@ -395,6 +408,28 @@ export class ComercialPlanningComponent {
         try {
           const resultado = await Promise.all(promesas);
           this.modal = true;
+          let kilosPlanificados: number = 0;//Para los kilos ya planificados.
+          for (let i = 0; i < this.semanasFormArray.length; i++) {
+            const controlValue = this.semanasFormArray.controls[i].value;
+            kilosPlanificados += controlValue;
+          }
+          const necesidad = this.comercial.find(item => item.id == id.idCommercialNeed);
+          if (necesidad !== undefined) {
+            necesidad.kgsPlan = kilosPlanificados;
+            necesidad.pendiente = necesidad.kgs - kilosPlanificados;
+            if (necesidad.pendiente < 0) {
+              necesidad.pendiente = 0;
+            }
+            this.comercialServicio.editComercial(necesidad.id, necesidad).subscribe(
+              (data) => {
+                console.log('Exito');
+              },
+              (error) => {
+                console.log('Error');
+              }
+            );
+          }
+
           console.log('Datos insertados correctamente ' + resultado);
         } catch (error) {
           console.log('Error al guardar los datos ' + error);
@@ -403,15 +438,19 @@ export class ComercialPlanningComponent {
       }
     }
   }
-  
+
   cerrarModal() {
     this.modal = false;
     window.location.reload();
   }
-  
+
   //Barra de progreso
   get calcularPorcentaje() {
+    if(this.selectedComercial.kgs==0){
+      return 0;
+    }
     const porcentaje = (this.distribuido * 100) / this.selectedComercial.kgs;
+    
     if (porcentaje <= 100) {
       return porcentaje;
     } else {
@@ -431,7 +470,7 @@ export class ComercialPlanningComponent {
         return;
       }
     }
-    
+
     if (editar) {
       if (editar.id) {
         this.comercialDetails.put(editar.id, editar).subscribe(
@@ -440,6 +479,8 @@ export class ComercialPlanningComponent {
             this.editarPlanning = true;
             this.validar = null;
             this.editarBoton = false;
+           
+            this.kilosPlanificados(editar.id!);
             this.semanasFormArray.controls[indice].disable();
           },
           (error) => {
@@ -458,7 +499,7 @@ export class ComercialPlanningComponent {
           }, 2000);
           return;
         }
-        
+
         const fecha = new Date(this.rangoSemana[indice].inicio);
         fecha.setHours(12, 0, 0, 0); // evitar problemas por zona horaria
 
@@ -466,7 +507,7 @@ export class ComercialPlanningComponent {
         const diff = (fecha.getTime() - primerDia.getTime()) / (1000 * 60 * 60 * 24);
         const ajuste = primerDia.getDay(); // 0 = domingo, 1 = lunes, etc.
         console.log(this.rangoSemana);
-        
+
         const semana = Math.floor((diff + ajuste) / 7) + 1;
 
         this.guardarPlanning = {
@@ -484,12 +525,13 @@ export class ComercialPlanningComponent {
             this.editarPlanning = true;
             this.validar = null;
             this.editarBoton = false;
+            this.kilosPlanificados(editar.id!);
             this.semanasFormArray.controls[indice].disable();
           },
           (error) => {
             console.log(error);
           }
-        )
+        );
       }
     }
     else {
@@ -503,7 +545,7 @@ export class ComercialPlanningComponent {
         }, 2000);
         return;
       }
-      
+
       const fecha = new Date(this.rangoSemana[indice].inicio);
       fecha.setHours(12, 0, 0, 0); // evitar problemas por zona horaria
 
@@ -527,6 +569,10 @@ export class ComercialPlanningComponent {
           this.editarPlanning = true;
           this.validar = null;
           this.editarBoton = false;
+          
+            this.kilosPlanificados(id?.id!);
+          
+
           this.semanasFormArray.controls[indice].disable();
         },
         (error) => {
@@ -552,11 +598,11 @@ export class ComercialPlanningComponent {
     }
     this.cdr.detectChanges(); // Forzar la detección de cambios
   }
-  
+
   get semanasFormArray(): FormArray<FormControl> {
     return this.formulario.get('semanas') as FormArray<FormControl>;
   }
-  
+
   getWeekNumberISO(date: Date): number {
     const tmp = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = tmp.getUTCDay() || 7;
@@ -577,5 +623,86 @@ export class ComercialPlanningComponent {
     const day = tmp.getDay();
     const diff = tmp.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(tmp.setDate(diff));
+  }
+
+  kilosPlanificados(id: number) {
+    
+    let kilosPlanificados: number = 0;//Para los kilos ya planificados.
+    for (let i = 0; i < this.semanasFormArray.length; i++) {
+      const controlValue = this.semanasFormArray.controls[i].value;
+      kilosPlanificados += controlValue;
+    }
+   
+    const planificacion = this.plannigDetails.find(item => item.id == id);//Par encontrar la planificación
+    
+    const planning = this.planning.find(item => item.id == planificacion?.idCommercialNeedsPlanning);
+    const necesidad=this.comercial.find(item=>item.id==planning?.idCommercialNeed);
+
+    if (necesidad !== undefined) {
+      necesidad.kgsPlan = kilosPlanificados;
+      necesidad.pendiente = necesidad.kgs - kilosPlanificados;
+      if (necesidad.pendiente < 0) {
+        necesidad.pendiente = 0;
+      }
+      this.comercialServicio.editComercial(necesidad.id, necesidad).subscribe(
+        (data) => {
+          console.log('Exito');
+        },
+        (error) => {
+          console.log('Error');
+        }
+      );
+    }
+  }
+
+  clientesSinRepetir(){//Filtramos los usuarios que han creado necesidades
+    this.usuariosSinRepetir=[];
+    this.comercialFiltros=[];
+    this.selectedComercial.id=0;
+    this.selectedComercial.kgs=0;
+    this.distribuido=0;
+    this.pendiente=0;
+    this.calcularPorcentaje.toFixed(2);
+    
+    this.semanas=[];
+    for(let i=0;i<this.comercial.length;i++){
+      const encontrado=this.usuariosSinRepetir.find(item=>item==this.comercial[i].nombreUsuario);
+      if(encontrado==undefined){
+        this.usuariosSinRepetir.push(this.comercial[i].nombreUsuario);
+      }
+    }
+
+    this.empresaSinRepetir();//Cuando terminemos buscamos los clientes de la necesidad que ha creado el usuario
+  }
+
+  empresaSinRepetir(){
+    this.clienteSinRepetir=[];
+
+    const clientesUsuario=this.comercial.filter(ietm=>ietm.nombreUsuario==this.usuario);
+   
+    if(clientesUsuario!==undefined){
+      for(let i=0;i<clientesUsuario.length;i++){
+        const encontrado=this.clienteSinRepetir.find(item=>item==clientesUsuario[i].clientName);
+        if(encontrado==undefined){
+          this.clienteSinRepetir.push(clientesUsuario[i].clientName);
+        }
+      }
+    }
+   
+  }
+
+  filtrarGeneros(){
+    this.comercialFiltros=this.comercial.filter(item=>item.nombreUsuario==this.usuario && item.clientName==this.cliente);
+
+  
+    this.contenedorPrincipal=true;
+
+  }
+
+  limpiar(){
+    
+    this.cliente='';
+    this.usuario='';
+    this.clientesSinRepetir();
   }
 }

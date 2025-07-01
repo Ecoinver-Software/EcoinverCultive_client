@@ -76,6 +76,8 @@ export class DashboardComponent implements OnInit {
     nombreGenero: '',
     nombreUsuario: '',
     kgs: 0,
+    kgsPlan: 0,
+    pendiente: 0
   };
   isExporting: boolean = false;
   nombreComerciales: string = '';
@@ -316,7 +318,7 @@ private cargarDatos() {
     let fechaPReal;
     fechaPReal = new Date();
     fechaPReal.setMonth(fechaPReal.getMonth() - 2);
-
+    
     // Establecer las horas, minutos, segundos y milisegundos a 0
     fechaPReal.setHours(0, 0, 0, 0);
     fechaPReal.setDate(1);
@@ -436,9 +438,9 @@ private cargarDatos() {
 
           }
 
-          let kgs: number[] = new Array(meses.length).fill(0);
-          let kgsProduction = new Array(meses.length).fill(0);
-          let kgsProductionReal = new Array(meses.length).fill(0);
+          let kgs: number[] = new Array(meses.length).fill(0);//Kgs necesidad
+          let kgsProduction = new Array(meses.length).fill(0);//Kgs Producción
+          let kgsProductionReal = new Array(meses.length).fill(0);//Kgs Producción real.
           let clientes: string[] = new Array(meses.length);
           let repetidos: { mes: number; cliente: string }[] = [];
           if (this.producReal) {
@@ -451,19 +453,96 @@ private cargarDatos() {
               }
             }
           }
-          for (let i = 0; i < this.selectedProductions.length; i++) {
-            //para ir sumando los kg de cada semana de la producción
-            //Necesitamos saber en que mes entra la planificación de la necesidad
-            const mes = new Date(this.selectedProductions[i].fechaInicio);
+          const pos = meses.findIndex(item => item == 12);//Para encontrar donde se encuentra diciembre.
 
-            for (let j = 0; j < meses.length; j++) {
-              if (mes.getMonth() + 1 == meses[j]) {
-                //Saber los clientes que estan en la semana de la necesidad
-                kgsProduction[j] =
-                  (kgsProduction[j] || 0) +
-                  parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+
+
+
+          if (this.producReal) {
+            for (let i = 0; i < this.producReal.length; i++) {
+              for (let j = 0; j < meses.length; j++) {
+                if (this.producReal[i].fechaFin.getMonth() + 1 == meses[j]) {
+                  kgsProductionReal[j] =
+                    (kgsProductionReal[j] || 0) + this.producReal[i].kilosNetos;
+                }
               }
             }
+          }
+          if (pos === -1) {
+            for (let i = 0; i < this.selectedProductions.length; i++) {
+              //para ir sumando los kg de cada semana de la producción
+              //Necesitamos saber en que mes entra la planificación de la necesidad
+              const mes = new Date(this.selectedProductions[i].fechaInicio);
+              const mesFin = new Date(this.selectedProductions[i].fechaFin);
+              for (let j = 0; j < meses.length; j++) {
+
+                console.log(mes.getMonth());
+
+                if ((mes.getMonth() + 1 == meses[j] || mesFin.getMonth() + 1 == meses[j]) && mes.getFullYear() == d.getFullYear()) {
+                  //Saber los clientes que estan en la semana de la necesidad
+                  kgsProduction[j] =
+                    (kgsProduction[j] || 0) +
+                    parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                }
+              }
+            }
+          }
+          else {
+            if (pos < 2) {
+              for (let i = 0; i < this.selectedProductions.length; i++) {
+                //para ir sumando los kg de cada semana de la producción
+                //Necesitamos saber en que mes entra la planificación de la necesidad
+                const mes = new Date(this.selectedProductions[i].fechaInicio);
+                const mesFin = new Date(this.selectedProductions[i].fechaFin);
+                for (let j = 0; j < meses.length; j++) {
+                  if (meses[i] >= 11) {
+                    if ((mes.getMonth() + 1 == meses[j] || mesFin.getMonth() + 1 == meses[j]) && mes.getFullYear() == d.getFullYear() - 1) {
+                      //Saber los clientes que estan en la semana de la necesidad
+                      kgsProduction[j] =
+                        (kgsProduction[j] || 0) +
+                        parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                    }
+                  }
+                  else if (meses[i] >= 1 && meses[i] <= 8) {
+                    if ((mes.getMonth() + 1 == meses[j] || mesFin.getMonth() + 1 == meses[j]) && mes.getFullYear() == d.getFullYear()) {//Si la fecha de inicio y la fecha fin entra en el mes correspondiente se suma.
+                      //Saber los clientes que estan en la semana de la necesidad
+                      kgsProduction[j] =
+                        (kgsProduction[j] || 0) +
+                        parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                    }
+                  }
+
+                }
+              }
+            }
+            else if (pos >= 2) {
+              for (let i = 0; i < this.selectedProductions.length; i++) {
+                //para ir sumando los kg de cada semana de la producción
+                //Necesitamos saber en que mes entra la planificación de la necesidad
+                const mes = new Date(this.selectedProductions[i].fechaInicio);
+                const mesFin = new Date(this.selectedProductions[i].fechaFin);
+                for (let j = 0; j < meses.length; j++) {
+                  if (meses[i] >= 7) {
+                    if ((mes.getMonth() + 1 == meses[j] || mesFin.getMonth() + 1 == meses[j]) && mes.getFullYear() == d.getFullYear()) {
+                      //Saber los clientes que estan en la semana de la necesidad
+                      kgsProduction[j] =
+                        (kgsProduction[j] || 0) +
+                        parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                    }
+                  }
+                  else if (meses[i] >= 1 && meses[i] <= 3) {
+                    if ((mes.getMonth() + 1 == meses[j] || meses[j] == mesFin.getMonth() + 1) && mes.getFullYear() == d.getFullYear() + 1) {
+                      //Saber los clientes que estan en la semana de la necesidad
+                      kgsProduction[j] =
+                        (kgsProduction[j] || 0) +
+                        parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
+                    }
+                  }
+
+                }
+              }
+            }
+
           }
 
           for (let i = 0; i < planningDetails.length; i++) {
@@ -648,6 +727,7 @@ private cargarDatos() {
           this.options = {
             responsive: true,
             maintainAspectRatio: false,
+            aspectRadio:0,
             scales: {
               y: {
                 type: 'linear',
@@ -748,17 +828,22 @@ private cargarDatos() {
 
           const totalProduccion = kgsProduction.reduce((a, b) => a + b, 0);
           const totalNecesidad = kgs.reduce((a, b) => a + b, 0);
+          
 
-          if (totalNecesidad === 0) {
-            this.porcentajeReal = 0; // O mostrar un error si es necesario
+          if(totalNecesidad===0 && totalProduccion==0){
+            this.porcentajeReal=0;
+          }
+
+          else if (totalNecesidad === 0 && totalProduccion > 0) {
+            this.porcentajeReal = 100; // O mostrar un error si es necesario
           } else if (totalNecesidad > totalProduccion) {
             // Pérdida
             this.porcentajeReal =
-              ((totalProduccion - totalNecesidad) * 100) / totalNecesidad;
+              ((totalProduccion - totalNecesidad) * 100) / (totalNecesidad + totalProduccion);
           } else {
             // Ganancia o producción igual
             this.porcentajeReal =
-              ((totalNecesidad - totalProduccion) * 100) / totalNecesidad;
+              ((totalProduccion - totalNecesidad) * 100) / (totalNecesidad + totalProduccion);
             this.porcentajeReal = parseFloat(this.porcentajeReal.toFixed(2));
           }
 
@@ -1342,7 +1427,7 @@ private cargarDatos() {
         }
         const pos = meses.findIndex(item => item == 12);//Para encontrar donde se encuentra diciembre.
 
-        
+
 
         let kgsProduction: number[] = new Array(meses.length).fill(0);
         let kgsProductionReal: number[] = new Array(meses.length).fill(0);
@@ -1356,17 +1441,17 @@ private cargarDatos() {
             }
           }
         }
-        if (pos ===-1) {
+        if (pos === -1) {
           for (let i = 0; i < this.selectedProductions.length; i++) {
             //para ir sumando los kg de cada semana de la producción
             //Necesitamos saber en que mes entra la planificación de la necesidad
             const mes = new Date(this.selectedProductions[i].fechaInicio);
-            const mesFin=new Date(this.selectedProductions[i].fechaFin);
+            const mesFin = new Date(this.selectedProductions[i].fechaFin);
             for (let j = 0; j < meses.length; j++) {
-             
+
               console.log(mes.getMonth());
-              
-              if ((mes.getMonth()+1 == meses[j] || mesFin.getMonth()+1==meses[j]) && mes.getFullYear() == d.getFullYear()) {
+
+              if ((mes.getMonth() + 1 == meses[j] || mesFin.getMonth() + 1 == meses[j]) && mes.getFullYear() == d.getFullYear()) {
                 //Saber los clientes que estan en la semana de la necesidad
                 kgsProduction[j] =
                   (kgsProduction[j] || 0) +
@@ -1381,18 +1466,18 @@ private cargarDatos() {
               //para ir sumando los kg de cada semana de la producción
               //Necesitamos saber en que mes entra la planificación de la necesidad
               const mes = new Date(this.selectedProductions[i].fechaInicio);
-
+              const mesFin = new Date(this.selectedProductions[i].fechaFin);
               for (let j = 0; j < meses.length; j++) {
                 if (meses[i] >= 11) {
-                  if (mes.getMonth() + 1 == meses[j] && mes.getFullYear() == d.getFullYear()-1) {
+                  if ((mes.getMonth() + 1 == meses[j] || mesFin.getMonth() + 1 == meses[j]) && (mes.getFullYear() == d.getFullYear() - 1 || mesFin.getFullYear() == d.getFullYear() - 1)) {
                     //Saber los clientes que estan en la semana de la necesidad
                     kgsProduction[j] =
                       (kgsProduction[j] || 0) +
                       parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
                   }
                 }
-                else if(meses[i]>=1 && meses[i]<=8){
-                  if (mes.getMonth() + 1 == meses[j] && mes.getFullYear() == d.getFullYear()) {
+                else if (meses[i] >= 1 && meses[i] <= 8) {
+                  if ((mes.getMonth() + 1 == meses[j] || mesFin.getMonth() + 1 == meses[j]) && (mes.getFullYear() == d.getFullYear() || mesFin.getFullYear() == d.getFullYear())) {
                     //Saber los clientes que estan en la semana de la necesidad
                     kgsProduction[j] =
                       (kgsProduction[j] || 0) +
@@ -1403,23 +1488,23 @@ private cargarDatos() {
               }
             }
           }
-          else if(pos>=2){
-             for (let i = 0; i < this.selectedProductions.length; i++) {
+          else if (pos >= 2) {
+            for (let i = 0; i < this.selectedProductions.length; i++) {
               //para ir sumando los kg de cada semana de la producción
               //Necesitamos saber en que mes entra la planificación de la necesidad
               const mes = new Date(this.selectedProductions[i].fechaInicio);
-
+              const mesFin = new Date(this.selectedProductions[i].fechaFin);
               for (let j = 0; j < meses.length; j++) {
                 if (meses[i] >= 7) {
-                  if (mes.getMonth() + 1 == meses[j] && mes.getFullYear() == d.getFullYear()) {
+                  if ((mes.getMonth() + 1 == meses[j] || mesFin.getMonth() + 1 == meses[j]) && (mes.getFullYear() == d.getFullYear() || mesFin.getFullYear() == d.getFullYear())) {
                     //Saber los clientes que estan en la semana de la necesidad
                     kgsProduction[j] =
                       (kgsProduction[j] || 0) +
                       parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
                   }
                 }
-                else if(meses[i]>=1 && meses[i]<=3){
-                  if (mes.getMonth() + 1 == meses[j] && mes.getFullYear() == d.getFullYear()+1) {
+                else if (meses[i] >= 1 && meses[i] <= 3) {
+                  if ((mes.getMonth() + 1 == meses[j] || mesFin.getMonth() + 1 == meses[j]) && (mes.getFullYear() == d.getFullYear() + 1 || mesFin.getFullYear() == d.getFullYear() + 1)) {
                     //Saber los clientes que estan en la semana de la necesidad
                     kgsProduction[j] =
                       (kgsProduction[j] || 0) +
@@ -1508,16 +1593,16 @@ private cargarDatos() {
         const totalProduccion2 = kgsProduction.reduce((a, b) => a + b, 0);
         const totalNecesidad2 = kgs.reduce((a, b) => a + b, 0);
 
-        if (totalNecesidad2 === 0) {
-          this.porcentajeReal = 0; // O mostrar un error si es necesario
+        if (totalNecesidad2 === 0 && totalProduccion2 > 0) {
+          this.porcentajeReal = 100; // O mostrar un error si es necesario
         } else if (totalNecesidad2 > totalProduccion2) {
           // Pérdida
           this.porcentajeReal =
-            ((totalProduccion2 - totalNecesidad2) * 100) / totalNecesidad2;
+            ((totalProduccion2 - totalNecesidad2) * 100) / (totalNecesidad2 + totalProduccion2);
         } else {
           // Ganancia o producción igual
           this.porcentajeReal =
-            ((totalNecesidad2 - totalProduccion2) * 100) / totalNecesidad2;
+            ((totalProduccion2 - totalNecesidad2) * 100) / (totalNecesidad2 + totalProduccion2);
         }
         this.porcentajeReal = parseFloat(this.porcentajeReal.toFixed(2));
         this.realData = {
@@ -1650,20 +1735,30 @@ private cargarDatos() {
                       ? 'Necesidades Comerciales'
                       : 'Producción';
                   let cliente = '';
+                  let repetido:string[]=[];
                   if (tipo == 'commercial') {
                     tipoDato = 'Necesidades Comerciales';
                     cliente = clientes[index];
                   } else if (tipo == 'production') {
                     tipoDato = 'Producción';
                     for (let i = 0; i < production.length; i++) {
-                      cliente += production[i].nombreFinca + '-';
+                      const encontrado=repetido.find(item=>item==production[i].nombreFinca);
+                      if(encontrado==undefined){
+                         cliente += production[i].nombreFinca + '-';
+                         repetido.push(production[i].nombreFinca);
+                      }
+                     
                     }
                   } else if (tipo == 'combined') {
                     if (datasetIndex === 0) {
                       cliente = clientes[index];
                     } else {
                       for (let i = 0; i < production.length; i++) {
-                        cliente += production[i].nombreFinca + '-';
+                         const encontrado=repetido.find(item=>item==production[i].nombreFinca);
+                      if(encontrado==undefined){
+                         cliente += production[i].nombreFinca + '-';
+                         repetido.push(production[i].nombreFinca);
+                      }
                       }
                     }
                   }
@@ -1841,7 +1936,7 @@ private cargarDatos() {
 
         // Actualizar los datos para los gráficos individuales
         this.commercialData = {
-          labels: semanas,
+          labels: sem,
           datasets: [
             {
               label: 'Necesidad comercial',
@@ -1855,7 +1950,7 @@ private cargarDatos() {
         };
 
         this.productionData = {
-          labels: semanas,
+          labels: sem,
           datasets: [
             {
               label: 'Producción cultivo',
@@ -1932,7 +2027,7 @@ private cargarDatos() {
                     datasetIndex === 0
                       ? 'Necesidades Comerciales'
                       : 'Producción';
-
+                  let repetidos: string[] = [];
                   let cliente = '';
                   if (tipo == 'commercial') {
                     tipoDato = 'Necesidades Comerciales';
@@ -1940,8 +2035,15 @@ private cargarDatos() {
                   } else if (tipo == 'production') {
                     tipoDato = 'Producción';
                     for (let i = 0; i < production.length; i++) {
-                      cliente += production[i].nombreFinca + '-';
+                      const encontrado = repetidos.find(item => item == production[i].nombreFinca);
+                      if (encontrado == undefined) {
+                        cliente += production[i].nombreFinca + '-';
+                        repetidos.push(production[i].nombreFinca);
+                      }
+
                     }
+
+
                   } else if (tipo == 'combined') {
                     if (datasetIndex === 0) {
                       cliente = clientes2[index];
@@ -1970,6 +2072,7 @@ private cargarDatos() {
         };
         break;
       case 'año':
+
         this.vistaSeleccionada = 'año';
         let meses2: number[] = [9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8];
         let kgsProduction2: number[] = new Array(meses2.length).fill(0);
@@ -1980,14 +2083,16 @@ private cargarDatos() {
         let clientes3: string[] = new Array(meses2.length);
         let repetidos3: { mes: number; cliente: string }[] = [];
 
+
         if (anoActual.getMonth() >= 8 && anoActual.getMonth() <= 11) {
           anoReal = anoActual.getFullYear();//El año entre septiembre y diciembre
           for (let i = 0; i < this.selectedProductions.length; i++) {
             const mes = new Date(this.selectedProductions[i].fechaInicio);
+            const mesFin = new Date(this.selectedProductions[i].fechaFin);
 
             for (let j = 0; j < meses2.length; j++) {
               if (meses2[j] >= 9 && meses2[j] <= 12) {//las producciones de septiembre a diciembre.
-                if (mes.getMonth() + 1 == meses2[j] && anoReal == mes.getFullYear()) {
+                if ((mes.getMonth() + 1 == meses2[j] || mesFin.getMonth() + 1 == meses2[j]) && (anoReal == mes.getFullYear() || anoReal == mesFin.getFullYear())) {
                   //Saber los clientes que estan en la semana de la necesidad
                   kgsProduction2[j] =
                     (kgsProduction2[j] || 0) +
@@ -1995,7 +2100,7 @@ private cargarDatos() {
                 }
               }
               else if (meses2[j] >= 1 && meses2[j] <= 8) {
-                if (mes.getMonth() + 1 == meses2[j] && anoReal + 1 == mes.getFullYear()) {//Le sumamos uno ya que estamos entre enero y agosto.
+                if ((mes.getMonth() + 1 == meses2[j] || mesFin.getMonth() + 1 == meses2[j]) && (anoReal + 1 == mes.getFullYear() || anoReal + 1 == mesFin.getFullYear())) {//Le sumamos uno ya que estamos entre enero y agosto.
                   //Saber los clientes que estan en la semana de la necesidad
                   kgsProduction2[j] =
                     (kgsProduction2[j] || 0) +
@@ -2003,23 +2108,25 @@ private cargarDatos() {
                 }
               }
 
-              if (mes.getMonth() + 1 == meses2[j]) {
+              /*if (mes.getMonth() + 1 == meses2[j]) {
                 //Saber los clientes que estan en la semana de la necesidad
                 kgsProduction2[j] =
                   (kgsProduction2[j] || 0) +
                   parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
-              }
+              }*/
             }
           }
         }
+
         else {
           anoReal = anoActual.getFullYear();
           for (let i = 0; i < this.selectedProductions.length; i++) {
             const mes = new Date(this.selectedProductions[i].fechaInicio);
+            const mesFin = new Date(this.selectedProductions[i].fechaFin);
 
             for (let j = 0; j < meses2.length; j++) {
               if (meses2[j] >= 9 && meses2[j] <= 12) {//las producciones de septiembre a diciembre.
-                if (mes.getMonth() + 1 == meses2[j] && anoReal - 1 == mes.getFullYear()) {
+                if ((mes.getMonth() + 1 == meses2[j] || mesFin.getMonth() + 1 == meses2[j]) && (anoReal - 1 == mes.getFullYear() || anoReal - 1 == mesFin.getFullYear())) {
                   //Saber los clientes que estan en la semana de la necesidad
                   kgsProduction2[j] =
                     (kgsProduction2[j] || 0) +
@@ -2027,8 +2134,9 @@ private cargarDatos() {
                 }
               }
               else if (meses2[j] >= 1 && meses2[j] <= 8) {
-                if (mes.getMonth() + 1 == meses2[j] && anoReal == mes.getFullYear()) {//Le sumamos uno ya que estamos entre enero y agosto.
-                  //Saber los clientes que estan en la semana de la necesidad
+
+                if ((mes.getMonth() + 1 == meses2[j] || mesFin.getMonth() + 1 == meses2[j]) && (anoReal == mes.getFullYear() || anoReal == mesFin.getFullYear())) {
+
                   kgsProduction2[j] =
                     (kgsProduction2[j] || 0) +
                     parseFloat(this.selectedProductions[i].kilosAjustados); //Si los kilos estan vacios lo ponemos a 0.
@@ -2039,8 +2147,6 @@ private cargarDatos() {
             }
           }
         }
-
-
 
 
 
@@ -2152,16 +2258,16 @@ private cargarDatos() {
         const totalProduccion = kgsProduction2.reduce((a, b) => a + b, 0);
         const totalNecesidad = kgs3.reduce((a, b) => a + b, 0);
 
-        if (totalNecesidad === 0) {
-          this.porcentajeReal = 0; // O mostrar un error si es necesario
+        if (totalNecesidad === 0 && totalProduccion > 0) {
+          this.porcentajeReal = 100; // O mostrar un error si es necesario
         } else if (totalNecesidad > totalProduccion) {
           // Pérdida
           this.porcentajeReal =
-            ((totalProduccion - totalNecesidad) * 100) / totalNecesidad;
+            ((totalProduccion - totalNecesidad) * 100) / (totalNecesidad + totalProduccion);
         } else {
           // Ganancia o producción igual
           this.porcentajeReal =
-            ((totalNecesidad - totalProduccion) * 100) / totalNecesidad;
+            ((totalProduccion - totalNecesidad) * 100) / (totalNecesidad + totalProduccion);
         }
         this.porcentajeReal = parseFloat(this.porcentajeReal.toFixed(2));
         // Actualizar los datos para los gráficos individuales
@@ -2271,6 +2377,7 @@ private cargarDatos() {
                       ? 'Necesidades Comerciales'
                       : 'Producción';
 
+                  let repetidos: string[] = [];
                   let cliente = '';
                   if (tipo == 'commercial') {
                     tipoDato = 'Necesidades comerciales';
@@ -2278,14 +2385,25 @@ private cargarDatos() {
                   } else if (tipo == 'production') {
                     tipoDato = 'Producción';
                     for (let i = 0; i < production.length; i++) {
-                      cliente += production[i].nombreFinca + '-';
+                      const encontrado = repetidos.find(item => item == production[i].nombreFinca);
+
+                      if (encontrado == undefined) {
+                        cliente += production[i].nombreFinca + '-';
+                        repetidos.push(production[i].nombreFinca);
+                      }
+
                     }
                   } else if (tipo == 'combined') {
                     if (datasetIndex == 0) {
                       cliente = clientes3[index];
                     } else {
                       for (let i = 0; i < production.length; i++) {
-                        cliente += production[i].nombreFinca + '-';
+                        const encontrado = repetidos.find(item => item == production[i].nombreFinca);
+
+                        if (encontrado == undefined) {
+                          cliente += production[i].nombreFinca + '-';
+                          repetidos.push(production[i].nombreFinca);
+                        }
                       }
                     }
                   }
